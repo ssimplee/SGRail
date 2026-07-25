@@ -48,7 +48,10 @@ class BaseConfig:
     # AI cost control (see AIPLAN.md)
     # Max paid LLM calls per day before HybridProvider forces the free
     # rule-based path for every request (hard backstop against runaway cost).
-    AI_DAILY_CALL_CAP = int(os.getenv("AI_DAILY_CALL_CAP", "1500"))
+    # 900 keeps a safety margin under Groq's free-tier request quota (1,000
+    # requests / 12,000 tokens per rolling window, confirmed via the
+    # x-ratelimit-* response headers) so our own cap binds first.
+    AI_DAILY_CALL_CAP = int(os.getenv("AI_DAILY_CALL_CAP", "900"))
     # How long a cached LLM response may be reused for an identical message.
     AI_CACHE_TTL_SECONDS = int(os.getenv("AI_CACHE_TTL_SECONDS", "900"))
 

@@ -41,11 +41,13 @@ guard is a flat 30 req/hour/IP limit ([assistant.py](backend/app/routes/assistan
    - Cap `max_tokens`/output length on every provider call (Anthropic already
      sets 1024; add equivalent caps to OpenAI/Gemini payloads).
    - Truncate/reject oversized input messages before they reach a paid API.
-   - Add an optional `AI_DAILY_CALL_CAP` config (e.g. 1,500 to match Gemini's
-     free-tier daily quota). Once the in-process counter hits the cap for the
-     day, `HybridProvider` forces every request to the free rule-based path
-     instead of erroring — the assistant keeps working, it just stops
-     spending.
+   - Add an optional `AI_DAILY_CALL_CAP` config. Once the in-process counter
+     hits the cap for the day, `HybridProvider` forces every request to the
+     free rule-based path instead of erroring — the assistant keeps working,
+     it just stops spending. Set to `900` (below Groq's own free-tier quota
+     of 1,000 requests / 12,000 tokens per rolling window, confirmed via its
+     `x-ratelimit-*` response headers) so our cap binds before Groq starts
+     returning 429s.
 
 4. **Keep the existing rate limit, but only meter what costs money.**
    The current 30/hour/IP limit ([config.py](backend/app/config.py#L38),
@@ -87,7 +89,8 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
    was considered and stays deferred (fully free per-request but needs
    dedicated GPU hosting to serve real concurrent load).
 2. **Config additions** — `backend/app/config.py`: add `AI_DAILY_CALL_CAP`
-   (default `1500`) and `AI_CACHE_TTL_SECONDS` (default `900`).
+   (default `900`, kept under Groq's own free-tier quota) and
+   `AI_CACHE_TTL_SECONDS` (default `900`s TTL).
 3. **Cap output tokens** — `backend/app/integrations/ai_client.py`: add
    `MAX_OUTPUT_TOKENS = 512`; wire into `OpenAIProvider` (`max_tokens`,
    currently missing), `GeminiProvider` (`maxOutputTokens`, currently

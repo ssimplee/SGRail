@@ -134,7 +134,7 @@ API base: **http://localhost:5000/api/v1**
 | `UPLOAD_MAX_MB` | `5` | Maximum upload file size in MB |
 | `RATE_LIMIT_INCIDENTS` | `10/hour` | Rate limit for incident submission |
 | `RATE_LIMIT_AI` | `30/hour` | Rate limit for AI chat requests |
-| `AI_DAILY_CALL_CAP` | `1500` | Max paid LLM calls per day before falling back to the free rule-based assistant |
+| `AI_DAILY_CALL_CAP` | `900` | Max paid LLM calls per day before falling back to the free rule-based assistant |
 | `AI_CACHE_TTL_SECONDS` | `900` | How long a cached LLM response is reused for an identical message |
 
 ---
