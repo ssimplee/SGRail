@@ -1,0 +1,32 @@
+Singapore MRT Map - Development Placeholder
+=============================================
+
+This is a simplified schematic SVG placeholder for the Singapore MRT network map,
+created for development and testing purposes only.
+
+NOTE (2025): The SVG placeholder has been REMOVED from the map component because
+its lines did not match the calibrated station dot positions, causing confusion.
+The map now shows station dots on a plain light background.
+
+To restore a proper map background:
+1. Place the official Singapore MRT system map image as:
+   frontend/public/mrt/singapore-mrt-map.png (or .webp)
+2. Update MRTMapComponent.tsx to render an <img> tag pointing to the new file
+3. Recalibrate all station dot positions using the CalibrationMode tool
+   to align with the new map image dimensions and aspect ratio
+
+This placeholder will be replaced with an appropriately licensed MRT map asset
+for production use. When sourcing the final map image, ensure compliance with:
+- LTA (Land Transport Authority) usage terms if using official map assets
+- Any Creative Commons or copyright attributions required by the source
+
+Lines represented (schematic, not geographically accurate):
+- North-South Line (NS) - Red #D42E12
+- East-West Line (EW) - Green #009645
+- North East Line (NE) - Purple #9900AA
+- Circle Line (CC) - Orange #FA9E0D
+- Downtown Line (DT) - Blue #005EC4
+- Thomson-East Coast Line (TE) - Brown #9D5B25
+
+Status: Development placeholder - NOT for production use
+Created: 2025

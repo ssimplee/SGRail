@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "map": "Peta",
+    "route": "Laluan",
+    "community": "Komuniti",
+    "ai": "AI",
+    "profile": "Profil"
+  },
+  "map": {
+    "search": "Cari nama atau kod stesen…",
+    "crowdLayer": "Lapisan Kesesakan",
+    "locate": "Cari Saya"
+  },
+  "route": {
+    "from": "Dari",
+    "to": "Ke",
+    "planRoute": "Rancang Laluan",
+    "leaveNow": "Bertolak sekarang",
+    "fastest": "Terpantas"
+  },
+  "community": {
+    "title": "Komuniti",
+    "newReport": "Laporan Baharu",
+    "like": "Suka",
+    "confirm": "Sahkan"
+  },
+  "assistant": {
+    "title": "Pembantu MRT",
+    "placeholder": "Tanya tentang laluan, masa…"
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Bahasa",
+    "textSize": "Saiz Teks",
+    "highContrast": "Kontras Tinggi"
+  },
+  "common": {
+    "loading": "Memuatkan…",
+    "retry": "Cuba Semula",
+    "cancel": "Batal",
+    "save": "Simpan"
+  }
+}

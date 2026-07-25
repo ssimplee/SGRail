@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "map": "Map",
+    "route": "Route",
+    "community": "Community",
+    "ai": "AI",
+    "profile": "Profile"
+  },
+  "map": {
+    "search": "Search station name or code…",
+    "crowdLayer": "Crowd Layer",
+    "locate": "Locate Me"
+  },
+  "route": {
+    "from": "From",
+    "to": "To",
+    "planRoute": "Plan Route",
+    "leaveNow": "Leave now",
+    "fastest": "Fastest"
+  },
+  "community": {
+    "title": "Community",
+    "newReport": "New Report",
+    "like": "Like",
+    "confirm": "Confirm"
+  },
+  "assistant": {
+    "title": "MRT Assistant",
+    "placeholder": "Ask about routes, timings…"
+  },
+  "profile": {
+    "title": "Profile",
+    "language": "Language",
+    "textSize": "Text Size",
+    "highContrast": "High Contrast"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save"
+  }
+}

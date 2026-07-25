@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build output
+frontend/dist/
+backend/*.db
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Coverage
+coverage/
+.coverage
+htmlcov/
+
+# Logs
+*.log

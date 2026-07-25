@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "map": "地图",
+    "route": "路线",
+    "community": "社区",
+    "ai": "助手",
+    "profile": "个人"
+  },
+  "map": {
+    "search": "搜索站名或代码…",
+    "crowdLayer": "人流图层",
+    "locate": "定位"
+  },
+  "route": {
+    "from": "起点",
+    "to": "终点",
+    "planRoute": "规划路线",
+    "leaveNow": "现在出发",
+    "fastest": "最快"
+  },
+  "community": {
+    "title": "社区",
+    "newReport": "新报告",
+    "like": "赞",
+    "confirm": "确认"
+  },
+  "assistant": {
+    "title": "地铁助手",
+    "placeholder": "询问路线、时间…"
+  },
+  "profile": {
+    "title": "个人资料",
+    "language": "语言",
+    "textSize": "文字大小",
+    "highContrast": "高对比度"
+  },
+  "common": {
+    "loading": "加载中…",
+    "retry": "重试",
+    "cancel": "取消",
+    "save": "保存"
+  }
+}

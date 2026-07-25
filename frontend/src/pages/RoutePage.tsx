@@ -1,0 +1,341 @@
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { Navigation, Bookmark, Loader2, AlertCircle } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { RouteInputForm } from "@/components/route/RouteInputForm";
+import { PreferenceSelector } from "@/components/route/PreferenceSelector";
+import { RouteResultList } from "@/components/route/RouteResultCard";
+import { useRoutePlanner } from "@/features/routes/useRoutePlanner";
+import { useMapStore } from "@/store/mapStore";
+import { useJourneyStore } from "@/store/journeyStore";
+import { createSavedRoute } from "@/services/user.api";
+import { STATIONS } from "@/data/stations";
+import type { RoutePreference, RouteResult } from "@/types/route.types";
+import type { RouteStop } from "@/features/journey-tracking/journeyTracker.types";
+
+/**
+ * Extract an ordered list of station IDs from a route result's steps.
+ * Used to highlight the route path on the map.
+ */
+function extractStationIds(route: RouteResult): string[] {
+  const ids: string[] = [];
+  for (const step of route.steps) {
+    if (step.stationId && !ids.includes(step.stationId)) {
+      ids.push(step.stationId);
+    }
+    // Ride steps contain station codes — try to resolve them to station IDs
+    if (step.type === "ride" && step.stations) {
+      for (const code of step.stations) {
+        const station = STATIONS.find(
+          (s) => s.code === code || s.codes.includes(code)
+        );
+        if (station && !ids.includes(station.id)) {
+          ids.push(station.id);
+        }
+      }
+    }
+  }
+  return ids;
+}
+
+/**
+ * Convert a RouteResult into RouteStop[] for journey tracking.
+ */
+function deriveRouteStops(route: RouteResult): RouteStop[] {
+  const stops: RouteStop[] = [];
+  let cumulativeMinutes = 0;
+
+  for (const step of route.steps) {
+    if (step.type === "board" && step.stationId) {
+      const station = STATIONS.find((s) => s.id === step.stationId);
+      if (station) {
+        stops.push({
+          stationId: step.stationId,
+          station,
+          isTransfer: false,
+          isDestination: false,
+          expectedTravelTimeFromStart: cumulativeMinutes,
+        });
+      }
+    } else if (step.type === "ride" && step.stations) {
+      const rideMinutes = step.minutes ?? 0;
+      const perStop =
+        step.stations.length > 0 ? rideMinutes / step.stations.length : 0;
+      for (let i = 0; i < step.stations.length; i++) {
+        cumulativeMinutes += perStop;
+        const code = step.stations[i];
+        const station = STATIONS.find(
+          (s) => s.code === code || s.codes.includes(code)
+        );
+        if (station) {
+          stops.push({
+            stationId: station.id,
+            station,
+            isTransfer: false,
+            isDestination: false,
+            expectedTravelTimeFromStart: cumulativeMinutes,
+          });
+        }
+      }
+    } else if (step.type === "transfer" && step.stationId) {
+      cumulativeMinutes += step.walkMinutes ?? 0;
+      const station = STATIONS.find((s) => s.id === step.stationId);
+      if (station) {
+        stops.push({
+          stationId: step.stationId,
+          station,
+          isTransfer: true,
+          isDestination: false,
+          expectedTravelTimeFromStart: cumulativeMinutes,
+        });
+      }
+    } else if (step.type === "alight" && step.stationId) {
+      const station = STATIONS.find((s) => s.id === step.stationId);
+      if (station) {
+        stops.push({
+          stationId: step.stationId,
+          station,
+          isTransfer: false,
+          isDestination: true,
+          expectedTravelTimeFromStart: cumulativeMinutes,
+        });
+      }
+    }
+  }
+  return stops;
+}
+
+/**
+ * Full route planning page.
+ *
+ * Flow:
+ * 1. User fills RouteInputForm (from/to/time mode)
+ * 2. User picks a PreferenceSelector preference
+ * 3. Clicks "Plan Route" → calls backend POST /routes/plan
+ * 4. Results display as RouteResultList (expandable cards)
+ * 5. User can click "Start Tracking" → store in journeyStore
+ * 6. User can click "Save Route" → saves to backend
+ *
+ * Validates: Requirements 11.1–11.4, 13.1–13.6
+ */
+export function RoutePage() {
+  const [preference, setPreference] = useState<RoutePreference>("FASTEST");
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+  const [lastRequest, setLastRequest] = useState<{
+    originStationId: string;
+    destinationStationId: string;
+  } | null>(null);
+
+  const { planRoute, data, isLoading, error, reset } = useRoutePlanner();
+  const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
+  const clearHighlights = useMapStore((s) => s.clearHighlights);
+  const setActiveRoute = useJourneyStore((s) => s.setActiveRoute);
+  const navigate = useNavigate();
+
+  // Save route mutation
+  const saveRouteMutation = useMutation({
+    mutationFn: createSavedRoute,
+  });
+
+  // Extract route station IDs when routes change for map highlighting
+  const routes = data?.routes ?? [];
+
+  // Highlight selected route on map whenever selection changes
+  const highlightedIds = useMemo(() => {
+    if (routes.length === 0) return null;
+    const selected = routes[selectedRouteIndex];
+    if (!selected) return null;
+    return extractStationIds(selected);
+  }, [routes, selectedRouteIndex]);
+
+  // Apply highlight to map store
+  useEffect(() => {
+    if (highlightedIds) {
+      setHighlightedRoute(highlightedIds);
+    } else {
+      clearHighlights();
+    }
+    return () => {
+      clearHighlights();
+    };
+  }, [highlightedIds, setHighlightedRoute, clearHighlights]);
+
+  const handlePlanRoute = useCallback(
+    (params: {
+      originStationId: string;
+      destinationStationId: string;
+      mode: "LEAVE_NOW" | "LEAVE_AT" | "ARRIVE_BY";
+      departureTime?: string;
+    }) => {
+      setSelectedRouteIndex(0);
+      setLastRequest({
+        originStationId: params.originStationId,
+        destinationStationId: params.destinationStationId,
+      });
+      planRoute({
+        ...params,
+        preference,
+      });
+    },
+    [preference, planRoute]
+  );
+
+  const handleStartTracking = useCallback(
+    (routeIndex: number) => {
+      const route = routes[routeIndex];
+      if (!route) return;
+      const routeStops = deriveRouteStops(route);
+      setActiveRoute(
+        {
+          totalMinutes: route.totalMinutes,
+          walkingMinutes: route.walkingMinutes,
+          stops: route.stops,
+          transfers: route.transfers,
+          estimatedFare: route.estimatedFare ?? "",
+          crowdEstimate: route.crowdEstimate ?? "",
+          steps: route.steps,
+        },
+        routeStops
+      );
+      toast.success("Journey tracking started", {
+        description: "You'll receive transfer and alighting reminders.",
+      });
+      navigate("/");
+    },
+    [routes, setActiveRoute, navigate]
+  );
+
+  const handleSaveRoute = useCallback(() => {
+    if (!lastRequest) return;
+    saveRouteMutation.mutate({
+      originStationId: lastRequest.originStationId,
+      destinationStationId: lastRequest.destinationStationId,
+      preference,
+    });
+  }, [lastRequest, preference, saveRouteMutation]);
+
+  return (
+    <div className="flex h-full flex-col overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b px-4 py-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
+          <Navigation className="h-5 w-5 text-red-600" />
+        </div>
+        <h1 className="text-lg font-bold text-foreground">Route Planning</h1>
+      </div>
+
+      {/* Route Input Form */}
+      <RouteInputForm onSubmit={handlePlanRoute} isLoading={isLoading} />
+
+      {/* Preference Selector */}
+      <div className="border-t px-4 py-3">
+        <PreferenceSelector value={preference} onChange={setPreference} />
+      </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mx-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <AlertCircle className="size-4 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-medium">Route planning failed</p>
+            <p className="text-xs opacity-80">
+              {error.message || "Unable to plan route. Please try again."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          <span>Planning your route…</span>
+        </div>
+      )}
+
+      {/* Route Results */}
+      {!isLoading && routes.length > 0 && (
+        <div className="flex flex-col gap-3 border-t px-4 py-4">
+          {/* Result header with save button */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-foreground">Results</p>
+            <SaveRouteButton
+              onSave={handleSaveRoute}
+              isLoading={saveRouteMutation.isPending}
+              isSuccess={saveRouteMutation.isSuccess}
+            />
+          </div>
+
+          {/* Source & computation time */}
+          {data && (
+            <p className="text-[10px] text-muted-foreground">
+              Source: {data.source} · Computed at{" "}
+              {new Date(data.computedAt).toLocaleTimeString()}
+            </p>
+          )}
+
+          {/* Route list */}
+          <RouteResultList
+            routes={routes}
+            onStartTracking={handleStartTracking}
+          />
+        </div>
+      )}
+
+      {/* Empty state when no results and not loading */}
+      {!isLoading && !error && routes.length === 0 && !data && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
+          <Navigation className="size-8 opacity-50" />
+          <p className="text-sm">
+            Select your stations and preferences, then tap "Plan Route" to find
+            the best journey.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SaveRouteButton ─────────────────────────────────────────────────────────
+
+interface SaveRouteButtonProps {
+  onSave: () => void;
+  isLoading: boolean;
+  isSuccess: boolean;
+}
+
+/**
+ * Button to save/bookmark the current route to the user's profile.
+ *
+ * Validates: Requirements 11.5
+ */
+function SaveRouteButton({ onSave, isLoading, isSuccess }: SaveRouteButtonProps) {
+  if (isSuccess) {
+    return (
+      <Button variant="ghost" size="sm" disabled className="text-green-600">
+        <Bookmark className="size-4 fill-current" />
+        Saved
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={onSave}
+      disabled={isLoading}
+      aria-label="Save this route"
+    >
+      {isLoading ? (
+        <Loader2 className="size-4 animate-spin" />
+      ) : (
+        <Bookmark className="size-4" />
+      )}
+      Save Route
+    </Button>
+  );
+}

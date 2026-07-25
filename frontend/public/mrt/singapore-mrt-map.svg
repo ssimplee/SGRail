@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <title>Singapore MRT Network Map (Development Placeholder)</title>
+  <desc>A simplified schematic representation of the Singapore MRT network for development purposes.</desc>
+  
+  <!-- Background -->
+  <rect width="1600" height="1000" fill="#f8f9fb"/>
+  
+  <!-- Grid reference (subtle) -->
+  <g stroke="#e5e7eb" stroke-width="0.5" opacity="0.3">
+    <line x1="0" y1="200" x2="1600" y2="200"/>
+    <line x1="0" y1="400" x2="1600" y2="400"/>
+    <line x1="0" y1="600" x2="1600" y2="600"/>
+    <line x1="0" y1="800" x2="1600" y2="800"/>
+    <line x1="200" y1="0" x2="200" y2="1000"/>
+    <line x1="400" y1="0" x2="400" y2="1000"/>
+    <line x1="600" y1="0" x2="600" y2="1000"/>
+    <line x1="800" y1="0" x2="800" y2="1000"/>
+    <line x1="1000" y1="0" x2="1000" y2="1000"/>
+    <line x1="1200" y1="0" x2="1200" y2="1000"/>
+    <line x1="1400" y1="0" x2="1400" y2="1000"/>
+  </g>
+
+  <!-- North-South Line (NS) - Red #D42E12 -->
+  <polyline fill="none" stroke="#D42E12" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+    points="400,80 400,180 420,220 500,300 560,380 620,440 680,500 740,540 800,560 800,620 800,700 800,780 760,840 700,880"/>
+  
+  <!-- East-West Line (EW) - Green #009645 -->
+  <polyline fill="none" stroke="#009645" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+    points="100,500 200,500 300,500 400,500 500,480 600,460 700,460 800,460 900,460 1000,460 1100,480 1200,500 1300,520 1400,540 1500,540"/>
+
+  <!-- North East Line (NE) - Purple #9900AA -->
+  <polyline fill="none" stroke="#9900AA" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+    points="500,300 560,340 620,380 680,420 740,460 800,500 860,540 920,580 980,620 1040,660 1100,700"/>
+
+  <!-- Circle Line (CC) - Orange/Yellow #FA9E0D -->
+  <path fill="none" stroke="#FA9E0D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+    d="M 500,300 C 600,250 750,250 850,300 C 950,350 1050,400 1100,480 C 1150,560 1100,650 1000,700 C 900,750 750,750 650,700 C 550,650 480,550 500,450 C 510,380 500,340 500,300"/>
+
+  <!-- Downtown Line (DT) - Blue #005EC4 -->
+  <polyline fill="none" stroke="#005EC4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+    points="200,200 300,240 400,280 500,300 600,340 700,380 800,400 900,380 1000,360 1100,380 1200,420 1300,460"/>
+
+  <!-- Thomson-East Coast Line (TE) - Brown #9D5B25 -->
+  <polyline fill="none" stroke="#9D5B25" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+    points="600,80 620,160 640,240 660,320 680,400 700,460 720,540 740,620 760,700 780,780 800,860 820,920"/>
+
+  <!-- Station dots - NS Line -->
+  <g fill="#D42E12">
+    <circle cx="400" cy="80" r="8"/>   <!-- Jurong East area -->
+    <circle cx="400" cy="180" r="8"/>
+    <circle cx="500" cy="300" r="12" stroke="#fff" stroke-width="2"/>  <!-- Interchange -->
+    <circle cx="620" cy="440" r="8"/>
+    <circle cx="680" cy="500" r="8"/>
+    <circle cx="800" cy="560" r="12" stroke="#fff" stroke-width="2"/>  <!-- City Hall -->
+    <circle cx="800" cy="620" r="8"/>
+    <circle cx="800" cy="700" r="8"/>
+    <circle cx="800" cy="780" r="8"/>
+    <circle cx="700" cy="880" r="8"/>  <!-- Marina South Pier -->
+  </g>
+
+  <!-- Station dots - EW Line -->
+  <g fill="#009645">
+    <circle cx="100" cy="500" r="8"/>   <!-- Tuas Link -->
+    <circle cx="200" cy="500" r="8"/>
+    <circle cx="300" cy="500" r="8"/>
+    <circle cx="400" cy="500" r="8"/>
+    <circle cx="500" cy="480" r="8"/>
+    <circle cx="600" cy="460" r="8"/>
+    <circle cx="700" cy="460" r="12" stroke="#fff" stroke-width="2"/>  <!-- Bugis -->
+    <circle cx="900" cy="460" r="8"/>
+    <circle cx="1000" cy="460" r="8"/>
+    <circle cx="1100" cy="480" r="8"/>
+    <circle cx="1200" cy="500" r="8"/>
+    <circle cx="1300" cy="520" r="8"/>
+    <circle cx="1400" cy="540" r="8"/>
+    <circle cx="1500" cy="540" r="8"/>  <!-- Pasir Ris -->
+  </g>
+
+  <!-- Station dots - NE Line -->
+  <g fill="#9900AA">
+    <circle cx="560" cy="340" r="8"/>
+    <circle cx="620" cy="380" r="8"/>
+    <circle cx="680" cy="420" r="8"/>
+    <circle cx="860" cy="540" r="8"/>
+    <circle cx="920" cy="580" r="8"/>
+    <circle cx="980" cy="620" r="8"/>
+    <circle cx="1040" cy="660" r="8"/>
+    <circle cx="1100" cy="700" r="8"/>  <!-- Punggol -->
+  </g>
+
+  <!-- Station dots - DT Line -->
+  <g fill="#005EC4">
+    <circle cx="200" cy="200" r="8"/>   <!-- Bukit Panjang -->
+    <circle cx="300" cy="240" r="8"/>
+    <circle cx="400" cy="280" r="8"/>
+    <circle cx="600" cy="340" r="8"/>
+    <circle cx="700" cy="380" r="8"/>
+    <circle cx="800" cy="400" r="8"/>
+    <circle cx="900" cy="380" r="8"/>
+    <circle cx="1000" cy="360" r="8"/>
+    <circle cx="1100" cy="380" r="8"/>
+    <circle cx="1200" cy="420" r="8"/>
+    <circle cx="1300" cy="460" r="8"/>  <!-- Expo -->
+  </g>
+
+  <!-- Station dots - TE Line -->
+  <g fill="#9D5B25">
+    <circle cx="600" cy="80" r="8"/>    <!-- Woodlands North -->
+    <circle cx="620" cy="160" r="8"/>
+    <circle cx="640" cy="240" r="8"/>
+    <circle cx="660" cy="320" r="8"/>
+    <circle cx="680" cy="400" r="8"/>
+    <circle cx="720" cy="540" r="8"/>
+    <circle cx="740" cy="620" r="8"/>
+    <circle cx="760" cy="700" r="8"/>
+    <circle cx="780" cy="780" r="8"/>
+    <circle cx="800" cy="860" r="8"/>
+    <circle cx="820" cy="920" r="8"/>   <!-- Bayshore -->
+  </g>
+
+  <!-- Key interchange indicators (white circle with multiple colors) -->
+  <g>
+    <!-- City Hall (NS/EW) -->
+    <circle cx="800" cy="460" r="12" fill="white" stroke="#333" stroke-width="2"/>
+    <text x="800" y="465" text-anchor="middle" font-size="10" font-family="Inter, sans-serif" font-weight="600">CH</text>
+    
+    <!-- Raffles Place (NS/EW) -->
+    <circle cx="800" cy="560" r="12" fill="white" stroke="#333" stroke-width="2"/>
+    <text x="800" y="565" text-anchor="middle" font-size="10" font-family="Inter, sans-serif" font-weight="600">RP</text>
+    
+    <!-- Dhoby Ghaut (NS/NE/CC) -->
+    <circle cx="740" cy="460" r="12" fill="white" stroke="#333" stroke-width="2"/>
+    <text x="740" y="465" text-anchor="middle" font-size="8" font-family="Inter, sans-serif" font-weight="600">DG</text>
+    
+    <!-- Jurong East (NS/EW) -->
+    <circle cx="400" cy="500" r="12" fill="white" stroke="#333" stroke-width="2"/>
+    <text x="400" y="505" text-anchor="middle" font-size="10" font-family="Inter, sans-serif" font-weight="600">JE</text>
+    
+    <!-- Orchard (NS/TE) -->
+    <circle cx="680" cy="400" r="12" fill="white" stroke="#333" stroke-width="2"/>
+    <text x="680" y="405" text-anchor="middle" font-size="10" font-family="Inter, sans-serif" font-weight="600">OR</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(50, 880)">
+    <text x="0" y="0" font-size="14" font-family="Inter, sans-serif" font-weight="600" fill="#1a1a2e">MRT Lines</text>
+    <line x1="0" y1="20" x2="30" y2="20" stroke="#D42E12" stroke-width="4"/>
+    <text x="40" y="25" font-size="11" font-family="Inter, sans-serif" fill="#1a1a2e">North-South (NS)</text>
+    <line x1="0" y1="40" x2="30" y2="40" stroke="#009645" stroke-width="4"/>
+    <text x="40" y="45" font-size="11" font-family="Inter, sans-serif" fill="#1a1a2e">East-West (EW)</text>
+    <line x1="0" y1="60" x2="30" y2="60" stroke="#9900AA" stroke-width="4"/>
+    <text x="40" y="65" font-size="11" font-family="Inter, sans-serif" fill="#1a1a2e">North East (NE)</text>
+    <line x1="200" y1="20" x2="230" y2="20" stroke="#FA9E0D" stroke-width="4"/>
+    <text x="240" y="25" font-size="11" font-family="Inter, sans-serif" fill="#1a1a2e">Circle (CC)</text>
+    <line x1="200" y1="40" x2="230" y2="40" stroke="#005EC4" stroke-width="4"/>
+    <text x="240" y="45" font-size="11" font-family="Inter, sans-serif" fill="#1a1a2e">Downtown (DT)</text>
+    <line x1="200" y1="60" x2="230" y2="60" stroke="#9D5B25" stroke-width="4"/>
+    <text x="240" y="65" font-size="11" font-family="Inter, sans-serif" fill="#1a1a2e">Thomson-East Coast (TE)</text>
+  </g>
+
+  <!-- Title -->
+  <text x="800" y="40" text-anchor="middle" font-size="20" font-family="Inter, sans-serif" font-weight="700" fill="#1a1a2e">
+    Singapore MRT Network (Development Placeholder)
+  </text>
+</svg>
