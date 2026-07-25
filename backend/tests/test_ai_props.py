@@ -29,6 +29,7 @@ sys.path.insert(
 from app.services.ai_orchestrator import (
     RuleBasedAssistant,
     classify_intent,
+    has_mrt_signal,
     VALID_INTENTS,
     INTENT_PATTERNS,
     _load_stations,
@@ -274,11 +275,12 @@ def test_hybrid_provider_short_circuits_classifiable_intent():
 
 
 def test_hybrid_provider_forwards_out_of_scope_to_llm():
-    """A genuinely out-of-scope message reaches the wrapped LLM provider."""
+    """A message with MRT signal but no matching intent still reaches the
+    wrapped LLM provider (e.g. a generic question about SMRT)."""
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub)
 
-    response = hybrid.chat("What's the weather like today?", {})
+    response = hybrid.chat("What's SMRT's contact number?", {})
 
     assert stub.call_count == 1
     assert response["reply"] == "stub reply"
@@ -289,8 +291,8 @@ def test_hybrid_provider_cache_hit_avoids_second_llm_call():
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub)
 
-    first = hybrid.chat("Tell me a joke", {})
-    second = hybrid.chat("Tell me a joke", {})
+    first = hybrid.chat("How much does an MRT ticket cost?", {})
+    second = hybrid.chat("How much does an MRT ticket cost?", {})
 
     assert stub.call_count == 1
     assert first == second
@@ -302,13 +304,62 @@ def test_hybrid_provider_daily_cap_forces_rule_based_fallback():
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub, daily_cap=1)
 
-    first = hybrid.chat("What's the weather like today?", {})
-    second = hybrid.chat("Tell me a joke", {})
+    first = hybrid.chat("What's SMRT's contact number?", {})
+    second = hybrid.chat("How much does an MRT ticket cost?", {})
 
     assert stub.call_count == 1
     assert first["reply"] == "stub reply"
     assert second["intent"] == "OUT_OF_SCOPE"
     assert "mrt" in second["reply"].lower()
+
+
+def test_hybrid_provider_rejects_message_with_no_mrt_signal():
+    """A message with zero MRT-related signal is rejected for free —
+    never reaches the LLM, closing the 'use the chatbot as a free general
+    LLM proxy' abuse vector (e.g. 'code me a website')."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    response = hybrid.chat("Code me a website", {})
+
+    assert stub.call_count == 0
+    assert response["intent"] == "OUT_OF_SCOPE"
+    assert "mrt" in response["reply"].lower()
+
+
+# ---------------------------------------------------------------------------
+# has_mrt_signal — free pre-filter gate (see AIPLAN.md)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "Code me a website",
+        "Tell me a joke",
+        "What's the weather like today?",
+        "What's 2 + 2?",
+    ],
+)
+def test_has_mrt_signal_false_for_unrelated_messages(message):
+    """Messages with no MRT-related vocabulary, station name, or line
+    code have no signal."""
+    assert has_mrt_signal(message) is False
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "What's SMRT's contact number?",
+        "Is NS1 open today?",
+        "Tell me something about Bishan",
+        "Last train from Bugis",
+    ],
+)
+def test_has_mrt_signal_true_for_related_messages(message):
+    """Messages with transit vocabulary, a line code, a station name, or
+    an intent keyword all have signal."""
+    assert has_mrt_signal(message) is True
 
 
 # ---------------------------------------------------------------------------

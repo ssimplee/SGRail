@@ -2,6 +2,14 @@
 
 import os
 
+from dotenv import load_dotenv
+
+# Must run before any os.getenv() calls below. Loading .env here (rather
+# than only in create_app()) guarantees it happens before this module's
+# class attributes are evaluated at import time, regardless of import
+# order or Werkzeug reloader subprocess timing.
+load_dotenv()
+
 
 class BaseConfig:
     """Base configuration shared across all environments."""

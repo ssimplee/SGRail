@@ -340,9 +340,12 @@ class HybridProvider:
     and a hard daily call cap.
 
     chat() classifies the message with the free rule-based engine first;
-    only messages it can't classify (OUT_OF_SCOPE) are forwarded to the
-    wrapped LLM provider, and even those are cached and subject to a daily
-    call budget. See AIPLAN.md for the full rationale.
+    only messages it can't classify (OUT_OF_SCOPE) are considered for the
+    wrapped LLM provider. Of those, messages with no MRT-related signal at
+    all (has_mrt_signal) are rejected outright for free — this blocks
+    off-topic abuse (e.g. "code me a website") from ever reaching a paid
+    call. Anything left is cached and subject to a daily call budget.
+    See AIPLAN.md for the full rationale.
 
     NOTE: cache and daily-counter state are in-process/in-memory (matches
     flask_limiter's own memory:// storage). Under multiple worker processes
@@ -372,10 +375,18 @@ class HybridProvider:
     def chat(self, message: str, context: dict) -> dict:
         """Route to the free rule-based engine when possible, else the
         wrapped LLM provider (via cache and daily budget)."""
-        from app.services.ai_orchestrator import classify_intent, RuleBasedAssistant
+        from app.services.ai_orchestrator import (
+            classify_intent,
+            has_mrt_signal,
+            RuleBasedAssistant,
+        )
 
         intent = classify_intent(message)
         if intent != "OUT_OF_SCOPE":
+            return RuleBasedAssistant().chat(message, context)
+
+        if not has_mrt_signal(message):
+            logger.info("Message has no MRT signal, rejecting without LLM call")
             return RuleBasedAssistant().chat(message, context)
 
         cache_key = self._cache_key(message, context)

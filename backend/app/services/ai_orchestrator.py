@@ -61,6 +61,20 @@ INTENT_PATTERNS: dict[str, list[str]] = {
                  "fault", "service alert", "not working", "suspended"],
 }
 
+# Generic transit vocabulary used only as a free pre-filter signal (see
+# has_mrt_signal below) — deliberately broader than INTENT_PATTERNS, which
+# is for precise intent classification.
+_MRT_SIGNAL_WORDS = [
+    "mrt", "lrt", "smrt", "train", "station", "platform", "fare",
+    "ezlink", "ez-link", "simplygo", "ticket", "commute", "transit",
+    "journey", "network", "rail", "railway",
+]
+
+# Matches MRT/LRT line + station codes like NS1, EW12, CC29, DT1.
+_LINE_CODE_PATTERN = re.compile(
+    r"\b(NS|EW|NE|CC|DT|TE|CG|CE|BP|PE|PW|SE|SW)\d{1,2}\b", re.IGNORECASE
+)
+
 # ---------------------------------------------------------------------------
 # Data loading
 # ---------------------------------------------------------------------------
@@ -161,6 +175,33 @@ def classify_intent(message: str) -> str:
         if any(kw in message_lower for kw in keywords):
             return intent
     return "OUT_OF_SCOPE"
+
+
+def has_mrt_signal(message: str) -> bool:
+    """Return True if a message plausibly relates to the Singapore MRT/LRT
+    network — a free pre-filter used to reject clearly unrelated messages
+    (e.g. "code me a website") before they ever reach a paid LLM call.
+
+    Deliberately permissive: only messages with zero MRT-related signal
+    (no station name, no line code, no transit vocabulary, no intent
+    keyword) are rejected. Blocking a real MRT question is worse than
+    occasionally letting an ambiguous one still reach the LLM.
+    """
+    message_lower = message.lower()
+
+    if any(kw in message_lower for keywords in INTENT_PATTERNS.values() for kw in keywords):
+        return True
+
+    if any(word in message_lower for word in _MRT_SIGNAL_WORDS):
+        return True
+
+    if _LINE_CODE_PATTERN.search(message):
+        return True
+
+    if _extract_station_mentions(message):
+        return True
+
+    return False
 
 
 # ---------------------------------------------------------------------------
