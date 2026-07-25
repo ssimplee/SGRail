@@ -22,7 +22,7 @@ class BaseConfig:
     # LTA DataMall integration
     LTA_ACCOUNT_KEY = os.getenv("LTA_ACCOUNT_KEY", "")
 
-    # AI provider: "rule_based" | "openai" | "gemini" | "anthropic"
+    # AI provider: "rule_based" | "openai" | "gemini" | "anthropic" | "groq"
     AI_PROVIDER = os.getenv("AI_PROVIDER", "rule_based")
     AI_API_KEY = os.getenv("AI_API_KEY", "")
 
@@ -36,6 +36,13 @@ class BaseConfig:
     # Rate limiting
     RATE_LIMIT_INCIDENTS = os.getenv("RATE_LIMIT_INCIDENTS", "10/hour")
     RATE_LIMIT_AI = os.getenv("RATE_LIMIT_AI", "30/hour")
+
+    # AI cost control (see AIPLAN.md)
+    # Max paid LLM calls per day before HybridProvider forces the free
+    # rule-based path for every request (hard backstop against runaway cost).
+    AI_DAILY_CALL_CAP = int(os.getenv("AI_DAILY_CALL_CAP", "1500"))
+    # How long a cached LLM response may be reused for an identical message.
+    AI_CACHE_TTL_SECONDS = int(os.getenv("AI_CACHE_TTL_SECONDS", "900"))
 
 
 class DevelopmentConfig(BaseConfig):

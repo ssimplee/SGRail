@@ -45,19 +45,19 @@ VALID_UI_ACTIONS = [
 ]
 
 INTENT_PATTERNS: dict[str, list[str]] = {
-    "ROUTE": ["how to get", "route from", "travel to", "go from", "go to", "get to",
+    "ROUTE": ["how to get", "route from", "route to", "travel to", "go from", "go to", "get to",
               "fastest way", "shortest route", "directions to", "journey from"],
     "LAST_TRAIN": ["last train", "latest train", "final train", "catch the last",
                    "last service", "last mrt", "miss the last"],
     "CROWD": ["crowded", "crowd", "busy", "packed", "crowd level",
               "how full", "congested", "many people"],
     "TRANSFER": ["transfer", "interchange", "change line", "switch line",
-                 "connect", "connecting line", "change at"],
-    "ACCESSIBILITY": ["wheelchair", "accessible", "barrier-free", "lift",
+                 "connect", "connecting line", "change at", "change trains"],
+    "ACCESSIBILITY": ["wheelchair", "accessible", "accessibility", "barrier-free", "lift",
                       "elevator", "disabled", "mobility", "step-free"],
-    "FACILITY": ["toilet", "facility", "exit", "escalator", "amenity",
-                 "restroom", "washroom", "atm", "shop"],
-    "INCIDENT": ["delay", "breakdown", "disruption", "incident", "problem",
+    "FACILITY": ["toilet", "facility", "facilities", "exit", "escalator", "amenity",
+                 "amenities", "restroom", "washroom", "atm", "shop"],
+    "INCIDENT": ["delay", "breakdown", "disruption", "disrupted", "incident", "problem",
                  "fault", "service alert", "not working", "suspended"],
 }
 

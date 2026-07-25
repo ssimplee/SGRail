@@ -1,6 +1,6 @@
 """AI Assistant Marshmallow schemas."""
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 
 class ChatContextSchema(Schema):
@@ -13,7 +13,7 @@ class ChatContextSchema(Schema):
 class ChatRequestSchema(Schema):
     """Schema for AI assistant chat request."""
 
-    message = fields.String(required=True)
+    message = fields.String(required=True, validate=validate.Length(max=500))
     context = fields.Nested(ChatContextSchema, load_default={})
 
 

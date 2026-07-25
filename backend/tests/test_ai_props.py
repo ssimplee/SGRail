@@ -19,6 +19,7 @@ from datetime import datetime
 import pytest
 from hypothesis import given, settings, assume
 from hypothesis import strategies as st
+from marshmallow import ValidationError
 
 # Add backend to path
 sys.path.insert(
@@ -32,6 +33,8 @@ from app.services.ai_orchestrator import (
     INTENT_PATTERNS,
     _load_stations,
 )
+from app.integrations.ai_client import HybridProvider
+from app.schemas.assistant_schema import ChatRequestSchema
 
 
 # ---------------------------------------------------------------------------
@@ -232,3 +235,96 @@ def test_station_ids_in_response_exist_in_dataset(message):
             f"stationId '{sid}' from response not found in stations.json. "
             f"Message was: '{message}'"
         )
+
+
+# ---------------------------------------------------------------------------
+# HybridProvider — cost-control routing (see AIPLAN.md)
+# ---------------------------------------------------------------------------
+
+
+class _StubLLMProvider:
+    """Records call count instead of making real network calls."""
+
+    def __init__(self):
+        self.call_count = 0
+
+    def chat(self, message: str, context: dict) -> dict:
+        self.call_count += 1
+        return {
+            "reply": "stub reply",
+            "intent": "OUT_OF_SCOPE",
+            "stationIds": [],
+            "lineCodes": [],
+            "route": None,
+            "warning": None,
+            "uiAction": None,
+            "dataFreshness": datetime.now().isoformat(),
+        }
+
+
+def test_hybrid_provider_short_circuits_classifiable_intent():
+    """A message the rule-based engine can classify never reaches the LLM."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    response = hybrid.chat("Last train from Bugis", {})
+
+    assert response["intent"] == "LAST_TRAIN"
+    assert stub.call_count == 0
+
+
+def test_hybrid_provider_forwards_out_of_scope_to_llm():
+    """A genuinely out-of-scope message reaches the wrapped LLM provider."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    response = hybrid.chat("What's the weather like today?", {})
+
+    assert stub.call_count == 1
+    assert response["reply"] == "stub reply"
+
+
+def test_hybrid_provider_cache_hit_avoids_second_llm_call():
+    """Sending the identical out-of-scope message twice only calls the LLM once."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    first = hybrid.chat("Tell me a joke", {})
+    second = hybrid.chat("Tell me a joke", {})
+
+    assert stub.call_count == 1
+    assert first == second
+
+
+def test_hybrid_provider_daily_cap_forces_rule_based_fallback():
+    """Once the daily call budget is exhausted, further OUT_OF_SCOPE
+    messages fall back to the free rule-based assistant instead of the LLM."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub, daily_cap=1)
+
+    first = hybrid.chat("What's the weather like today?", {})
+    second = hybrid.chat("Tell me a joke", {})
+
+    assert stub.call_count == 1
+    assert first["reply"] == "stub reply"
+    assert second["intent"] == "OUT_OF_SCOPE"
+    assert "mrt" in second["reply"].lower()
+
+
+# ---------------------------------------------------------------------------
+# ChatRequestSchema — input length cap (see AIPLAN.md)
+# ---------------------------------------------------------------------------
+
+
+def test_chat_request_schema_rejects_oversized_message():
+    """Messages over 500 characters fail schema validation."""
+    schema = ChatRequestSchema()
+    with pytest.raises(ValidationError):
+        schema.load({"message": "a" * 501})
+
+
+def test_chat_request_schema_accepts_message_at_limit():
+    """Messages at exactly 500 characters are accepted."""
+    schema = ChatRequestSchema()
+    data = schema.load({"message": "a" * 500})
+    assert data["message"] == "a" * 500

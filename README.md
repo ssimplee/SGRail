@@ -128,12 +128,14 @@ API base: **http://localhost:5000/api/v1**
 | `ONEMAP_EMAIL` | *(empty)* | OneMap API registered email |
 | `ONEMAP_PASSWORD` | *(empty)* | OneMap API password |
 | `LTA_ACCOUNT_KEY` | *(empty)* | LTA DataMall API account key |
-| `AI_PROVIDER` | `rule_based` | AI provider: `rule_based`, `openai`, `gemini`, or `anthropic` |
+| `AI_PROVIDER` | `rule_based` | AI provider: `rule_based`, `openai`, `gemini`, `anthropic`, or `groq` |
 | `AI_API_KEY` | *(empty)* | API key for the configured AI provider |
 | `UPLOAD_PROVIDER` | `local` | File upload destination: `local` |
 | `UPLOAD_MAX_MB` | `5` | Maximum upload file size in MB |
 | `RATE_LIMIT_INCIDENTS` | `10/hour` | Rate limit for incident submission |
 | `RATE_LIMIT_AI` | `30/hour` | Rate limit for AI chat requests |
+| `AI_DAILY_CALL_CAP` | `1500` | Max paid LLM calls per day before falling back to the free rule-based assistant |
+| `AI_CACHE_TTL_SECONDS` | `900` | How long a cached LLM response is reused for an identical message |
 
 ---
 
@@ -167,8 +169,10 @@ If a live provider fails at runtime, the system automatically falls back to mock
 
 ### AI Provider (Optional)
 
-1. Obtain an API key from OpenAI, Google Gemini, or Anthropic
-2. Set `AI_PROVIDER` to `openai`, `gemini`, or `anthropic`
+1. Obtain an API key from OpenAI, Google Gemini, Anthropic, or Groq (Groq
+   offers a free tier for open-weight models — see [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+   or [console.groq.com/keys](https://console.groq.com/keys))
+2. Set `AI_PROVIDER` to `openai`, `gemini`, `anthropic`, or `groq`
 3. Set `AI_API_KEY` to your key
 
 Without an AI key, the assistant uses a built-in rule-based engine that handles common intents (routes, last trains, crowd, transfers, accessibility, facilities, incidents).

@@ -6,6 +6,7 @@ functions that return the appropriate implementation based on app config.
 
 from __future__ import annotations
 
+import threading
 from typing import Protocol
 
 
@@ -122,29 +123,60 @@ def get_rail_data_provider() -> RailDataProvider:
     return MockRailDataProvider()
 
 
+def _build_llm_provider() -> AIProvider | None:
+    """Construct the configured paid LLM provider, or None if unset."""
+    from app.config import BaseConfig
+
+    if BaseConfig.AI_PROVIDER == "openai":
+        from app.integrations.ai_client import OpenAIProvider
+
+        return OpenAIProvider(api_key=BaseConfig.AI_API_KEY)
+
+    if BaseConfig.AI_PROVIDER == "gemini":
+        from app.integrations.ai_client import GeminiProvider
+
+        return GeminiProvider(api_key=BaseConfig.AI_API_KEY)
+
+    if BaseConfig.AI_PROVIDER == "groq":
+        from app.integrations.ai_client import GroqProvider
+
+        return GroqProvider(api_key=BaseConfig.AI_API_KEY)
+
+    if BaseConfig.AI_PROVIDER == "anthropic":
+        from app.integrations.ai_client import AnthropicProvider
+
+        return AnthropicProvider(api_key=BaseConfig.AI_API_KEY)
+
+    return None
+
+
+# Lazily-built singleton so HybridProvider's cache and daily call counter
+# persist across requests instead of resetting on every call. See AIPLAN.md.
+_hybrid_provider: AIProvider | None = None
+_hybrid_provider_lock = threading.Lock()
+
+
 def get_ai_provider() -> AIProvider:
     """Return the configured AIProvider implementation.
 
-    Returns a configured LLM provider when AI_PROVIDER and AI_API_KEY
-    are set. Falls back to the rule-based assistant otherwise.
+    Returns a HybridProvider-wrapped LLM provider when AI_PROVIDER and
+    AI_API_KEY are set (classify-first routing + cache + daily cap on top
+    of the paid provider). Falls back to the rule-based assistant otherwise.
     """
     from app.config import BaseConfig
 
     if BaseConfig.AI_API_KEY:
-        if BaseConfig.AI_PROVIDER == "openai":
-            from app.integrations.ai_client import OpenAIProvider
+        global _hybrid_provider
+        if _hybrid_provider is None:
+            with _hybrid_provider_lock:
+                if _hybrid_provider is None:
+                    inner = _build_llm_provider()
+                    if inner is not None:
+                        from app.integrations.ai_client import HybridProvider
 
-            return OpenAIProvider(api_key=BaseConfig.AI_API_KEY)
-
-        if BaseConfig.AI_PROVIDER == "gemini":
-            from app.integrations.ai_client import GeminiProvider
-
-            return GeminiProvider(api_key=BaseConfig.AI_API_KEY)
-
-        if BaseConfig.AI_PROVIDER == "anthropic":
-            from app.integrations.ai_client import AnthropicProvider
-
-            return AnthropicProvider(api_key=BaseConfig.AI_API_KEY)
+                        _hybrid_provider = HybridProvider(inner)
+        if _hybrid_provider is not None:
+            return _hybrid_provider
 
     # Fall back to rule-based assistant (Requirement 24.1, 24.3)
     from app.services.ai_orchestrator import RuleBasedAssistant

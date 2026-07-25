@@ -14,6 +14,10 @@ from __future__ import annotations
 
 import json
 import logging
+import re
+import threading
+import time
+from datetime import date
 from typing import Any
 
 import requests
@@ -21,6 +25,10 @@ import requests
 from app.config import BaseConfig
 
 logger = logging.getLogger(__name__)
+
+# Hard cap on generated tokens for every paid LLM call — bounds per-request
+# cost regardless of how the model chooses to respond. See AIPLAN.md.
+MAX_OUTPUT_TOKENS = 512
 
 # ---------------------------------------------------------------------------
 # System prompt shared across all LLM providers
@@ -148,6 +156,7 @@ class OpenAIProvider:
                     {"role": "user", "content": _build_user_message(message, context)},
                 ],
                 "temperature": 0.3,
+                "max_tokens": MAX_OUTPUT_TOKENS,
                 "response_format": {"type": "json_object"},
             }
 
@@ -162,6 +171,57 @@ class OpenAIProvider:
 
         except Exception as exc:
             logger.warning("OpenAI provider failed, falling back to rule-based: %s", exc)
+            return _fallback_response(message, context)
+
+
+# ---------------------------------------------------------------------------
+# Groq Provider (free tier — Llama 3.3 70B via OpenAI-compatible API)
+# ---------------------------------------------------------------------------
+
+
+class GroqProvider:
+    """AI provider using Groq's OpenAI-compatible Chat Completions API.
+
+    Groq offers a genuinely free tier for open-weight models, with the
+    same request/response shape as OpenAI. See AIPLAN.md.
+    """
+
+    API_URL = "https://api.groq.com/openai/v1/chat/completions"
+    MODEL = "llama-3.3-70b-versatile"
+    TIMEOUT = 30
+
+    def __init__(self, api_key: str | None = None):
+        self.api_key = api_key or BaseConfig.AI_API_KEY
+
+    def chat(self, message: str, context: dict) -> dict:
+        """Process a user message via Groq and return structured response."""
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "model": self.MODEL,
+                "messages": [
+                    {"role": "system", "content": _SYSTEM_PROMPT},
+                    {"role": "user", "content": _build_user_message(message, context)},
+                ],
+                "temperature": 0.3,
+                "max_tokens": MAX_OUTPUT_TOKENS,
+                "response_format": {"type": "json_object"},
+            }
+
+            resp = requests.post(
+                self.API_URL, headers=headers, json=payload, timeout=self.TIMEOUT
+            )
+            resp.raise_for_status()
+
+            data = resp.json()
+            raw_content = data["choices"][0]["message"]["content"]
+            return _parse_llm_response(raw_content)
+
+        except Exception as exc:
+            logger.warning("Groq provider failed, falling back to rule-based: %s", exc)
             return _fallback_response(message, context)
 
 
@@ -203,6 +263,7 @@ class GeminiProvider:
                 ],
                 "generationConfig": {
                     "temperature": 0.3,
+                    "maxOutputTokens": MAX_OUTPUT_TOKENS,
                     "responseMimeType": "application/json",
                 },
             }
@@ -247,7 +308,7 @@ class AnthropicProvider:
             }
             payload = {
                 "model": self.MODEL,
-                "max_tokens": 1024,
+                "max_tokens": MAX_OUTPUT_TOKENS,
                 "system": _SYSTEM_PROMPT,
                 "messages": [
                     {"role": "user", "content": _build_user_message(message, context)},
@@ -267,3 +328,97 @@ class AnthropicProvider:
         except Exception as exc:
             logger.warning("Anthropic provider failed, falling back to rule-based: %s", exc)
             return _fallback_response(message, context)
+
+
+# ---------------------------------------------------------------------------
+# HybridProvider (cost control — see AIPLAN.md)
+# ---------------------------------------------------------------------------
+
+
+class HybridProvider:
+    """Wraps a paid LLM provider with free-first routing, response caching,
+    and a hard daily call cap.
+
+    chat() classifies the message with the free rule-based engine first;
+    only messages it can't classify (OUT_OF_SCOPE) are forwarded to the
+    wrapped LLM provider, and even those are cached and subject to a daily
+    call budget. See AIPLAN.md for the full rationale.
+
+    NOTE: cache and daily-counter state are in-process/in-memory (matches
+    flask_limiter's own memory:// storage). Under multiple worker processes
+    or instances, the effective daily budget multiplies by worker count —
+    fine for a single-process deployment, would need Redis-backed storage
+    to hold under a multi-worker one.
+    """
+
+    def __init__(
+        self,
+        llm_provider: Any,
+        cache_ttl: int | None = None,
+        daily_cap: int | None = None,
+    ):
+        self.llm_provider = llm_provider
+        self.cache_ttl = (
+            cache_ttl if cache_ttl is not None else BaseConfig.AI_CACHE_TTL_SECONDS
+        )
+        self.daily_cap = (
+            daily_cap if daily_cap is not None else BaseConfig.AI_DAILY_CALL_CAP
+        )
+        self._cache: dict[str, tuple[float, dict]] = {}
+        self._lock = threading.Lock()
+        self._call_day: date | None = None
+        self._call_count = 0
+
+    def chat(self, message: str, context: dict) -> dict:
+        """Route to the free rule-based engine when possible, else the
+        wrapped LLM provider (via cache and daily budget)."""
+        from app.services.ai_orchestrator import classify_intent, RuleBasedAssistant
+
+        intent = classify_intent(message)
+        if intent != "OUT_OF_SCOPE":
+            return RuleBasedAssistant().chat(message, context)
+
+        cache_key = self._cache_key(message, context)
+        cached = self._get_cached(cache_key)
+        if cached is not None:
+            return cached
+
+        if not self._consume_daily_budget():
+            logger.info("AI daily call cap reached, serving rule-based fallback")
+            return RuleBasedAssistant().chat(message, context)
+
+        response = self.llm_provider.chat(message, context)
+        self._set_cached(cache_key, response)
+        return response
+
+    @staticmethod
+    def _cache_key(message: str, context: dict) -> str:
+        normalized = re.sub(r"\s+", " ", message.strip().lower())
+        station = (context or {}).get("currentStationId") or ""
+        return f"{station}:{normalized}"
+
+    def _get_cached(self, key: str) -> dict | None:
+        with self._lock:
+            entry = self._cache.get(key)
+            if entry is None:
+                return None
+            expires_at, response = entry
+            if time.monotonic() >= expires_at:
+                del self._cache[key]
+                return None
+            return response
+
+    def _set_cached(self, key: str, response: dict) -> None:
+        with self._lock:
+            self._cache[key] = (time.monotonic() + self.cache_ttl, response)
+
+    def _consume_daily_budget(self) -> bool:
+        today = date.today()
+        with self._lock:
+            if self._call_day != today:
+                self._call_day = today
+                self._call_count = 0
+            if self._call_count >= self.daily_cap:
+                return False
+            self._call_count += 1
+            return True
