@@ -436,8 +436,8 @@
       "NS",
       "TE"
     ],
-    "map_x": 465.2,
-    "map_y": 81.2,
+    "map_x": 505.3,
+    "map_y": 123.9,
     "latitude": 1.437,
     "longitude": 103.7865,
     "is_interchange": true,
@@ -1191,8 +1191,8 @@
       "EW",
       "DT"
     ],
-    "map_x": 1316.3,
-    "map_y": 334.7,
+    "map_x": 1316.4,
+    "map_y": 382.4,
     "latitude": 1.3545,
     "longitude": 103.9453,
     "is_interchange": true,
@@ -2419,8 +2419,8 @@
     "lines": [
       "TE"
     ],
-    "map_x": 516.4,
-    "map_y": 123.9,
+    "map_x": 465.2,
+    "map_y": 81.2,
     "latitude": 1.4486,
     "longitude": 103.7852,
     "is_interchange": false,
