@@ -1272,36 +1272,6 @@
     },
     {
       "from": {
-        "station_id": "caldecott",
-        "line_code": "TE"
-      },
-      "to": {
-        "station_id": "mount-pleasant",
-        "line_code": "TE"
-      },
-      "type": "ride",
-      "travel_minutes": 3,
-      "walk_minutes": 0,
-      "accessible": true,
-      "source": "estimated_from_distance"
-    },
-    {
-      "from": {
-        "station_id": "mount-pleasant",
-        "line_code": "TE"
-      },
-      "to": {
-        "station_id": "stevens",
-        "line_code": "TE"
-      },
-      "type": "ride",
-      "travel_minutes": 3,
-      "walk_minutes": 0,
-      "accessible": true,
-      "source": "estimated_from_distance"
-    },
-    {
-      "from": {
         "station_id": "stevens",
         "line_code": "TE"
       },
@@ -2382,36 +2352,6 @@
     },
     {
       "from": {
-        "station_id": "caldecott",
-        "line_code": "CC"
-      },
-      "to": {
-        "station_id": "bukit-brown",
-        "line_code": "CC"
-      },
-      "type": "ride",
-      "travel_minutes": 3,
-      "walk_minutes": 0,
-      "accessible": true,
-      "source": "estimated_from_distance"
-    },
-    {
-      "from": {
-        "station_id": "bukit-brown",
-        "line_code": "CC"
-      },
-      "to": {
-        "station_id": "botanic-gardens",
-        "line_code": "CC"
-      },
-      "type": "ride",
-      "travel_minutes": 3,
-      "walk_minutes": 0,
-      "accessible": true,
-      "source": "estimated_from_distance"
-    },
-    {
-      "from": {
         "station_id": "botanic-gardens",
         "line_code": "CC"
       },
@@ -3204,6 +3144,36 @@
       "walk_minutes": 4,
       "accessible": true,
       "source": "estimated"
+    },
+    {
+      "from": {
+        "station_id": "caldecott",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "stevens",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 6,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "caldecott",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "botanic-gardens",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 6,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
     }
   ]
 }

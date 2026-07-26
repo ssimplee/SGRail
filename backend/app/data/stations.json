@@ -8,8 +8,8 @@
     "lines": [
       "NS"
     ],
-    "map_x": 921.1,
-    "map_y": 927.6,
+    "map_x": 920.9,
+    "map_y": 913.7,
     "latitude": 1.2712,
     "longitude": 103.8632,
     "is_interchange": false,
@@ -37,8 +37,8 @@
       "CE",
       "TE"
     ],
-    "map_x": 920.9,
-    "map_y": 913.7,
+    "map_x": 896.1,
+    "map_y": 876.5,
     "latitude": 1.2764,
     "longitude": 103.8546,
     "is_interchange": true,
@@ -1955,27 +1955,6 @@
     ]
   },
   {
-    "id": "bukit-brown",
-    "name": "Bukit Brown",
-    "codes": [
-      "CC18"
-    ],
-    "lines": [
-      "CC"
-    ],
-    "map_x": 550.7,
-    "map_y": 350.3,
-    "latitude": 1.3322,
-    "longitude": 103.8272,
-    "is_interchange": false,
-    "facilities": [
-      "lift",
-      "escalator"
-    ],
-    "accessibility_status": "full",
-    "exits": []
-  },
-  {
     "id": "botanic-gardens",
     "name": "Botanic Gardens",
     "codes": [
@@ -2574,27 +2553,6 @@
     "map_y": 334.1,
     "latitude": 1.3539,
     "longitude": 103.833,
-    "is_interchange": false,
-    "facilities": [
-      "lift",
-      "escalator"
-    ],
-    "accessibility_status": "full",
-    "exits": []
-  },
-  {
-    "id": "mount-pleasant",
-    "name": "Mount Pleasant",
-    "codes": [
-      "TE10"
-    ],
-    "lines": [
-      "TE"
-    ],
-    "map_x": 572.1,
-    "map_y": 350.3,
-    "latitude": 1.3273,
-    "longitude": 103.8354,
     "is_interchange": false,
     "facilities": [
       "lift",
