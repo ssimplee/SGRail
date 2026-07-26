@@ -39,5 +39,13 @@
     "retry": "Cuba Semula",
     "cancel": "Batal",
     "save": "Simpan"
+  },
+  "alerts": {
+    "majorTitle": "Gangguan perkhidmatan",
+    "minorTitle": "Kelewatan perkhidmatan",
+    "towards": "ke arah {{direction}}",
+    "freeBus": "Perjalanan bas percuma di {{count}} stesen terjejas",
+    "freeShuttle": "Perkhidmatan ulang-alik MRT percuma di {{count}} stesen",
+    "dismiss": "Tutup makluman"
   }
 }

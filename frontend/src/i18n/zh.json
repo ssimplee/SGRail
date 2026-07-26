@@ -39,5 +39,13 @@
     "retry": "重试",
     "cancel": "取消",
     "save": "保存"
+  },
+  "alerts": {
+    "majorTitle": "服务中断",
+    "minorTitle": "服务延误",
+    "towards": "往{{direction}}方向",
+    "freeBus": "{{count}} 个受影响车站提供免费巴士服务",
+    "freeShuttle": "{{count}} 个车站提供免费地铁接驳服务",
+    "dismiss": "关闭通知"
   }
 }
