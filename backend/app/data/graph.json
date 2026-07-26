@@ -1,524 +1,3209 @@
 {
   "edges": [
     {
-      "from": {"station_id": "jurong-east", "line_code": "NS"},
-      "to": {"station_id": "bukit-batok", "line_code": "NS"},
+      "from": {
+        "station_id": "jurong-east",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "bukit-batok",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "bukit-batok", "line_code": "NS"},
-      "to": {"station_id": "bukit-gombak", "line_code": "NS"},
+      "from": {
+        "station_id": "bukit-batok",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "bukit-gombak",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "bukit-gombak", "line_code": "NS"},
-      "to": {"station_id": "choa-chu-kang", "line_code": "NS"},
+      "from": {
+        "station_id": "bukit-gombak",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "choa-chu-kang",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "choa-chu-kang", "line_code": "NS"},
-      "to": {"station_id": "yew-tee", "line_code": "NS"},
+      "from": {
+        "station_id": "choa-chu-kang",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "yew-tee",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "yew-tee", "line_code": "NS"},
-      "to": {"station_id": "kranji", "line_code": "NS"},
+      "from": {
+        "station_id": "yew-tee",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "kranji",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "kranji", "line_code": "NS"},
-      "to": {"station_id": "woodlands", "line_code": "NS"},
+      "from": {
+        "station_id": "kranji",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "woodlands",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "woodlands", "line_code": "NS"},
-      "to": {"station_id": "yishun", "line_code": "NS"},
+      "from": {
+        "station_id": "woodlands",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "yishun",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 7,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "yishun", "line_code": "NS"},
-      "to": {"station_id": "ang-mo-kio", "line_code": "NS"},
+      "from": {
+        "station_id": "yishun",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "ang-mo-kio",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 7,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "ang-mo-kio", "line_code": "NS"},
-      "to": {"station_id": "bishan", "line_code": "NS"},
+      "from": {
+        "station_id": "ang-mo-kio",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "bishan",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "bishan", "line_code": "NS"},
-      "to": {"station_id": "toa-payoh", "line_code": "NS"},
+      "from": {
+        "station_id": "bishan",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "toa-payoh",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "toa-payoh", "line_code": "NS"},
-      "to": {"station_id": "newton", "line_code": "NS"},
+      "from": {
+        "station_id": "toa-payoh",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "newton",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 5,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "newton", "line_code": "NS"},
-      "to": {"station_id": "orchard", "line_code": "NS"},
+      "from": {
+        "station_id": "newton",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "orchard",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "orchard", "line_code": "NS"},
-      "to": {"station_id": "dhoby-ghaut", "line_code": "NS"},
+      "from": {
+        "station_id": "orchard",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "dhoby-ghaut", "line_code": "NS"},
-      "to": {"station_id": "city-hall", "line_code": "NS"},
+      "from": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "city-hall",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "city-hall", "line_code": "NS"},
-      "to": {"station_id": "raffles-place", "line_code": "NS"},
+      "from": {
+        "station_id": "city-hall",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "raffles-place",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "raffles-place", "line_code": "NS"},
-      "to": {"station_id": "marina-bay", "line_code": "NS"},
+      "from": {
+        "station_id": "raffles-place",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "marina-bay",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "marina-bay", "line_code": "NS"},
-      "to": {"station_id": "marina-south-pier", "line_code": "NS"},
+      "from": {
+        "station_id": "marina-bay",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "marina-south-pier",
+        "line_code": "NS"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "pasir-ris", "line_code": "EW"},
-      "to": {"station_id": "tampines", "line_code": "EW"},
+      "from": {
+        "station_id": "pasir-ris",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tampines",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "tampines", "line_code": "EW"},
-      "to": {"station_id": "tanah-merah", "line_code": "EW"},
+      "from": {
+        "station_id": "tampines",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tanah-merah",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 5,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "tanah-merah", "line_code": "EW"},
-      "to": {"station_id": "bedok", "line_code": "EW"},
+      "from": {
+        "station_id": "tanah-merah",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "bedok",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "bedok", "line_code": "EW"},
-      "to": {"station_id": "paya-lebar", "line_code": "EW"},
+      "from": {
+        "station_id": "bedok",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "paya-lebar",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 7,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "paya-lebar", "line_code": "EW"},
-      "to": {"station_id": "bugis", "line_code": "EW"},
+      "from": {
+        "station_id": "paya-lebar",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "bugis",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 7,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "bugis", "line_code": "EW"},
-      "to": {"station_id": "city-hall", "line_code": "EW"},
+      "from": {
+        "station_id": "bugis",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "city-hall",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "city-hall", "line_code": "EW"},
-      "to": {"station_id": "raffles-place", "line_code": "EW"},
+      "from": {
+        "station_id": "city-hall",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "raffles-place",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "raffles-place", "line_code": "EW"},
-      "to": {"station_id": "outram-park", "line_code": "EW"},
+      "from": {
+        "station_id": "raffles-place",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "outram-park", "line_code": "EW"},
-      "to": {"station_id": "buona-vista", "line_code": "EW"},
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "buona-vista",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 8,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "buona-vista", "line_code": "EW"},
-      "to": {"station_id": "clementi", "line_code": "EW"},
+      "from": {
+        "station_id": "buona-vista",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "clementi",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 5,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "clementi", "line_code": "EW"},
-      "to": {"station_id": "jurong-east", "line_code": "EW"},
+      "from": {
+        "station_id": "clementi",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "jurong-east",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 3,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "jurong-east", "line_code": "EW"},
-      "to": {"station_id": "boon-lay", "line_code": "EW"},
+      "from": {
+        "station_id": "jurong-east",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "boon-lay",
+        "line_code": "EW"
+      },
       "type": "ride",
       "travel_minutes": 6,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "jurong-east", "line_code": "NS"},
-      "to": {"station_id": "jurong-east", "line_code": "EW"},
+      "from": {
+        "station_id": "jurong-east",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "jurong-east",
+        "line_code": "EW"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "city-hall", "line_code": "NS"},
-      "to": {"station_id": "city-hall", "line_code": "EW"},
+      "from": {
+        "station_id": "city-hall",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "city-hall",
+        "line_code": "EW"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 3,
       "accessible": true
     },
     {
-      "from": {"station_id": "raffles-place", "line_code": "NS"},
-      "to": {"station_id": "raffles-place", "line_code": "EW"},
+      "from": {
+        "station_id": "raffles-place",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "raffles-place",
+        "line_code": "EW"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 3,
       "accessible": true
     },
     {
-      "from": {"station_id": "bishan", "line_code": "NS"},
-      "to": {"station_id": "bishan", "line_code": "CC"},
+      "from": {
+        "station_id": "bishan",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "bishan",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "dhoby-ghaut", "line_code": "NS"},
-      "to": {"station_id": "dhoby-ghaut", "line_code": "NE"},
+      "from": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "dhoby-ghaut", "line_code": "NS"},
-      "to": {"station_id": "dhoby-ghaut", "line_code": "CC"},
+      "from": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "dhoby-ghaut", "line_code": "NE"},
-      "to": {"station_id": "dhoby-ghaut", "line_code": "CC"},
+      "from": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "newton", "line_code": "NS"},
-      "to": {"station_id": "newton", "line_code": "DT"},
+      "from": {
+        "station_id": "newton",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "newton",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "outram-park", "line_code": "EW"},
-      "to": {"station_id": "outram-park", "line_code": "NE"},
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "NE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "outram-park", "line_code": "EW"},
-      "to": {"station_id": "outram-park", "line_code": "TE"},
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "outram-park", "line_code": "NE"},
-      "to": {"station_id": "outram-park", "line_code": "TE"},
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "paya-lebar", "line_code": "EW"},
-      "to": {"station_id": "paya-lebar", "line_code": "CC"},
+      "from": {
+        "station_id": "paya-lebar",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "paya-lebar",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "bugis", "line_code": "EW"},
-      "to": {"station_id": "bugis", "line_code": "DT"},
+      "from": {
+        "station_id": "bugis",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "bugis",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "serangoon", "line_code": "NE"},
-      "to": {"station_id": "serangoon", "line_code": "CC"},
+      "from": {
+        "station_id": "serangoon",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "serangoon",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "little-india", "line_code": "NE"},
-      "to": {"station_id": "little-india", "line_code": "DT"},
+      "from": {
+        "station_id": "little-india",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "little-india",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "buona-vista", "line_code": "EW"},
-      "to": {"station_id": "buona-vista", "line_code": "CC"},
+      "from": {
+        "station_id": "buona-vista",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "buona-vista",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "tampines", "line_code": "EW"},
-      "to": {"station_id": "tampines", "line_code": "DT"},
+      "from": {
+        "station_id": "tampines",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tampines",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "chinatown", "line_code": "NE"},
-      "to": {"station_id": "chinatown", "line_code": "DT"},
+      "from": {
+        "station_id": "chinatown",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "chinatown",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "harbourfront", "line_code": "NE"},
-      "to": {"station_id": "harbourfront", "line_code": "CC"},
+      "from": {
+        "station_id": "harbourfront",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "harbourfront",
+        "line_code": "CC"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "marina-bay", "line_code": "NS"},
-      "to": {"station_id": "marina-bay", "line_code": "CE"},
+      "from": {
+        "station_id": "marina-bay",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "marina-bay",
+        "line_code": "CE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "marina-bay", "line_code": "NS"},
-      "to": {"station_id": "marina-bay", "line_code": "TE"},
+      "from": {
+        "station_id": "marina-bay",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "marina-bay",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "orchard", "line_code": "NS"},
-      "to": {"station_id": "orchard", "line_code": "TE"},
+      "from": {
+        "station_id": "orchard",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "orchard",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "woodlands", "line_code": "NS"},
-      "to": {"station_id": "woodlands", "line_code": "TE"},
+      "from": {
+        "station_id": "woodlands",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "woodlands",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 5,
       "accessible": true
     },
     {
-      "from": {"station_id": "stevens", "line_code": "DT"},
-      "to": {"station_id": "stevens", "line_code": "TE"},
+      "from": {
+        "station_id": "stevens",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "stevens",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "caldecott", "line_code": "CC"},
-      "to": {"station_id": "caldecott", "line_code": "TE"},
+      "from": {
+        "station_id": "caldecott",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "caldecott",
+        "line_code": "TE"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "promenade", "line_code": "CC"},
-      "to": {"station_id": "promenade", "line_code": "DT"},
+      "from": {
+        "station_id": "promenade",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "promenade",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "bayfront", "line_code": "CE"},
-      "to": {"station_id": "bayfront", "line_code": "DT"},
+      "from": {
+        "station_id": "bayfront",
+        "line_code": "CE"
+      },
+      "to": {
+        "station_id": "bayfront",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 3,
       "accessible": true
     },
     {
-      "from": {"station_id": "botanic-gardens", "line_code": "CC"},
-      "to": {"station_id": "botanic-gardens", "line_code": "DT"},
+      "from": {
+        "station_id": "botanic-gardens",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "botanic-gardens",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "macpherson", "line_code": "CC"},
-      "to": {"station_id": "macpherson", "line_code": "DT"},
+      "from": {
+        "station_id": "macpherson",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "macpherson",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 3,
       "accessible": true
     },
     {
-      "from": {"station_id": "expo", "line_code": "CG"},
-      "to": {"station_id": "expo", "line_code": "DT"},
+      "from": {
+        "station_id": "expo",
+        "line_code": "CG"
+      },
+      "to": {
+        "station_id": "expo",
+        "line_code": "DT"
+      },
       "type": "transfer",
       "travel_minutes": 0,
       "walk_minutes": 4,
       "accessible": true
     },
     {
-      "from": {"station_id": "harbourfront", "line_code": "NE"},
-      "to": {"station_id": "outram-park", "line_code": "NE"},
+      "from": {
+        "station_id": "harbourfront",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "NE"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "outram-park", "line_code": "NE"},
-      "to": {"station_id": "chinatown", "line_code": "NE"},
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "chinatown",
+        "line_code": "NE"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "chinatown", "line_code": "NE"},
-      "to": {"station_id": "dhoby-ghaut", "line_code": "NE"},
+      "from": {
+        "station_id": "chinatown",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NE"
+      },
       "type": "ride",
       "travel_minutes": 4,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "dhoby-ghaut", "line_code": "NE"},
-      "to": {"station_id": "little-india", "line_code": "NE"},
+      "from": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "little-india",
+        "line_code": "NE"
+      },
       "type": "ride",
       "travel_minutes": 2,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "little-india", "line_code": "NE"},
-      "to": {"station_id": "serangoon", "line_code": "NE"},
+      "from": {
+        "station_id": "little-india",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "serangoon",
+        "line_code": "NE"
+      },
       "type": "ride",
       "travel_minutes": 8,
       "walk_minutes": 0,
       "accessible": true
     },
     {
-      "from": {"station_id": "serangoon", "line_code": "NE"},
-      "to": {"station_id": "punggol", "line_code": "NE"},
+      "from": {
+        "station_id": "serangoon",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "punggol",
+        "line_code": "NE"
+      },
       "type": "ride",
       "travel_minutes": 10,
       "walk_minutes": 0,
       "accessible": true
+    },
+    {
+      "from": {
+        "station_id": "kranji",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "marsiling",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "marsiling",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "woodlands",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "woodlands",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "admiralty",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "admiralty",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "sembawang",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 4,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "sembawang",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "canberra",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "canberra",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "yishun",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "yishun",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "khatib",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "khatib",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "yio-chu-kang",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 6,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "yio-chu-kang",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "ang-mo-kio",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bishan",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "braddell",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "braddell",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "toa-payoh",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "toa-payoh",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "novena",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "novena",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "newton",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "orchard",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "somerset",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "somerset",
+        "line_code": "NS"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NS"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bayfront",
+        "line_code": "CE"
+      },
+      "to": {
+        "station_id": "marina-bay",
+        "line_code": "CE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "woodlands-north",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "woodlands",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "woodlands",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "woodlands-south",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "woodlands-south",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "springleaf",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 6,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "springleaf",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "lentor",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 4,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "lentor",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "mayflower",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "mayflower",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "bright-hill",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bright-hill",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "upper-thomson",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "upper-thomson",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "caldecott",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "caldecott",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "mount-pleasant",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "mount-pleasant",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "stevens",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "stevens",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "napier",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "napier",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "orchard-boulevard",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "orchard-boulevard",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "orchard",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "orchard",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "great-world",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "great-world",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "havelock",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "havelock",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "maxwell",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "maxwell",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "shenton-way",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "shenton-way",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "marina-bay",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "marina-bay",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "gardens-by-the-bay",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "gardens-by-the-bay",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "tanjong-rhu",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 4,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tanjong-rhu",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "katong-park",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "katong-park",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "tanjong-katong",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tanjong-katong",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "marine-parade",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "marine-parade",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "marine-terrace",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "marine-terrace",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "siglap",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "siglap",
+        "line_code": "TE"
+      },
+      "to": {
+        "station_id": "bayshore",
+        "line_code": "TE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tampines",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "simei",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "simei",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tanah-merah",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bedok",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "kembangan",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "kembangan",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "eunos",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "eunos",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "paya-lebar",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "paya-lebar",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "aljunied",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "aljunied",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "kallang",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "kallang",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "lavender",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "lavender",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "bugis",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "raffles-place",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tanjong-pagar",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tanjong-pagar",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "outram-park",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "outram-park",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tiong-bahru",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tiong-bahru",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "redhill",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "redhill",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "queenstown",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "queenstown",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "commonwealth",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "commonwealth",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "buona-vista",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "buona-vista",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "dover",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "dover",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "clementi",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "jurong-east",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "chinese-garden",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "chinese-garden",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "lakeside",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "lakeside",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "boon-lay",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "boon-lay",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "joo-koon",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 5,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "joo-koon",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "pioneer",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 4,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "pioneer",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tuas-crescent",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 7,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tuas-crescent",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tuas-west-road",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tuas-west-road",
+        "line_code": "EW"
+      },
+      "to": {
+        "station_id": "tuas-link",
+        "line_code": "EW"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "chinatown",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "clarke-quay",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "clarke-quay",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "little-india",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "farrer-park",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "farrer-park",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "boon-keng",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "boon-keng",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "potong-pasir",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "potong-pasir",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "woodleigh",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "woodleigh",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "serangoon",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "serangoon",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "kovan",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "kovan",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "hougang",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "hougang",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "buangkok",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "buangkok",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "sengkang",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "sengkang",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "punggol",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "punggol",
+        "line_code": "NE"
+      },
+      "to": {
+        "station_id": "punggol-coast",
+        "line_code": "NE"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "dhoby-ghaut",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "bras-basah",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bras-basah",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "esplanade",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "esplanade",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "promenade",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "promenade",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "nicoll-highway",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "nicoll-highway",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "stadium",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "stadium",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "mountbatten",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "mountbatten",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "dakota",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "dakota",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "paya-lebar",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "paya-lebar",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "macpherson",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "macpherson",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "tai-seng",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tai-seng",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "bartley",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bartley",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "serangoon",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "serangoon",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "lorong-chuan",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "lorong-chuan",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "bishan",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bishan",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "marymount",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "marymount",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "caldecott",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "caldecott",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "bukit-brown",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bukit-brown",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "botanic-gardens",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "botanic-gardens",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "farrer-road",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "farrer-road",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "holland-village",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "holland-village",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "buona-vista",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "buona-vista",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "one-north",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "one-north",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "kent-ridge",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "kent-ridge",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "haw-par-villa",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "haw-par-villa",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "pasir-panjang",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "pasir-panjang",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "labrador-park",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "labrador-park",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "telok-blangah",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "telok-blangah",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "harbourfront",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "harbourfront",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "keppel",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "keppel",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "cantonment",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "cantonment",
+        "line_code": "CC"
+      },
+      "to": {
+        "station_id": "prince-edward-road",
+        "line_code": "CC"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bukit-panjang",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "cashew",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "cashew",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "hillview",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "hillview",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "hume",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "hume",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "beauty-world",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "beauty-world",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "king-albert-park",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "king-albert-park",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "sixth-avenue",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "sixth-avenue",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "tan-kah-kee",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tan-kah-kee",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "botanic-gardens",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "botanic-gardens",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "stevens",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "stevens",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "newton",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "newton",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "little-india",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "little-india",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "rochor",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "rochor",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "bugis",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bugis",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "promenade",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "promenade",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "bayfront",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bayfront",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "downtown",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "downtown",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "telok-ayer",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "telok-ayer",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "chinatown",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "chinatown",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "fort-canning",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "fort-canning",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "bencoolen",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bencoolen",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "jalan-besar",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "jalan-besar",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "bendemeer",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bendemeer",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "geylang-bahru",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "geylang-bahru",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "mattar",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "mattar",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "macpherson",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "macpherson",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "ubi",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "ubi",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "kaki-bukit",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "kaki-bukit",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "bedok-north",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bedok-north",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "bedok-reservoir",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "bedok-reservoir",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "tampines-west",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tampines-west",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "tampines",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tampines",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "tampines-east",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tampines-east",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "upper-changi",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "upper-changi",
+        "line_code": "DT"
+      },
+      "to": {
+        "station_id": "expo",
+        "line_code": "DT"
+      },
+      "type": "ride",
+      "travel_minutes": 2,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "tanah-merah",
+        "line_code": "CG"
+      },
+      "to": {
+        "station_id": "expo",
+        "line_code": "CG"
+      },
+      "type": "ride",
+      "travel_minutes": 3,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "expo",
+        "line_code": "CG"
+      },
+      "to": {
+        "station_id": "changi-airport",
+        "line_code": "CG"
+      },
+      "type": "ride",
+      "travel_minutes": 5,
+      "walk_minutes": 0,
+      "accessible": true,
+      "source": "estimated_from_distance"
+    },
+    {
+      "from": {
+        "station_id": "marina-bay",
+        "line_code": "CE"
+      },
+      "to": {
+        "station_id": "marina-bay",
+        "line_code": "TE"
+      },
+      "type": "transfer",
+      "travel_minutes": 0,
+      "walk_minutes": 4,
+      "accessible": true,
+      "source": "estimated"
+    },
+    {
+      "from": {
+        "station_id": "choa-chu-kang",
+        "line_code": "BP"
+      },
+      "to": {
+        "station_id": "choa-chu-kang",
+        "line_code": "NS"
+      },
+      "type": "transfer",
+      "travel_minutes": 0,
+      "walk_minutes": 4,
+      "accessible": true,
+      "source": "estimated"
+    },
+    {
+      "from": {
+        "station_id": "tanah-merah",
+        "line_code": "CG"
+      },
+      "to": {
+        "station_id": "tanah-merah",
+        "line_code": "EW"
+      },
+      "type": "transfer",
+      "travel_minutes": 0,
+      "walk_minutes": 4,
+      "accessible": true,
+      "source": "estimated"
+    },
+    {
+      "from": {
+        "station_id": "bukit-panjang",
+        "line_code": "BP"
+      },
+      "to": {
+        "station_id": "bukit-panjang",
+        "line_code": "DT"
+      },
+      "type": "transfer",
+      "travel_minutes": 0,
+      "walk_minutes": 4,
+      "accessible": true,
+      "source": "estimated"
     }
   ]
 }
