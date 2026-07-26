@@ -27,7 +27,7 @@ class LTADataMallClient:
 
     def __init__(self) -> None:
         self._account_key: str = os.getenv("LTA_ACCOUNT_KEY", "")
-        self._base_url: str = "http://datamall2.mytransport.sg/ltaodataservice"
+        self._base_url: str = "https://datamall2.mytransport.sg/ltaodataservice"
 
     # ------------------------------------------------------------------
     # RailDataProvider protocol methods
@@ -36,13 +36,16 @@ class LTADataMallClient:
     def get_service_alerts(self) -> list[dict]:
         """Fetch current MRT/LRT service alerts from LTA DataMall.
 
+        Each affected line is published as a separate cluster within a
+        single response (API User Guide v6.8, section 2.11), so one
+        normalised alert is returned per affected segment.
+
         Returns a normalised list of alert dicts.  Falls back to the
         mock adapter on connection failure or timeout.
         """
         try:
             data = self._get("/TrainServiceAlerts")
-            raw_alerts = data.get("value", {}).get("AffectedSegments", [])
-            return [self._normalise_alert(a) for a in raw_alerts]
+            return self._normalise_alert_payload(data)
         except (requests.ConnectionError, requests.Timeout, requests.RequestException) as exc:
             logger.warning("LTA service alerts unavailable, falling back to mock: %s", exc)
             return self._fallback().get_service_alerts()
@@ -109,15 +112,106 @@ class LTADataMallClient:
     # Normalisation helpers
     # ------------------------------------------------------------------
 
+    @classmethod
+    def _normalise_alert_payload(cls, data: dict) -> list[dict]:
+        """Convert a raw TrainServiceAlerts response into internal alerts.
+
+        This is the ONLY place that knows the response envelope, so a
+        correction there is confined to this method.  The documented
+        shape (API User Guide v6.8, section 2.11) is::
+
+            {"value": {"Status": 2,
+                       "AffectedSegments": [ ... ],
+                       "Message": [{"Content": ..., "CreatedDate": ...}]}}
+
+        The field specification is documented, but Annex C's sample
+        responses are images rather than text, so the exact nesting has
+        not been verified against a live call.  A top-level payload
+        (without the ``value`` wrapper) is therefore accepted too.
+
+        Args:
+            data: Decoded JSON body from the TrainServiceAlerts endpoint.
+
+        Returns:
+            One normalised alert per affected segment.  Empty when train
+            service is normal, since LTA publishes no segments then.
+        """
+        body = data.get("value", data)
+        if not isinstance(body, dict):
+            logger.warning("Unexpected TrainServiceAlerts payload shape: %s", type(body))
+            return []
+
+        status = cls._coerce_status(body.get("Status"))
+        message, created_at = cls._extract_message(body.get("Message"))
+        segments = body.get("AffectedSegments") or []
+
+        return [
+            cls._normalise_segment(segment, status, message, created_at)
+            for segment in segments
+            if isinstance(segment, dict)
+        ]
+
     @staticmethod
-    def _normalise_alert(raw: dict) -> dict:
-        """Convert LTA alert segment to internal ServiceAlert model."""
+    def _coerce_status(raw) -> int:
+        """Normalise the Status field to 1 (normal) or 2 (disrupted).
+
+        LTA documents Status as 1 for normal service or minor delays and
+        2 for disrupted service or major delays.  Anything unparseable is
+        treated as disrupted, because a segment was published at all.
+        """
+        try:
+            status = int(raw)
+        except (TypeError, ValueError):
+            return 2
+        return status if status in (1, 2) else 2
+
+    @staticmethod
+    def _extract_message(raw) -> tuple[str, str]:
+        """Pull the advisory text and timestamp out of the Message field.
+
+        Message carries ``Content`` and ``CreatedDate``.  LTA publishes
+        it as a list (a new entry per advisory), so the most recent entry
+        wins; a bare object is accepted as well.
+
+        Returns:
+            A ``(content, created_date)`` pair, blank when absent.
+        """
+        if isinstance(raw, dict):
+            entries = [raw]
+        elif isinstance(raw, list):
+            entries = [m for m in raw if isinstance(m, dict)]
+        else:
+            return "", ""
+
+        if not entries:
+            return "", ""
+
+        latest = max(entries, key=lambda m: str(m.get("CreatedDate", "")))
+        return str(latest.get("Content", "")), str(latest.get("CreatedDate", ""))
+
+    @staticmethod
+    def _normalise_segment(
+        segment: dict, status: int, message: str, created_at: str
+    ) -> dict:
+        """Convert one AffectedSegments entry to the internal alert shape.
+
+        Station codes are left unresolved here; mapping them to internal
+        station IDs needs database access and happens in the alert
+        service, keeping this adapter pure.
+        """
+        from app.integrations.lta_mapping import split_station_codes
+
         return {
-            "line": raw.get("Line", ""),
-            "direction": raw.get("Direction", ""),
-            "stations": raw.get("Stations", ""),
-            "freeText": raw.get("FreeText", ""),
-            "createdDate": raw.get("CreatedDate", ""),
+            "status": status,
+            "ltaLine": str(segment.get("Line", "")),
+            "direction": str(segment.get("Direction", "")),
+            "stationCodes": split_station_codes(segment.get("Stations", "")),
+            "freePublicBusCodes": split_station_codes(segment.get("FreePublicBus", "")),
+            "freeMrtShuttleCodes": split_station_codes(segment.get("FreeMRTShuttle", "")),
+            "mrtShuttleDirection": str(segment.get("MRTShuttleDirection", "")),
+            "message": message,
+            "createdAt": created_at,
+            "source": "lta_datamall",
         }
 
     @staticmethod

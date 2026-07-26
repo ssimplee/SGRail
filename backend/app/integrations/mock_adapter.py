@@ -206,11 +206,50 @@ class MockLocationProvider:
 
 
 class MockRailDataProvider:
-    """Returns empty alerts and basic station reference data."""
+    """Returns demo service alerts and basic station reference data."""
 
     def get_service_alerts(self) -> list[dict]:
-        """Return empty service alerts (no disruptions in demo mode)."""
-        return []
+        """Return demo service alerts matching the LTA alert schema.
+
+        Mirrors the shape LTADataMallClient produces so downstream code
+        cannot tell the two apart.  Station codes are drawn from the
+        seeded network so they resolve to real station IDs.
+        """
+        created_at = _now_sgt().strftime("%Y-%m-%d %H:%M:%S")
+
+        return [
+            {
+                "status": 2,
+                "ltaLine": "NEL",
+                "direction": "HarbourFront",
+                "stationCodes": ["NE6", "NE4", "NE3", "NE1"],
+                "freePublicBusCodes": ["NE6", "NE4", "NE3", "NE1"],
+                "freeMrtShuttleCodes": ["NE6", "NE1"],
+                "mrtShuttleDirection": "HarbourFront",
+                "message": (
+                    "No train service between Dhoby Ghaut and HarbourFront "
+                    "stations towards HarbourFront due to a signalling fault. "
+                    "Free bus rides are available at designated bus stops."
+                ),
+                "createdAt": created_at,
+                "source": "simulated",
+            },
+            {
+                "status": 1,
+                "ltaLine": "EWL",
+                "direction": "Both",
+                "stationCodes": ["EW13", "EW14"],
+                "freePublicBusCodes": [],
+                "freeMrtShuttleCodes": [],
+                "mrtShuttleDirection": "",
+                "message": (
+                    "Trains are moving slower than usual between City Hall "
+                    "and Raffles Place. Please add 10 minutes to your journey."
+                ),
+                "createdAt": created_at,
+                "source": "simulated",
+            },
+        ]
 
     def get_passenger_volume(self, station_id: str) -> dict | None:
         """Return basic passenger volume data."""

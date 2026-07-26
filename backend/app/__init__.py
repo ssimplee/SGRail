@@ -62,6 +62,7 @@ def create_app(config_name: str | None = None) -> Flask:
 
 def _register_blueprints(app: Flask) -> None:
     """Register route blueprints with the app."""
+    from .routes.alerts import alerts_bp
     from .routes.assistant import assistant_bp
     from .routes.crowd import crowd_bp
     from .routes.health import health_bp
@@ -76,4 +77,5 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(crowd_bp, url_prefix="/api/v1")
     app.register_blueprint(incidents_bp, url_prefix="/api/v1")
     app.register_blueprint(assistant_bp, url_prefix="/api/v1")
+    app.register_blueprint(alerts_bp, url_prefix="/api/v1")
     app.register_blueprint(users_bp)  # users_bp already has url_prefix="/api/v1/users"
