@@ -42,7 +42,9 @@ export function MapPage() {
   return (
     <div className="relative h-full w-full">
       {/* Search bar overlay */}
-      <div className="absolute top-4 left-4 right-4 z-10 md:left-4 md:right-auto">
+      {/* Full width on mobile; a fixed, roomier width on desktop so the
+          wrapper does not shrink to fit and squash the input. */}
+      <div className="absolute top-4 left-4 right-4 z-10 md:left-4 md:right-auto md:w-[30rem]">
         <SearchBar onStationSelect={handleSearchSelect} />
       </div>
 

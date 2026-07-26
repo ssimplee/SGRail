@@ -48,7 +48,7 @@ export function SearchBar({ onStationSelect, className }: SearchBarProps) {
   }, []);
 
   return (
-    <div className={cn("relative z-20 w-full max-w-sm", className)}>
+    <div className={cn("relative z-20 w-full max-w-lg", className)}>
       <Command
         shouldFilter={false}
         className="rounded-lg border shadow-md bg-card"
