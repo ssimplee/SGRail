@@ -136,21 +136,33 @@ def _find_station(query: str) -> dict | None:
 
 
 def _extract_station_mentions(message: str) -> list[dict]:
-    """Extract any station references from a message."""
+    """Extract any station references from a message, in the order they
+    appear in the text.
+
+    Callers such as _handle_route treat the first match as origin and the
+    second as destination ("Punggol to Jurong East" -> origin=Punggol), so
+    the order returned here must reflect where each station is mentioned
+    in the message — not stations.json's arbitrary listing order, which
+    previously caused "Punggol to Jurong East" to come back as
+    [Jurong East, Punggol] whenever Jurong East happened to appear earlier
+    in the data file.
+    """
     stations = _load_stations()
     msg_lower = message.lower()
-    found = []
+    matches: list[tuple[int, dict]] = []
 
     for station in stations:
-        if station["name"].lower() in msg_lower:
-            found.append(station)
-        else:
+        pos = msg_lower.find(station["name"].lower())
+        if pos == -1:
             for code in station.get("codes", []):
-                if code.lower() in msg_lower:
-                    found.append(station)
+                pos = msg_lower.find(code.lower())
+                if pos != -1:
                     break
+        if pos != -1:
+            matches.append((pos, station))
 
-    return found
+    matches.sort(key=lambda m: m[0])
+    return [station for _, station in matches]
 
 
 def _now_sgt() -> datetime:

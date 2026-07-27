@@ -153,7 +153,15 @@ def plan_route(
             }
         )
 
-    return {"routes": formatted_routes, "error": None}
+    return {
+        "routes": formatted_routes,
+        "error": None,
+        # Resolved ids, not the model's own transcription — see AIPLAN.md
+        # phase 18. The tool-calling loop attaches these to the final
+        # response's stationIds instead of trusting what the model writes.
+        "originStationId": origin_id,
+        "destinationStationId": destination_id,
+    }
 
 
 def get_crowd_level(station: str) -> dict:
@@ -161,7 +169,9 @@ def get_crowd_level(station: str) -> dict:
     station_id = resolve_station_id(station)
     if station_id is None:
         return {"error": f"Could not find a station matching '{station}'."}
-    return CrowdService().get_station_crowd(station_id)
+    result = CrowdService().get_station_crowd(station_id)
+    result["stationId"] = station_id
+    return result
 
 
 def get_last_train(station: str, day_type: str = "weekday") -> dict:
@@ -191,7 +201,7 @@ def get_last_train(station: str, day_type: str = "weekday") -> dict:
         for entry in timings_data
         if entry["station_id"] == station_id and entry["service_day_type"] == day_type
     ]
-    return {"timings": timings, "error": None}
+    return {"timings": timings, "error": None, "stationId": station_id}
 
 
 def get_incidents(station: str | None = None, line: str | None = None) -> dict:
@@ -229,6 +239,7 @@ def get_incidents(station: str | None = None, line: str | None = None) -> dict:
         "officialAlertsSource": alert_service.alerts_source(),
         "communityIncidents": community["incidents"],
         "communityIncidentsTotal": community["total"],
+        "stationId": station_id,
     }
 
 
@@ -240,4 +251,5 @@ def get_station_facilities(station: str) -> dict:
     detail = station_service.get_station_detail(station_id)
     if detail is None:
         return {"error": f"Station '{station}' not found."}
+    detail["stationId"] = station_id
     return detail

@@ -274,7 +274,20 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
     the primary signal, and the `Preferred language` hint is explicitly
     downgraded to a tie-breaker used only when the message itself is too
     short/ambiguous to carry a language (a bare station name, "ok", a
-    single number).
+    single number). **Status: done, verified live.**
+17b. **Route wizard swapped origin/destination** (bug found during manual
+    testing — "Punggol to Jurong East" came out of the wizard as
+    "Jurong East to Punggol"). This surfaces whenever the rule-based
+    fallback handles a ROUTE message (e.g. Groq rate-limited mid-session,
+    or no API key configured) — `_handle_route` treats
+    `_extract_station_mentions(message)[0]` as origin and `[1]` as
+    destination, but that function returned matches in `stations.json`'s
+    listing order, not the order the stations were actually mentioned in
+    the message. Fix — `backend/app/services/ai_orchestrator.py`:
+    `_extract_station_mentions` now finds each match's character position
+    in the message and sorts by that, so "Punggol to Jurong East" always
+    returns `[Punggol, Jurong East]` regardless of which one appears
+    earlier in the data file. **Status: done, verified.**
 18. **`stationIds`/map-highlight used the model's own guess instead of the
     tool's resolved station id** (bug found during manual testing —
     clicking "View station on map" from a crowd/facility answer navigated
@@ -295,7 +308,8 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
     and overwrite `parsed["stationIds"]` with the real resolved ids
     whenever any tool call resolved one — never trust the model's own
     transcription of an id, matching the principle already applied to
-    `routeResults`.
+    `routeResults`. **Status: done, verified (new tests in
+    `test_agentic_tool_calling.py`).**
 19. **Route Planner loses its state on tab navigation** (bug found during
     manual testing — plan a route via the AI, switch to the AI tab and
     back to Route, and the result/prefill is gone). Root cause:
@@ -309,6 +323,9 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
     `assistantStore`/`mapStore`) holding the last plan request and result;
     `RoutePage.tsx` reads/writes it instead of purely local `useState`, so
     switching tabs and back restores the last view instead of resetting it.
+    **Status: done** (typecheck + full test suite verified; manual
+    tab-switch click-through not yet re-confirmed live in-browser — worth
+    a quick sanity check).
 
 Not doing (out of scope for a hackathon app): Redis-backed distributed
 cache/rate-limit, self-hosted open-weight model, streaming responses,

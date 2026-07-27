@@ -57,6 +57,55 @@ def _final_response(reply_dict: dict) -> dict:
 
 
 class TestToolCallingLoop:
+    def test_overwrites_stationids_with_tool_resolved_ids_not_model_guess(self, app):
+        """The model's own stationIds guess (a display name, wrong case,
+        whatever) must never survive — the real resolved id from the tool
+        call takes over. See AIPLAN.md phase 18."""
+        with app.app_context():
+            tool_request = _tool_call_response("get_crowd_level", {"station": "Orchard"})
+            final = _final_response(
+                {
+                    "reply": "It's moderately crowded.",
+                    "intent": "CROWD",
+                    "stationIds": ["Orchard"],  # model's own (wrong-format) guess
+                }
+            )
+
+            with patch("app.integrations.ai_client.requests.post") as mock_post:
+                mock_post.side_effect = [
+                    _mock_response(tool_request),
+                    _mock_response(final),
+                ]
+
+                result = _openai_compatible_chat(
+                    "https://example.test/chat", "test-model", "fake-key",
+                    "how crowded is orchard", {},
+                )
+
+            assert result["stationIds"] == ["orchard"]
+
+    def test_plan_route_overwrites_stationids_with_origin_and_destination(self, app):
+        with app.app_context():
+            tool_request = _tool_call_response(
+                "plan_route", {"origin": "Punggol", "destination": "Jurong East"}
+            )
+            final = _final_response(
+                {"reply": "Here's your route.", "intent": "ROUTE", "stationIds": []}
+            )
+
+            with patch("app.integrations.ai_client.requests.post") as mock_post:
+                mock_post.side_effect = [
+                    _mock_response(tool_request),
+                    _mock_response(final),
+                ]
+
+                result = _openai_compatible_chat(
+                    "https://example.test/chat", "test-model", "fake-key",
+                    "plan a route from Punggol to Jurong East", {},
+                )
+
+            assert result["stationIds"] == ["punggol", "jurong-east"]
+
     def test_executes_tool_call_and_returns_final_answer(self, app):
         """Model requests plan_route, gets a real result, then answers."""
         with app.app_context():

@@ -11,6 +11,7 @@ import { RouteResultList } from "@/components/route/RouteResultCard";
 import { useRoutePlanner } from "@/features/routes/useRoutePlanner";
 import { useMapStore } from "@/store/mapStore";
 import { useJourneyStore } from "@/store/journeyStore";
+import { useRouteStore } from "@/store/routeStore";
 import { createSavedRoute } from "@/services/user.api";
 import { STATIONS } from "@/data/stations";
 import type { RoutePreference, RouteResult } from "@/types/route.types";
@@ -133,14 +134,20 @@ export function RoutePage() {
     () => (location.state as RoutePrefillState | null) ?? null,
   );
 
-  const [preference, setPreference] = useState<RoutePreference>(
-    () => prefill?.preference ?? "FASTEST",
-  );
-  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
-  const [lastRequest, setLastRequest] = useState<{
-    originStationId: string;
-    destinationStationId: string;
-  } | null>(null);
+  // Request/result state lives in routeStore, not local useState — local
+  // state resets on every unmount, which happens on every tab switch in
+  // this app's router, silently dropping the last computed route (AI-planned
+  // or manual) the moment you navigated away. See AIPLAN.md phase 19.
+  const storedOriginId = useRouteStore((s) => s.originStationId);
+  const storedDestinationId = useRouteStore((s) => s.destinationStationId);
+  const storedMode = useRouteStore((s) => s.mode);
+  const preference = useRouteStore((s) => s.preference);
+  const setPreference = useRouteStore((s) => s.setPreference);
+  const setRouteRequest = useRouteStore((s) => s.setRequest);
+  const storedResult = useRouteStore((s) => s.lastResult);
+  const setStoredResult = useRouteStore((s) => s.setResult);
+  const selectedRouteIndex = useRouteStore((s) => s.selectedRouteIndex);
+  const setSelectedRouteIndex = useRouteStore((s) => s.setSelectedRouteIndex);
 
   const { planRoute, data, isLoading, error, reset } = useRoutePlanner();
   const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
@@ -153,21 +160,31 @@ export function RoutePage() {
   useEffect(() => {
     if (!prefill?.autoSubmit) return;
     setSelectedRouteIndex(0);
-    setLastRequest({
-      originStationId: prefill.originStationId,
-      destinationStationId: prefill.destinationStationId,
-    });
-    planRoute({
+    setPreference(prefill.preference);
+    setRouteRequest({
       originStationId: prefill.originStationId,
       destinationStationId: prefill.destinationStationId,
       mode: prefill.mode,
       preference: prefill.preference,
     });
+    planRoute(
+      {
+        originStationId: prefill.originStationId,
+        destinationStationId: prefill.destinationStationId,
+        mode: prefill.mode,
+        preference: prefill.preference,
+      },
+      { onSuccess: setStoredResult },
+    );
     // Clear the handed-off state so navigating back/refreshing doesn't replay it.
     navigate(location.pathname, { replace: true, state: null });
     // Intentionally run once on mount only — prefill is already captured.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // The route results to render: this mount's own fresh mutation result if
+  // one exists yet, else whatever was last stored (restored on remount).
+  const displayData = data ?? storedResult;
 
   // Save route mutation
   const saveRouteMutation = useMutation({
@@ -175,7 +192,7 @@ export function RoutePage() {
   });
 
   // Extract route station IDs when routes change for map highlighting
-  const routes = data?.routes ?? [];
+  const routes = displayData?.routes ?? [];
 
   // Highlight selected route on map whenever selection changes
   const highlightedIds = useMemo(() => {
@@ -205,16 +222,21 @@ export function RoutePage() {
       departureTime?: string;
     }) => {
       setSelectedRouteIndex(0);
-      setLastRequest({
+      setRouteRequest({
         originStationId: params.originStationId,
         destinationStationId: params.destinationStationId,
-      });
-      planRoute({
-        ...params,
+        mode: params.mode,
         preference,
       });
+      planRoute(
+        {
+          ...params,
+          preference,
+        },
+        { onSuccess: setStoredResult },
+      );
     },
-    [preference, planRoute]
+    [preference, planRoute, setRouteRequest, setStoredResult, setSelectedRouteIndex]
   );
 
   const handleStartTracking = useCallback(
@@ -243,13 +265,13 @@ export function RoutePage() {
   );
 
   const handleSaveRoute = useCallback(() => {
-    if (!lastRequest) return;
+    if (!storedOriginId || !storedDestinationId) return;
     saveRouteMutation.mutate({
-      originStationId: lastRequest.originStationId,
-      destinationStationId: lastRequest.destinationStationId,
+      originStationId: storedOriginId,
+      destinationStationId: storedDestinationId,
       preference,
     });
-  }, [lastRequest, preference, saveRouteMutation]);
+  }, [storedOriginId, storedDestinationId, preference, saveRouteMutation]);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -265,9 +287,11 @@ export function RoutePage() {
       <RouteInputForm
         onSubmit={handlePlanRoute}
         isLoading={isLoading}
-        initialOriginId={prefill?.originStationId}
-        initialDestinationId={prefill?.destinationStationId}
-        initialMode={prefill?.mode}
+        initialOriginId={prefill?.originStationId ?? storedOriginId ?? undefined}
+        initialDestinationId={
+          prefill?.destinationStationId ?? storedDestinationId ?? undefined
+        }
+        initialMode={prefill?.mode ?? storedMode}
       />
 
       {/* Preference Selector */}
@@ -310,10 +334,10 @@ export function RoutePage() {
           </div>
 
           {/* Source & computation time */}
-          {data && (
+          {displayData && (
             <p className="text-[10px] text-muted-foreground">
-              Source: {data.source} · Computed at{" "}
-              {new Date(data.computedAt).toLocaleTimeString()}
+              Source: {displayData.source} · Computed at{" "}
+              {new Date(displayData.computedAt).toLocaleTimeString()}
             </p>
           )}
 
@@ -326,7 +350,7 @@ export function RoutePage() {
       )}
 
       {/* Empty state when no results and not loading */}
-      {!isLoading && !error && routes.length === 0 && !data && (
+      {!isLoading && !error && routes.length === 0 && !displayData && (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
           <Navigation className="size-8 opacity-50" />
           <p className="text-sm">

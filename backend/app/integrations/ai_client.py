@@ -55,7 +55,7 @@ Rules:
 - Only answer questions related to the Singapore MRT/LRT network.
 - If a question is out of scope, politely decline and redirect to MRT topics.
 - If a tool result's "source" (or "officialAlertsSource") field is "simulated" or "none", say so plainly rather than implying real-time official data — this app is currently running in demo mode for that data source, and mock data must never be presented as live.
-- Reply in the same language the user's message is written in. If the message is ambiguous or very short, use the "Preferred language" hint if one is given, otherwise default to English.
+- Reply in the same language as the CURRENT user message — detect this from the message's own text first, every time, even if it differs from previous messages in the conversation. The "Preferred language" hint (if given) reflects the app's UI setting, not necessarily what the user is typing right now — only fall back to it when the message itself is too short or ambiguous to carry a detectable language (e.g. a bare station name, "ok", a single number).
 - Always provide actionable, concise answers.
 - Reference specific station names and line codes where possible.
 
@@ -190,8 +190,11 @@ def _openai_compatible_chat(
     messages, repeating up to MAX_TOOL_ITERATIONS times. Once the model
     returns a final (non-tool-call) message, parses it as the usual JSON
     envelope. The most recent successful plan_route result is attached to
-    the final response as routeResults programmatically — never trusted
-    from the model's own transcription of it.
+    the final response as routeResults, and every tool call's resolved
+    station id(s) overwrite stationIds — both programmatically, never
+    trusted from the model's own transcription (it tends to write display
+    names like "Orchard" instead of the internal id "orchard", which
+    silently breaks the frontend's station lookups). See AIPLAN.md phase 18.
     """
     from app.integrations.agent_tools_schema import to_openai_tools
 
@@ -204,6 +207,7 @@ def _openai_compatible_chat(
         {"role": "user", "content": _build_user_message(message, context)},
     ]
     last_route_result: dict | None = None
+    resolved_station_ids: list[str] = []
 
     for _ in range(MAX_TOOL_ITERATIONS):
         payload = {
@@ -225,6 +229,8 @@ def _openai_compatible_chat(
             parsed = _parse_llm_response(choice_message.get("content") or "")
             if last_route_result is not None:
                 parsed["routeResults"] = last_route_result.get("routes")
+            if resolved_station_ids:
+                parsed["stationIds"] = resolved_station_ids
             return parsed
 
         # Model wants to call tool(s) — execute each and feed results back.
@@ -235,6 +241,10 @@ def _openai_compatible_chat(
                 "error"
             ):
                 last_route_result = result
+            for key in ("stationId", "originStationId", "destinationStationId"):
+                station_id = result.get(key)
+                if station_id and station_id not in resolved_station_ids:
+                    resolved_station_ids.append(station_id)
             messages.append(
                 {
                     "role": "tool",
