@@ -51,8 +51,8 @@ class ImageValidator:
 
         # Validate it's a real image by attempting to open with Pillow
         try:
-            img = Image.open(file_stream)
-            img.verify()  # Verify image integrity
+            with Image.open(file_stream) as img:
+                img.verify()  # Verify image integrity
             file_stream.seek(0)
         except (UnidentifiedImageError, Exception):
             return False, "File is not a valid image or is corrupted"

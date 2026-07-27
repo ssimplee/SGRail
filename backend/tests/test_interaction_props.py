@@ -29,7 +29,11 @@ from app.models.station import Station
 from app.models.incident import Incident
 from app.services.incident_service import add_interaction, create_incident
 from app.moderation.duplicate_checker import DuplicateChecker
-from app.moderation.pipeline import ModerationPipeline, ModerationResult
+from app.moderation.pipeline import (
+    ModerationPipeline,
+    ModerationResult,
+    VALID_CATEGORIES,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -37,6 +41,7 @@ from app.moderation.pipeline import ModerationPipeline, ModerationResult
 # ---------------------------------------------------------------------------
 
 valid_actions = st.sampled_from(["like", "dislike", "confirm", "resolve", "report_abusive"])
+valid_categories = st.sampled_from(VALID_CATEGORIES)
 
 
 # ---------------------------------------------------------------------------
@@ -235,12 +240,7 @@ class TestDuplicateReportDetection:
     **Validates: Requirements 20.5**
     """
 
-    @given(
-        category=st.sampled_from([
-            "train_delay", "train_breakdown", "station_closure",
-            "platform_crowding", "safety_issue",
-        ]),
-    )
+    @given(category=valid_categories)
     @settings(max_examples=30)
     def test_second_report_same_station_category_within_window_flagged(self, category: str):
         """Second incident with same station+category within time window → FLAGGED as duplicate.
@@ -282,10 +282,7 @@ class TestDuplicateReportDetection:
                 f"Expected reason 'duplicate_report', got '{outcome.reason}'"
             )
 
-    @given(
-        category1=st.sampled_from(["train_delay", "train_breakdown", "station_closure"]),
-        category2=st.sampled_from(["platform_crowding", "safety_issue", "accessibility_issue"]),
-    )
+    @given(category1=valid_categories, category2=valid_categories)
     @settings(max_examples=30)
     def test_different_category_same_station_not_flagged(self, category1: str, category2: str):
         """Different category at same station → NOT flagged as duplicate.
@@ -325,12 +322,7 @@ class TestDuplicateReportDetection:
                 f"got {outcome.result} with reason={outcome.reason}"
             )
 
-    @given(
-        category=st.sampled_from([
-            "train_delay", "train_breakdown", "station_closure",
-            "platform_crowding", "safety_issue",
-        ]),
-    )
+    @given(category=valid_categories)
     @settings(max_examples=30)
     def test_same_category_different_station_not_flagged(self, category: str):
         """Same category at a different station → NOT flagged as duplicate.

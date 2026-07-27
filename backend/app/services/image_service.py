@@ -64,16 +64,17 @@ class ImageService:
 
         # Step 2: Open and convert to RGB (strips EXIF metadata)
         file_stream.seek(0)
-        img = Image.open(file_stream)
-
-        # Convert to RGB to strip EXIF and handle RGBA/palette images
-        if img.mode in ("RGBA", "LA"):
-            # Composite onto white background for transparency
-            background = Image.new("RGB", img.size, (255, 255, 255))
-            background.paste(img, mask=img.split()[-1])
-            img = background
-        elif img.mode != "RGB":
-            img = img.convert("RGB")
+        with Image.open(file_stream) as source_img:
+            # Convert to RGB to strip EXIF and handle RGBA/palette images
+            if source_img.mode in ("RGBA", "LA"):
+                # Composite onto white background for transparency
+                background = Image.new("RGB", source_img.size, (255, 255, 255))
+                background.paste(source_img, mask=source_img.split()[-1])
+                img = background
+            elif source_img.mode != "RGB":
+                img = source_img.convert("RGB")
+            else:
+                img = source_img.copy()
 
         # Step 3: Resize if oversized (maintain aspect ratio)
         if img.width > MAX_DIMENSION or img.height > MAX_DIMENSION:

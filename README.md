@@ -116,6 +116,29 @@ python run.py
 The backend server runs at **http://localhost:5000**.
 API base: **http://localhost:5000/api/v1**
 
+### Updating Local Seed Data After Pulling Changes
+
+The app uses a local SQLite database at `backend/instance/mrt_app.db`. If you
+pull changes that update station data, route graph data, train timings, seed
+logic, or the bundled database, reseed your local backend DB before testing.
+
+From the project root:
+
+```powershell
+cd backend
+$env:PYTHONIOENCODING="utf-8"
+.\.venv\Scripts\python.exe seed.py
+```
+
+Then start the backend:
+
+```powershell
+.\.venv\Scripts\python.exe run.py
+```
+
+You do not need to reseed every time you start the app. Reseed when your local
+database may be stale, especially after pulling map/station/routing changes.
+
 ### Backend Environment Variables
 
 | Variable | Default | Description |

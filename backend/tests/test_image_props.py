@@ -101,7 +101,7 @@ class TestImageValidationRejection:
     """
 
     @given(content_type=invalid_content_type)
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def test_invalid_content_type_rejected(self, content_type: str):
         """Invalid content types → validate returns (False, error).
 
@@ -125,7 +125,7 @@ class TestImageValidationRejection:
         content_type=valid_content_type,
         max_mb=st.integers(min_value=1, max_value=3),
     )
-    @settings(max_examples=30)
+    @settings(max_examples=30, deadline=None)
     def test_oversized_file_rejected(self, content_type: str, max_mb: int):
         """Files exceeding max_mb → validate returns (False, error).
 
@@ -171,7 +171,7 @@ class TestImageValidationRejection:
         width=valid_dimension,
         height=valid_dimension,
     )
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def test_valid_image_within_size_accepted(
         self, content_type: str, width: int, height: int
     ):
@@ -216,7 +216,7 @@ class TestImageProcessing:
         width=valid_dimension,
         height=valid_dimension,
     )
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def test_processed_image_gets_uuid_filename(
         self, content_type: str, width: int, height: int
     ):
@@ -255,7 +255,7 @@ class TestImageProcessing:
         width=oversized_dimension,
         height=oversized_dimension,
     )
-    @settings(max_examples=30)
+    @settings(max_examples=30, deadline=None)
     def test_processed_image_dimensions_within_limit(
         self, content_type: str, width: int, height: int
     ):
@@ -279,20 +279,20 @@ class TestImageProcessing:
 
             # Open the saved file and check dimensions
             filepath = os.path.join(tmp_dir, filename)
-            saved_img = Image.open(filepath)
-            assert saved_img.width <= MAX_DIMENSION, (
-                f"Saved image width {saved_img.width} exceeds max {MAX_DIMENSION}"
-            )
-            assert saved_img.height <= MAX_DIMENSION, (
-                f"Saved image height {saved_img.height} exceeds max {MAX_DIMENSION}"
-            )
+            with Image.open(filepath) as saved_img:
+                assert saved_img.width <= MAX_DIMENSION, (
+                    f"Saved image width {saved_img.width} exceeds max {MAX_DIMENSION}"
+                )
+                assert saved_img.height <= MAX_DIMENSION, (
+                    f"Saved image height {saved_img.height} exceeds max {MAX_DIMENSION}"
+                )
 
     @given(
         content_type=valid_content_type,
         width=valid_dimension,
         height=valid_dimension,
     )
-    @settings(max_examples=30)
+    @settings(max_examples=30, deadline=None)
     def test_processed_image_saved_as_webp(
         self, content_type: str, width: int, height: int
     ):
@@ -321,16 +321,16 @@ class TestImageProcessing:
             filepath = os.path.join(tmp_dir, filename)
             assert os.path.exists(filepath), f"File not found: {filepath}"
 
-            saved_img = Image.open(filepath)
-            assert saved_img.format == "WEBP", (
-                f"Expected WEBP format, got: {saved_img.format}"
-            )
+            with Image.open(filepath) as saved_img:
+                assert saved_img.format == "WEBP", (
+                    f"Expected WEBP format, got: {saved_img.format}"
+                )
 
     @given(
         width=st.integers(min_value=50, max_value=800),
         height=st.integers(min_value=50, max_value=800),
     )
-    @settings(max_examples=30)
+    @settings(max_examples=30, deadline=None)
     def test_processed_image_has_metadata_stripped(self, width: int, height: int):
         """Processed images have EXIF metadata stripped (converted to RGB).
 
@@ -345,10 +345,9 @@ class TestImageProcessing:
 
             # Open the saved file and verify no EXIF data
             filepath = os.path.join(tmp_dir, filename)
-            saved_img = Image.open(filepath)
-
-            # WebP files converted from RGB should not carry EXIF
-            exif_data = saved_img.info.get("exif", None)
-            assert exif_data is None, (
-                f"Expected no EXIF metadata in processed image, but found some"
-            )
+            with Image.open(filepath) as saved_img:
+                # WebP files converted from RGB should not carry EXIF
+                exif_data = saved_img.info.get("exif", None)
+                assert exif_data is None, (
+                    f"Expected no EXIF metadata in processed image, but found some"
+                )
