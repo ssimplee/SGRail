@@ -5,6 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { RouteInputForm } from "@/components/route/RouteInputForm";
 import { PreferenceSelector } from "@/components/route/PreferenceSelector";
 import { RouteResultList } from "@/components/route/RouteResultCard";
@@ -128,6 +138,7 @@ export function RoutePage() {
     originStationId: string;
     destinationStationId: string;
   } | null>(null);
+  const [pendingRouteIndex, setPendingRouteIndex] = useState<number | null>(null);
 
   const { planRoute, data, isLoading, error, reset } = useRoutePlanner();
   const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
@@ -187,25 +198,16 @@ export function RoutePage() {
     [preference, planRoute]
   );
 
-  const handleStartTracking = useCallback(
+  const startRouteTracking = useCallback(
     (routeIndex: number) => {
       const route = routes[routeIndex];
       if (!route) return;
-      if (
-        activeRoute &&
-        !window.confirm(
-          "A route is already being tracked. Start this route and move the current one to history?"
-        )
-      ) {
-        return;
-      }
       const routeStops = deriveRouteStops(route);
       const origin = STATIONS.find((s) => s.id === lastRequest?.originStationId);
       const destination = STATIONS.find((s) => s.id === lastRequest?.destinationStationId);
       setActiveRoute(
         route,
-        routeStops
-        ,
+        routeStops,
         {
           title: `${origin?.name ?? "Origin"} to ${destination?.name ?? "Destination"}`,
           originStationId: lastRequest?.originStationId ?? "",
@@ -222,8 +224,32 @@ export function RoutePage() {
       });
       navigate("/");
     },
-    [activeRoute, lastRequest, routes, setActiveRoute, navigate]
+    [lastRequest, routes, setActiveRoute, navigate]
   );
+
+  const handleStartTracking = useCallback(
+    (routeIndex: number) => {
+      if (activeRoute) {
+        setPendingRouteIndex(routeIndex);
+        return;
+      }
+      startRouteTracking(routeIndex);
+    },
+    [activeRoute, startRouteTracking]
+  );
+
+  const handleConfirmOverwriteRoute = useCallback(() => {
+    if (pendingRouteIndex === null) return;
+    startRouteTracking(pendingRouteIndex);
+    setPendingRouteIndex(null);
+  }, [pendingRouteIndex, startRouteTracking]);
+
+  const pendingRoute = pendingRouteIndex !== null ? routes[pendingRouteIndex] : null;
+  const pendingRouteTitle = lastRequest
+    ? `${STATIONS.find((s) => s.id === lastRequest.originStationId)?.name ?? "Origin"} to ${
+        STATIONS.find((s) => s.id === lastRequest.destinationStationId)?.name ?? "Destination"
+      }`
+    : "new route";
 
   const handleSaveRoute = useCallback(() => {
     if (!lastRequest) return;
@@ -375,6 +401,64 @@ export function RoutePage() {
           </ul>
         </div>
       )}
+
+      <AlertDialog
+        open={pendingRouteIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRouteIndex(null);
+        }}
+      >
+        <AlertDialogContent className="max-w-md p-0">
+          <div className="border-b bg-blue-50 px-5 py-4">
+            <AlertDialogHeader className="gap-1 text-left">
+              <AlertDialogTitle className="flex items-center gap-2 text-blue-950">
+                <Navigation className="size-5 text-blue-600" />
+                Start a new route?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-blue-800">
+                Your current route will stop tracking and move into history.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </div>
+
+          <div className="space-y-3 px-5 py-4">
+            {activeRouteMeta && (
+              <div className="rounded-md border border-blue-100 bg-blue-50/70 p-3">
+                <p className="text-xs font-medium uppercase text-blue-700">Current route</p>
+                <p className="mt-1 text-sm font-semibold text-blue-950">
+                  {activeRouteMeta.title}
+                </p>
+                <p className="text-xs text-blue-700">
+                  {activeRouteMeta.totalMinutes} min · {activeRouteMeta.stops} stops
+                </p>
+              </div>
+            )}
+
+            {pendingRoute && (
+              <div className="rounded-md border border-amber-100 bg-amber-50 p-3">
+                <p className="text-xs font-medium uppercase text-amber-700">New route</p>
+                <p className="mt-1 text-sm font-semibold text-amber-950">
+                  {pendingRouteTitle}
+                </p>
+                <p className="text-xs text-amber-700">
+                  {pendingRoute.totalMinutes} min · {pendingRoute.stops} stops ·{" "}
+                  {pendingRoute.transfers} transfer{pendingRoute.transfers === 1 ? "" : "s"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <AlertDialogFooter className="border-t px-5 py-4">
+            <AlertDialogCancel className="mt-0">Keep current route</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmOverwriteRoute}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Start new route
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
