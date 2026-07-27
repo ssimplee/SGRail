@@ -1,12 +1,17 @@
 import { useCallback, useEffect } from "react";
 import { MRTMapComponent } from "@/components/map/MRTMapComponent";
 import { SearchBar } from "@/components/map/SearchBar";
+import { MapIntroDialog } from "@/components/map/MapIntroDialog";
 import { StationPanel } from "@/components/station/StationPanel";
+import { useFirstRunHint } from "@/hooks/useFirstRunHint";
 import { useMapStore } from "@/store/mapStore";
 import { useJourneyStore } from "@/store/journeyStore";
 import { JourneyTrackingOverlay } from "@/components/map/JourneyTrackingOverlay";
 import { useJourneyTracker } from "@/features/journey-tracking/useJourneyTracker";
 import type { MapStation } from "@/data/stations";
+
+/** localStorage key remembering that the map intro dialog has been seen */
+const MAP_INTRO_KEY = "sgrail.map-intro-seen";
 
 /**
  * Map page — the primary home screen showing the interactive MRT map,
@@ -20,6 +25,15 @@ export function MapPage() {
 
   const { activeRoute, routeStops, clearRoute } = useJourneyStore();
   const { journeyState, startTracking, stopTracking } = useJourneyTracker(routeStops);
+
+  const { visible: introVisible, dismiss: dismissIntro } =
+    useFirstRunHint(MAP_INTRO_KEY);
+
+  // Opening a station proves the point the intro was making, so retire it —
+  // this also covers arriving via search, or deep-linking into a station.
+  useEffect(() => {
+    if (selectedStation) dismissIntro();
+  }, [selectedStation, dismissIntro]);
 
   // Start tracking when activeRoute is set (triggered from RoutePage)
   useEffect(() => {
@@ -50,6 +64,13 @@ export function MapPage() {
 
       {/* MRT Map */}
       <MRTMapComponent />
+
+      {/* First-run intro. Suppressed mid-journey, where a modal over the map
+          would be actively unhelpful. */}
+      <MapIntroDialog
+        open={introVisible && !journeyState.isTracking}
+        onDismiss={dismissIntro}
+      />
 
       {/* Journey tracking overlay — shown when tracking is active */}
       {journeyState.isTracking && (
