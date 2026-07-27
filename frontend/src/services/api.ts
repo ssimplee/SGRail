@@ -15,3 +15,10 @@ export const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+apiClient.interceptors.request.use((config) => {
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    config.headers.delete("Content-Type");
+  }
+  return config;
+});

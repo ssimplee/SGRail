@@ -37,7 +37,30 @@ export async function listIncidents(
 export async function createIncident(
   request: IncidentCreateRequest
 ): Promise<Incident> {
-  const { data } = await apiClient.post<Incident>("/incidents", request);
+  if (!request.photo) {
+    const { photo, ...jsonRequest } = request;
+    const { data } = await apiClient.post<Incident>("/incidents", jsonRequest);
+    return data;
+  }
+
+  const formData = new FormData();
+  formData.append("stationId", request.stationId);
+  if (request.lineCode) formData.append("lineCode", request.lineCode);
+  formData.append("category", request.category);
+  formData.append("title", request.title);
+  formData.append("description", request.description);
+  formData.append("incidentTime", request.incidentTime);
+  formData.append("isAnonymous", String(request.isAnonymous));
+  formData.append("locationConsent", String(request.locationConsent));
+  if (request.latitude !== undefined && request.latitude !== null) {
+    formData.append("latitude", String(request.latitude));
+  }
+  if (request.longitude !== undefined && request.longitude !== null) {
+    formData.append("longitude", String(request.longitude));
+  }
+  formData.append("photo", request.photo);
+
+  const { data } = await apiClient.post<Incident>("/incidents", formData);
   return data;
 }
 

@@ -27,7 +27,7 @@ class Incident(db.Model):
     )  # "active" | "resolved" | "expired" | "removed"
     moderation_status = db.Column(
         db.String, default="pending"
-    )  # "pending" | "approved" | "rejected"
+    )  # "pending" | "approved" | "rejected" | "flagged"
     is_anonymous = db.Column(db.Boolean, default=False)
     location_lat = db.Column(db.Float, nullable=True)
     location_lng = db.Column(db.Float, nullable=True)

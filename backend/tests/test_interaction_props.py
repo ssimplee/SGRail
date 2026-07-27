@@ -1,7 +1,7 @@
 """Property tests for incident interactions.
 
-**Property 17: Duplicate Interaction Prevention**
-- Second identical (user_id, incident_id, action) → rejected with duplicate error
+**Property 17: Prototype Interaction Counters**
+- Repeated count actions from one tester simulate multiple commuters
 
 **Property 18: Duplicate Report Detection**
 - Same station+category within time window → flagged as duplicate
@@ -40,7 +40,7 @@ from app.moderation.pipeline import (
 # Strategies
 # ---------------------------------------------------------------------------
 
-valid_actions = st.sampled_from(["like", "dislike", "confirm", "resolve", "report_abusive"])
+valid_actions = st.sampled_from(["like", "dislike", "confirm", "report_abusive"])
 valid_categories = st.sampled_from(VALID_CATEGORIES)
 
 
@@ -110,15 +110,15 @@ def _create_incident(db_session, user_id: str, station_id: str, category: str = 
 
 
 # ---------------------------------------------------------------------------
-# Property 17: Duplicate Interaction Prevention
+# Property 17: Prototype Interaction Counters
 # ---------------------------------------------------------------------------
 
 
-class TestDuplicateInteractionPrevention:
-    """Property 17: Duplicate Interaction Prevention.
+class TestPrototypeInteractionCounters:
+    """Property 17: Prototype Interaction Counters.
 
-    For any (user_id, incident_id, action) triple, the second identical
-    submission shall be rejected with a duplicate error.
+    Count actions are intentionally repeatable in the prototype so one tester
+    can simulate multiple commuter votes from a single browser.
 
     **Validates: Requirements 19.2**
     """
@@ -146,8 +146,8 @@ class TestDuplicateInteractionPrevention:
 
     @given(action=valid_actions)
     @settings(max_examples=30)
-    def test_duplicate_interaction_rejected(self, action: str):
-        """Second identical (user_id, incident_id, action) → rejected with 'duplicate_action'.
+    def test_repeated_interaction_succeeds(self, action: str):
+        """Second identical count action succeeds for prototype simulation.
 
         **Validates: Requirements 19.2**
         """
@@ -162,17 +162,32 @@ class TestDuplicateInteractionPrevention:
                 f"First interaction should succeed, got: {result1}"
             )
 
-            # Second identical interaction → rejected
+            # Second identical count action increments again.
             result2 = add_interaction(incident.id, user.id, action)
-            assert result2.get("error") == "duplicate_action", (
-                f"Expected 'duplicate_action' error on second '{action}' attempt, "
+            assert result2.get("success") is True, (
+                f"Expected repeat '{action}' to succeed for prototype counters, "
                 f"got: {result2}"
             )
 
-    @given(
-        action1=valid_actions,
-        action2=valid_actions,
-    )
+    @given(action=st.sampled_from(["like", "dislike", "confirm"]))
+    @settings(max_examples=30)
+    def test_remove_interaction_decrements_count(self, action: str):
+        """remove_* action removes one prototype count."""
+        with _fresh_db() as db:
+            user = _create_user(db, "user-remove")
+            station = _create_station(db, "CC4")
+            incident = _create_incident(db, user.id, station.id)
+
+            add_interaction(incident.id, user.id, action)
+            add_interaction(incident.id, user.id, action)
+            result = add_interaction(incident.id, user.id, f"remove_{action}")
+
+            assert result.get("success") is True
+            db.session.refresh(incident)
+            count_attr = f"{action}_count"
+            assert getattr(incident, count_attr) == 1
+
+    @given(action1=valid_actions, action2=valid_actions)
     @settings(max_examples=30)
     def test_different_action_from_same_user_succeeds(self, action1: str, action2: str):
         """Different action from the same user on same incident → success (not a duplicate).
