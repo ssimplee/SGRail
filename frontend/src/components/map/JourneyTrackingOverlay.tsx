@@ -21,6 +21,7 @@ export interface JourneyTrackingOverlayProps {
   onStopTracking: () => void;
   onOpenRoute?: () => void;
   nextTrainEta?: string | null;
+  nextTrainStationName?: string | null;
 }
 
 /**
@@ -145,12 +146,16 @@ export function JourneyTrackingOverlay({
   onStopTracking,
   onOpenRoute,
   nextTrainEta,
+  nextTrainStationName,
 }: JourneyTrackingOverlayProps) {
   const { currentPhase, routeProgress, confidence, nextAction, nearestStation } =
     journeyState;
 
   const phaseConfig = getPhaseConfig(currentPhase);
   const confidenceInfo = getConfidenceLabel(confidence);
+  const showBoardingTrainEta =
+    Boolean(nextTrainEta) &&
+    (currentPhase === "approaching-start" || currentPhase === "at-start");
 
   return (
     <div
@@ -252,9 +257,14 @@ export function JourneyTrackingOverlay({
         </div>
       )}
 
-      {nextTrainEta && currentPhase !== "journey-complete" && (
-        <div className="mt-1.5 text-xs font-medium text-blue-700">
-          Estimated next train: {nextTrainEta}
+      {showBoardingTrainEta && (
+        <div className="mt-2 rounded-md border border-blue-100 bg-white/80 px-2.5 py-2">
+          <p className="text-[11px] font-medium uppercase text-blue-600">
+            Boarding station train
+          </p>
+          <p className="mt-0.5 text-xs font-semibold text-blue-950">
+            Next from {nextTrainStationName ?? "start station"}: {nextTrainEta}
+          </p>
         </div>
       )}
 

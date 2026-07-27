@@ -28,10 +28,13 @@ export function MapPage() {
 
   const { activeRoute, routeStops, clearRoute } = useJourneyStore();
   const { journeyState, startTracking, stopTracking } = useJourneyTracker(routeStops);
-  const nextTrainEta = useMemo(() => {
+  const boardingTrain = useMemo(() => {
     const boardStep = activeRoute?.steps.find((step) => step.type === "board");
     if (!boardStep) return null;
-    return estimateTrainHeadway(new Date(), `${boardStep.line}:${boardStep.direction}`).nextLabel;
+    return {
+      eta: estimateTrainHeadway(new Date(), `${boardStep.line}:${boardStep.direction}`).nextLabel,
+      stationName: boardStep.station ?? null,
+    };
   }, [activeRoute]);
 
   const { visible: introVisible, dismiss: dismissIntro } =
@@ -84,7 +87,8 @@ export function MapPage() {
       {journeyState.isTracking && (
         <JourneyTrackingOverlay
           journeyState={journeyState}
-          nextTrainEta={nextTrainEta}
+          nextTrainEta={boardingTrain?.eta}
+          nextTrainStationName={boardingTrain?.stationName}
           onOpenRoute={() => navigate("/route")}
           onStopTracking={() => {
             stopTracking();
