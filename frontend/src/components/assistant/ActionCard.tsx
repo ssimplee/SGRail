@@ -2,6 +2,7 @@ import { MapPin, Route, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { ChatMessage } from "@/types/assistant.types";
 import { useMapStore } from "@/store/mapStore";
+import { STATIONS } from "@/data/stations";
 
 interface ActionCardProps {
   message: ChatMessage;
@@ -14,7 +15,8 @@ interface ActionCardProps {
  * Validates: Requirements 23.1, 23.2
  */
 export function ActionCard({ message }: ActionCardProps) {
-  const { setHighlightedStations, setHighlightedRoute } = useMapStore();
+  const { setHighlightedStations, setHighlightedRoute, selectStation } =
+    useMapStore();
   const navigate = useNavigate();
 
   const hasStations = message.stationIds && message.stationIds.length > 0;
@@ -26,6 +28,13 @@ export function ActionCard({ message }: ActionCardProps) {
     }
     if (hasStations) {
       setHighlightedStations(message.stationIds!);
+      // A single-station action ("View station on map") should open that
+      // station's panel directly, not just glow a pin the user then has to
+      // go find and click themselves.
+      if (message.stationIds!.length === 1) {
+        const station = STATIONS.find((s) => s.id === message.stationIds![0]);
+        if (station) selectStation(station);
+      }
     }
     navigate("/"); // Go to map page
   };

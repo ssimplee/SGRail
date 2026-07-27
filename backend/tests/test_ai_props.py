@@ -263,15 +263,18 @@ class _StubLLMProvider:
         }
 
 
-def test_hybrid_provider_short_circuits_classifiable_intent():
-    """A message the rule-based engine can classify never reaches the LLM."""
+def test_hybrid_provider_forwards_classifiable_intent_to_llm():
+    """Since the agentic redesign (AIPLAN.md, "Agentic tool-calling"), a
+    message the rule-based engine could classify no longer short-circuits
+    to the free path — it reaches the LLM too, so tool-backed answers are
+    possible for every intent, not just OUT_OF_SCOPE leftovers."""
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub)
 
     response = hybrid.chat("Last train from Bugis", {})
 
-    assert response["intent"] == "LAST_TRAIN"
-    assert stub.call_count == 0
+    assert stub.call_count == 1
+    assert response["reply"] == "stub reply"
 
 
 def test_hybrid_provider_forwards_out_of_scope_to_llm():
@@ -313,14 +316,28 @@ def test_hybrid_provider_daily_cap_forces_rule_based_fallback():
     assert "mrt" in second["reply"].lower()
 
 
-def test_hybrid_provider_rejects_message_with_no_mrt_signal():
-    """A message with zero MRT-related signal is rejected for free —
-    never reaches the LLM, closing the 'use the chatbot as a free general
-    LLM proxy' abuse vector (e.g. 'code me a website')."""
+def test_hybrid_provider_forwards_off_topic_message_to_llm():
+    """A message with no MRT-related signal at all (e.g. 'Code me a
+    website') is no longer rejected by a keyword gate — it reaches the
+    wrapped LLM, whose own system prompt performs the real semantic
+    scope-restriction judgment. See AIPLAN.md."""
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub)
 
     response = hybrid.chat("Code me a website", {})
+
+    assert stub.call_count == 1
+    assert response["reply"] == "stub reply"
+
+
+@pytest.mark.parametrize("message", ["", "   ", "\n\t "])
+def test_hybrid_provider_rejects_empty_message_without_llm_call(message):
+    """Empty or whitespace-only messages are rejected for free — the one
+    case ChatRequestSchema doesn't already prevent (no min length)."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    response = hybrid.chat(message, {})
 
     assert stub.call_count == 0
     assert response["intent"] == "OUT_OF_SCOPE"

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   ArrowDownUp,
   MapPin,
@@ -10,21 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Command,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "@/components/ui/command";
+import { StationSearchSelect } from "@/components/shared/StationSearchSelect";
 import { STATIONS, type MapStation } from "@/data/stations";
-import { cn } from "@/lib/utils";
 import { useCurrentLocation } from "@/features/geolocation/useCurrentLocation";
 import {
   findNearestStations,
   formatDistance,
 } from "@/features/geolocation/geolocation.utils";
 import type { NearestStation } from "@/features/geolocation/geolocation.types";
+import type { TimeMode } from "@/types/route.types";
 
 /**
  * Props for the RouteInputForm component.
@@ -35,13 +29,17 @@ export interface RouteInputFormProps {
   onSubmit: (params: {
     originStationId: string;
     destinationStationId: string;
-    mode: "LEAVE_NOW" | "LEAVE_AT" | "ARRIVE_BY";
+    mode: TimeMode;
     departureTime?: string;
   }) => void;
   isLoading?: boolean;
+  /** Pre-select an origin station, e.g. handed off from the AI assistant */
+  initialOriginId?: string;
+  /** Pre-select a destination station, e.g. handed off from the AI assistant */
+  initialDestinationId?: string;
+  /** Pre-select the departure/arrival mode */
+  initialMode?: TimeMode;
 }
-
-type TimeMode = "LEAVE_NOW" | "LEAVE_AT" | "ARRIVE_BY";
 
 /**
  * Route planning input form with station selectors, swap button,
@@ -57,11 +55,25 @@ type TimeMode = "LEAVE_NOW" | "LEAVE_AT" | "ARRIVE_BY";
  *
  * Validates: Requirements 11.1, 11.2, 11.3, 11.4
  */
-export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormProps) {
-  const [origin, setOrigin] = useState<MapStation | null>(null);
-  const [destination, setDestination] = useState<MapStation | null>(null);
+export function RouteInputForm({
+  onSubmit,
+  isLoading = false,
+  initialOriginId,
+  initialDestinationId,
+  initialMode,
+}: RouteInputFormProps) {
+  const [origin, setOrigin] = useState<MapStation | null>(() =>
+    initialOriginId
+      ? (STATIONS.find((s) => s.id === initialOriginId) ?? null)
+      : null,
+  );
+  const [destination, setDestination] = useState<MapStation | null>(() =>
+    initialDestinationId
+      ? (STATIONS.find((s) => s.id === initialDestinationId) ?? null)
+      : null,
+  );
   const [usingCurrentLocation, setUsingCurrentLocation] = useState(false);
-  const [timeMode, setTimeMode] = useState<TimeMode>("LEAVE_NOW");
+  const [timeMode, setTimeMode] = useState<TimeMode>(initialMode ?? "LEAVE_NOW");
   const [departureTime, setDepartureTime] = useState("");
 
   const {
@@ -91,6 +103,14 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
     setOrigin(null);
     requestLocation();
   }, [requestLocation]);
+
+  const handleOriginChange = useCallback((stationId: string) => {
+    setOrigin(STATIONS.find((s) => s.id === stationId) ?? null);
+  }, []);
+
+  const handleDestinationChange = useCallback((stationId: string) => {
+    setDestination(STATIONS.find((s) => s.id === stationId) ?? null);
+  }, []);
 
   const handleClearCurrentLocation = useCallback(() => {
     setUsingCurrentLocation(false);
@@ -182,11 +202,11 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
                 )}
               </div>
             ) : (
-              <StationCombobox
+              <StationSearchSelect
                 id="origin-station"
                 placeholder="Select origin station…"
-                selected={origin}
-                onSelect={setOrigin}
+                value={origin?.id ?? ""}
+                onChange={handleOriginChange}
                 showCurrentLocation
                 onUseCurrentLocation={handleUseCurrentLocation}
               />
@@ -196,11 +216,11 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
           {/* To station */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="destination-station">To</Label>
-            <StationCombobox
+            <StationSearchSelect
               id="destination-station"
               placeholder="Select destination station…"
-              selected={destination}
-              onSelect={setDestination}
+              value={destination?.id ?? ""}
+              onChange={handleDestinationChange}
             />
           </div>
         </div>
@@ -285,131 +305,5 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
         )}
       </Button>
     </form>
-  );
-}
-
-// ─── Station Combobox (inline helper) ────────────────────────────────────────
-
-interface StationComboboxProps {
-  id: string;
-  placeholder: string;
-  selected: MapStation | null;
-  onSelect: (station: MapStation) => void;
-  showCurrentLocation?: boolean;
-  onUseCurrentLocation?: () => void;
-}
-
-/**
- * Searchable station selector using cmdk Command component.
- * Filters stations by name or code as the user types.
- */
-function StationCombobox({
-  id,
-  placeholder,
-  selected,
-  onSelect,
-  showCurrentLocation = false,
-  onUseCurrentLocation,
-}: StationComboboxProps) {
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const filtered = query.trim().length > 0
-    ? STATIONS.filter((s) => {
-        const q = query.toLowerCase();
-        return (
-          s.name.toLowerCase().includes(q) ||
-          s.codes.some((c) => c.toLowerCase().includes(q))
-        );
-      }).slice(0, 8)
-    : STATIONS.slice(0, 8);
-
-  const handleSelect = useCallback(
-    (stationId: string) => {
-      const station = STATIONS.find((s) => s.id === stationId);
-      if (station) {
-        onSelect(station);
-        setQuery("");
-        setOpen(false);
-      }
-    },
-    [onSelect],
-  );
-
-  const displayValue = selected ? `${selected.name} (${selected.codes.join("/")})` : "";
-
-  return (
-    <div className="relative">
-      <Input
-        ref={inputRef}
-        id={id}
-        placeholder={placeholder}
-        value={open ? query : displayValue}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          if (!open) setOpen(true);
-        }}
-        onFocus={() => {
-          setOpen(true);
-          setQuery("");
-        }}
-        onBlur={() => {
-          // Delay to allow click on dropdown items
-          setTimeout(() => setOpen(false), 200);
-        }}
-        role="combobox"
-        aria-expanded={open}
-        aria-controls={`${id}-list`}
-        aria-label={placeholder}
-        autoComplete="off"
-      />
-      {open && (
-        <div className="absolute top-full left-0 z-50 mt-1 w-full rounded-md border bg-popover shadow-md">
-          <Command shouldFilter={false}>
-            <CommandList id={`${id}-list`} role="listbox">
-              {showCurrentLocation && onUseCurrentLocation && (
-                <CommandGroup heading="Quick options">
-                  <CommandItem
-                    value="__current_location__"
-                    onSelect={() => {
-                      onUseCurrentLocation();
-                      setOpen(false);
-                    }}
-                  >
-                    <MapPin className="size-4 text-primary" />
-                    <span>Use current location</span>
-                  </CommandItem>
-                </CommandGroup>
-              )}
-              {filtered.length === 0 && query.trim().length > 0 && (
-                <CommandEmpty>No stations found.</CommandEmpty>
-              )}
-              {filtered.length > 0 && (
-                <CommandGroup heading="Stations">
-                  {filtered.map((station) => (
-                    <CommandItem
-                      key={station.id}
-                      value={station.id}
-                      onSelect={handleSelect}
-                      className={cn(
-                        selected?.id === station.id && "bg-accent",
-                      )}
-                    >
-                      <div className="flex flex-col">
-                        <span className="font-medium">{station.name}</span>
-                        <span className="text-muted-foreground text-xs">
-                          {station.codes.join(" / ")} — {station.lines.join(", ")} Line
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        </div>
-      )}
-    </div>
   );
 }

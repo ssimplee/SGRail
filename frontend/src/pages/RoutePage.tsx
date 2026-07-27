@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Navigation, Bookmark, Loader2, AlertCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { createSavedRoute } from "@/services/user.api";
 import { STATIONS } from "@/data/stations";
 import type { RoutePreference, RouteResult } from "@/types/route.types";
 import type { RouteStop } from "@/features/journey-tracking/journeyTracker.types";
+import type { RoutePrefillState } from "@/types/assistant.types";
 
 /**
  * Extract an ordered list of station IDs from a route result's steps.
@@ -122,7 +123,19 @@ function deriveRouteStops(route: RouteResult): RouteStop[] {
  * Validates: Requirements 11.1–11.4, 13.1–13.6
  */
 export function RoutePage() {
-  const [preference, setPreference] = useState<RoutePreference>("FASTEST");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Captured once on mount — a route handed off from the AI assistant's
+  // wizard (see useAssistant.ts) arrives as router state with the origin,
+  // destination, mode, and preference already decided conversationally.
+  const [prefill] = useState<RoutePrefillState | null>(
+    () => (location.state as RoutePrefillState | null) ?? null,
+  );
+
+  const [preference, setPreference] = useState<RoutePreference>(
+    () => prefill?.preference ?? "FASTEST",
+  );
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [lastRequest, setLastRequest] = useState<{
     originStationId: string;
@@ -133,7 +146,28 @@ export function RoutePage() {
   const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
   const clearHighlights = useMapStore((s) => s.clearHighlights);
   const setActiveRoute = useJourneyStore((s) => s.setActiveRoute);
-  const navigate = useNavigate();
+
+  // A wizard hand-off with a known departure time (LEAVE_NOW) can go
+  // straight to results; LEAVE_AT/ARRIVE_BY still need an exact time, so
+  // the form is left prefilled but unsubmitted for the user to finish.
+  useEffect(() => {
+    if (!prefill?.autoSubmit) return;
+    setSelectedRouteIndex(0);
+    setLastRequest({
+      originStationId: prefill.originStationId,
+      destinationStationId: prefill.destinationStationId,
+    });
+    planRoute({
+      originStationId: prefill.originStationId,
+      destinationStationId: prefill.destinationStationId,
+      mode: prefill.mode,
+      preference: prefill.preference,
+    });
+    // Clear the handed-off state so navigating back/refreshing doesn't replay it.
+    navigate(location.pathname, { replace: true, state: null });
+    // Intentionally run once on mount only — prefill is already captured.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Save route mutation
   const saveRouteMutation = useMutation({
@@ -228,7 +262,13 @@ export function RoutePage() {
       </div>
 
       {/* Route Input Form */}
-      <RouteInputForm onSubmit={handlePlanRoute} isLoading={isLoading} />
+      <RouteInputForm
+        onSubmit={handlePlanRoute}
+        isLoading={isLoading}
+        initialOriginId={prefill?.originStationId}
+        initialDestinationId={prefill?.destinationStationId}
+        initialMode={prefill?.mode}
+      />
 
       {/* Preference Selector */}
       <div className="border-t px-4 py-3">

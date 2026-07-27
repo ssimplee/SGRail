@@ -27,8 +27,14 @@ from app.config import BaseConfig
 logger = logging.getLogger(__name__)
 
 # Hard cap on generated tokens for every paid LLM call — bounds per-request
-# cost regardless of how the model chooses to respond. See AIPLAN.md.
-MAX_OUTPUT_TOKENS = 512
+# cost regardless of how the model chooses to respond. Raised from the
+# original 512 to give tool-calling turns headroom beyond a single canned
+# reply. See AIPLAN.md.
+MAX_OUTPUT_TOKENS = 1024
+
+# Bounds a tool-calling loop (call -> tool result -> re-call) so a
+# misbehaving model can't spin forever racking up requests.
+MAX_TOOL_ITERATIONS = 4
 
 # ---------------------------------------------------------------------------
 # System prompt shared across all LLM providers
@@ -48,12 +54,14 @@ Your capabilities:
 Rules:
 - Only answer questions related to the Singapore MRT/LRT network.
 - If a question is out of scope, politely decline and redirect to MRT topics.
+- If a tool result's "source" (or "officialAlertsSource") field is "simulated" or "none", say so plainly rather than implying real-time official data — this app is currently running in demo mode for that data source, and mock data must never be presented as live.
+- Reply in the same language the user's message is written in. If the message is ambiguous or very short, use the "Preferred language" hint if one is given, otherwise default to English.
 - Always provide actionable, concise answers.
 - Reference specific station names and line codes where possible.
 
 You MUST respond with valid JSON matching this exact schema:
 {
-  "reply": "<your natural language response>",
+  "reply": "<your natural language response, in the user's language>",
   "intent": "<one of: ROUTE, LAST_TRAIN, CROWD, TRANSFER, ACCESSIBILITY, FACILITY, INCIDENT, OUT_OF_SCOPE>",
   "stationIds": ["<station-id>", ...],
   "lineCodes": ["<line-code>", ...],
@@ -65,15 +73,28 @@ You MUST respond with valid JSON matching this exact schema:
 Do NOT include any text outside the JSON object.
 """
 
+# Appended only for providers that actually receive a `tools` payload
+# (OpenAI-compatible ones today — see _openai_compatible_chat). Keeping this
+# separate from _SYSTEM_PROMPT means Gemini/Anthropic, which don't get tool
+# definitions yet, are never told to use tools they don't have.
+_TOOL_USAGE_ADDENDUM = """
+
+You have tools for real-time data: plan_route, get_crowd_level, get_last_train, get_incidents, get_station_facilities. Use them whenever a question needs current data instead of guessing or making up numbers. When plan_route returns routes, summarise them in "reply" but do not invent numbers beyond what the tool returned.
+
+Station names in the underlying data are English only (e.g. "Bishan", "Jurong East"). If the user's message is in another language, translate station names to their English form before passing them as tool arguments — the tools cannot resolve station names in other languages, even though your final "reply" should still be in the user's language.
+"""
+
 
 def _build_user_message(message: str, context: dict) -> str:
-    """Build user message with station context included."""
+    """Build user message with station, preference, and language context included."""
     parts = [f"User question: {message}"]
 
     if context.get("currentStationId"):
         parts.append(f"Current station: {context['currentStationId']}")
     if context.get("selectedRoutePreference"):
         parts.append(f"Route preference: {context['selectedRoutePreference']}")
+    if context.get("language"):
+        parts.append(f"Preferred language: {context['language']}")
 
     return "\n".join(parts)
 
@@ -124,6 +145,112 @@ def _fallback_response(message: str, context: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Tool-calling loop (OpenAI-compatible shape — OpenAI, Groq)
+# ---------------------------------------------------------------------------
+
+
+def _execute_tool_call(tool_call: dict) -> dict:
+    """Execute one OpenAI-shape tool call and return its JSON-serialisable result.
+
+    Never raises — a bad tool name or a failing tool must degrade to an
+    error dict the model can see and explain, not crash the chat turn.
+    """
+    from app.integrations.agent_tools_schema import TOOL_DISPATCH
+
+    name = tool_call.get("function", {}).get("name", "")
+    raw_args = tool_call.get("function", {}).get("arguments") or "{}"
+    try:
+        args = json.loads(raw_args)
+    except (json.JSONDecodeError, TypeError):
+        args = {}
+
+    func = TOOL_DISPATCH.get(name)
+    if func is None:
+        return {"error": f"Unknown tool '{name}'"}
+
+    try:
+        return func(**args)
+    except Exception as exc:  # noqa: BLE001 - a bad tool call must not crash the chat turn
+        logger.warning("Tool '%s' failed: %s", name, exc)
+        return {"error": f"Tool '{name}' failed: {exc}"}
+
+
+def _openai_compatible_chat(
+    api_url: str,
+    model: str,
+    api_key: str,
+    message: str,
+    context: dict,
+    timeout: int = 30,
+) -> dict:
+    """Shared tool-calling chat loop for OpenAI-shape providers (OpenAI, Groq).
+
+    Calls the model with the available tools; if it requests tool calls,
+    executes them via TOOL_DISPATCH and feeds the results back as `tool`
+    messages, repeating up to MAX_TOOL_ITERATIONS times. Once the model
+    returns a final (non-tool-call) message, parses it as the usual JSON
+    envelope. The most recent successful plan_route result is attached to
+    the final response as routeResults programmatically — never trusted
+    from the model's own transcription of it.
+    """
+    from app.integrations.agent_tools_schema import to_openai_tools
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    messages: list[dict] = [
+        {"role": "system", "content": _SYSTEM_PROMPT + _TOOL_USAGE_ADDENDUM},
+        {"role": "user", "content": _build_user_message(message, context)},
+    ]
+    last_route_result: dict | None = None
+
+    for _ in range(MAX_TOOL_ITERATIONS):
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": 0.3,
+            "max_tokens": MAX_OUTPUT_TOKENS,
+            "tools": to_openai_tools(),
+            "tool_choice": "auto",
+        }
+
+        resp = requests.post(api_url, headers=headers, json=payload, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        choice_message = data["choices"][0]["message"]
+        tool_calls = choice_message.get("tool_calls")
+
+        if not tool_calls:
+            parsed = _parse_llm_response(choice_message.get("content") or "")
+            if last_route_result is not None:
+                parsed["routeResults"] = last_route_result.get("routes")
+            return parsed
+
+        # Model wants to call tool(s) — execute each and feed results back.
+        messages.append(choice_message)
+        for tool_call in tool_calls:
+            result = _execute_tool_call(tool_call)
+            if tool_call.get("function", {}).get("name") == "plan_route" and not result.get(
+                "error"
+            ):
+                last_route_result = result
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call.get("id", ""),
+                    "content": json.dumps(result),
+                }
+            )
+
+    logger.warning(
+        "Tool-calling loop exceeded %d iterations without a final answer, falling back",
+        MAX_TOOL_ITERATIONS,
+    )
+    return _fallback_response(message, context)
+
+
+# ---------------------------------------------------------------------------
 # OpenAI Provider (gpt-4o-mini)
 # ---------------------------------------------------------------------------
 
@@ -143,32 +270,12 @@ class OpenAIProvider:
         self.api_key = api_key or BaseConfig.AI_API_KEY
 
     def chat(self, message: str, context: dict) -> dict:
-        """Process a user message via OpenAI and return structured response."""
+        """Process a user message via OpenAI, using tools for real data, and
+        return the structured response."""
         try:
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
-            payload = {
-                "model": self.MODEL,
-                "messages": [
-                    {"role": "system", "content": _SYSTEM_PROMPT},
-                    {"role": "user", "content": _build_user_message(message, context)},
-                ],
-                "temperature": 0.3,
-                "max_tokens": MAX_OUTPUT_TOKENS,
-                "response_format": {"type": "json_object"},
-            }
-
-            resp = requests.post(
-                self.API_URL, headers=headers, json=payload, timeout=self.TIMEOUT
+            return _openai_compatible_chat(
+                self.API_URL, self.MODEL, self.api_key, message, context, self.TIMEOUT
             )
-            resp.raise_for_status()
-
-            data = resp.json()
-            raw_content = data["choices"][0]["message"]["content"]
-            return _parse_llm_response(raw_content)
-
         except Exception as exc:
             logger.warning("OpenAI provider failed, falling back to rule-based: %s", exc)
             return _fallback_response(message, context)
@@ -194,32 +301,12 @@ class GroqProvider:
         self.api_key = api_key or BaseConfig.AI_API_KEY
 
     def chat(self, message: str, context: dict) -> dict:
-        """Process a user message via Groq and return structured response."""
+        """Process a user message via Groq, using tools for real data, and
+        return the structured response."""
         try:
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
-            payload = {
-                "model": self.MODEL,
-                "messages": [
-                    {"role": "system", "content": _SYSTEM_PROMPT},
-                    {"role": "user", "content": _build_user_message(message, context)},
-                ],
-                "temperature": 0.3,
-                "max_tokens": MAX_OUTPUT_TOKENS,
-                "response_format": {"type": "json_object"},
-            }
-
-            resp = requests.post(
-                self.API_URL, headers=headers, json=payload, timeout=self.TIMEOUT
+            return _openai_compatible_chat(
+                self.API_URL, self.MODEL, self.api_key, message, context, self.TIMEOUT
             )
-            resp.raise_for_status()
-
-            data = resp.json()
-            raw_content = data["choices"][0]["message"]["content"]
-            return _parse_llm_response(raw_content)
-
         except Exception as exc:
             logger.warning("Groq provider failed, falling back to rule-based: %s", exc)
             return _fallback_response(message, context)
@@ -336,16 +423,19 @@ class AnthropicProvider:
 
 
 class HybridProvider:
-    """Wraps a paid LLM provider with free-first routing, response caching,
-    and a hard daily call cap.
+    """Wraps a paid LLM provider with response caching and a hard daily
+    call cap — the LLM is now the primary responder for every non-empty
+    message, not a rare fallback for what a keyword classifier misses.
 
-    chat() classifies the message with the free rule-based engine first;
-    only messages it can't classify (OUT_OF_SCOPE) are considered for the
-    wrapped LLM provider. Of those, messages with no MRT-related signal at
-    all (has_mrt_signal) are rejected outright for free — this blocks
-    off-topic abuse (e.g. "code me a website") from ever reaching a paid
-    call. Anything left is cached and subject to a daily call budget.
-    See AIPLAN.md for the full rationale.
+    chat() rejects only empty/whitespace-only messages for free (the one
+    case the request schema doesn't already prevent). Everything else is
+    cached and subject to a daily call budget before reaching the wrapped
+    LLM provider, whose tools and system prompt handle both scope
+    restriction and grounded, current-data answers — no keyword net in
+    front of it. This intentionally reverses the original "classify-first"
+    routing that skipped the LLM entirely for recognised intents; see
+    AIPLAN.md, "Agentic tool-calling", for the full rationale and the
+    accepted cost-exposure tradeoff.
 
     NOTE: cache and daily-counter state are in-process/in-memory (matches
     flask_limiter's own memory:// storage). Under multiple worker processes
@@ -373,20 +463,12 @@ class HybridProvider:
         self._call_count = 0
 
     def chat(self, message: str, context: dict) -> dict:
-        """Route to the free rule-based engine when possible, else the
-        wrapped LLM provider (via cache and daily budget)."""
-        from app.services.ai_orchestrator import (
-            classify_intent,
-            has_mrt_signal,
-            RuleBasedAssistant,
-        )
+        """Reject only empty messages for free; otherwise route through the
+        cache and daily budget to the wrapped LLM provider."""
+        from app.services.ai_orchestrator import RuleBasedAssistant
 
-        intent = classify_intent(message)
-        if intent != "OUT_OF_SCOPE":
-            return RuleBasedAssistant().chat(message, context)
-
-        if not has_mrt_signal(message):
-            logger.info("Message has no MRT signal, rejecting without LLM call")
+        if not message or not message.strip():
+            logger.info("Empty message, rejecting without LLM call")
             return RuleBasedAssistant().chat(message, context)
 
         cache_key = self._cache_key(message, context)

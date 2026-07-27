@@ -46,7 +46,9 @@ VALID_UI_ACTIONS = [
 
 INTENT_PATTERNS: dict[str, list[str]] = {
     "ROUTE": ["how to get", "route from", "route to", "travel to", "go from", "go to", "get to",
-              "fastest way", "shortest route", "directions to", "journey from"],
+              "fastest way", "shortest route", "directions to", "journey from",
+              "plan a route", "plan route", "plan a trip", "plan my trip",
+              "plan a journey", "help me plan", "want to go", "need to go"],
     "LAST_TRAIN": ["last train", "latest train", "final train", "catch the last",
                    "last service", "last mrt", "miss the last"],
     "CROWD": ["crowded", "crowd", "busy", "packed", "crowd level",

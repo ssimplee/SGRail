@@ -1,3 +1,14 @@
+import { STATIONS } from "./stations";
+
+/**
+ * Every line code actually present in the station data, in a stable order.
+ * Derived rather than hand-maintained so it can't drift out of sync with
+ * stations.ts (e.g. missing LRT extensions like BP/CG).
+ */
+export const ALL_LINE_CODES: string[] = Array.from(
+  new Set(STATIONS.flatMap((s) => s.lines)),
+).sort();
+
 /**
  * MRT line colour definitions for SVG rendering and UI elements.
  * Colours match official SMRT/SBS Transit line branding.

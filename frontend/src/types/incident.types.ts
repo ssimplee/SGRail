@@ -106,13 +106,3 @@ export const INCIDENT_CATEGORIES: { value: IncidentCategory; label: string }[] =
   { value: "lost_item", label: "Lost Item" },
   { value: "other", label: "Other MRT-related" },
 ];
-
-/** MRT line codes for filters */
-export const MRT_LINES: { value: string; label: string }[] = [
-  { value: "NS", label: "North-South (Red)" },
-  { value: "EW", label: "East-West (Green)" },
-  { value: "NE", label: "North-East (Purple)" },
-  { value: "CC", label: "Circle (Orange)" },
-  { value: "DT", label: "Downtown (Blue)" },
-  { value: "TE", label: "Thomson-East Coast (Brown)" },
-];

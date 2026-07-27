@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Filter, X } from "lucide-react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { STATIONS } from "@/data/stations";
+import { ALL_LINE_CODES, LINE_COLORS } from "@/data/lineColors";
+import { cn } from "@/lib/utils";
 import {
   INCIDENT_CATEGORIES,
-  MRT_LINES,
   type IncidentCategory,
 } from "@/types/incident.types";
 
@@ -71,27 +72,49 @@ export function IncidentFilters({ values, onChange }: IncidentFiltersProps) {
 
       {/* Line filter */}
       <div>
-        <label
-          htmlFor="filter-line"
-          className="block text-xs font-medium text-foreground mb-1"
-        >
+        <span className="block text-xs font-medium text-foreground mb-1">
           Line
-        </label>
-        <select
-          id="filter-line"
-          value={values.line || ""}
-          onChange={(e) =>
-            onChange({ ...values, line: e.target.value || undefined })
-          }
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-        >
-          <option value="">All lines</option>
-          {MRT_LINES.map((l) => (
-            <option key={l.value} value={l.value}>
-              {l.label}
-            </option>
-          ))}
-        </select>
+        </span>
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by line">
+          <button
+            type="button"
+            onClick={() => onChange({ ...values, line: undefined })}
+            aria-pressed={!values.line}
+            className={cn(
+              "rounded-full border px-2 py-0.5 text-xs font-medium transition-colors",
+              !values.line
+                ? "border-foreground bg-foreground text-background"
+                : "text-foreground hover:bg-accent",
+            )}
+          >
+            All lines
+          </button>
+          {ALL_LINE_CODES.map((line) => {
+            const active = values.line === line;
+            const color = LINE_COLORS[line] ?? "#6b7280";
+            return (
+              <button
+                key={line}
+                type="button"
+                onClick={() =>
+                  onChange({ ...values, line: active ? undefined : line })
+                }
+                aria-pressed={active}
+                className={cn(
+                  "rounded-full border px-2 py-0.5 text-xs font-medium transition-colors",
+                  active ? "text-white" : "text-foreground hover:bg-accent",
+                )}
+                style={
+                  active
+                    ? { backgroundColor: color, borderColor: color }
+                    : { borderColor: color }
+                }
+              >
+                {line}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Category filter */}

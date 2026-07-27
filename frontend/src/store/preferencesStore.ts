@@ -14,6 +14,8 @@ export interface PreferencesStore {
   colourBlindLabels: boolean;
   /** Reduce motion/animations for accessibility */
   reducedMotion: boolean;
+  /** Dark colour theme */
+  darkMode: boolean;
   /** Whether location tracking is allowed for journey tracking */
   locationTracking: boolean;
 
@@ -22,6 +24,7 @@ export interface PreferencesStore {
   toggleHighContrast: () => void;
   toggleColourBlindLabels: () => void;
   toggleReducedMotion: () => void;
+  toggleDarkMode: () => void;
   toggleLocationTracking: () => void;
 }
 
@@ -40,6 +43,7 @@ export const usePreferencesStore = create<PreferencesStore>()(
       highContrast: false,
       colourBlindLabels: false,
       reducedMotion: false,
+      darkMode: false,
       locationTracking: true,
 
       setLanguage: (lang) => set({ language: lang }),
@@ -50,6 +54,7 @@ export const usePreferencesStore = create<PreferencesStore>()(
         set((state) => ({ colourBlindLabels: !state.colourBlindLabels })),
       toggleReducedMotion: () =>
         set((state) => ({ reducedMotion: !state.reducedMotion })),
+      toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
       toggleLocationTracking: () =>
         set((state) => ({ locationTracking: !state.locationTracking })),
     }),
