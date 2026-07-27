@@ -131,7 +131,7 @@ LINE_TERMINI: dict[str, tuple[str, str]] = {
     "NS": ("Marina South Pier", "Jurong East"),
     "EW": ("Pasir Ris", "Tuas Link"),
     "NE": ("Punggol", "HarbourFront"),
-    "CC": ("Dhoby Ghaut", "HarbourFront"),
+    "CC": ("Clockwise Loop", "Anticlockwise Loop"),
     "DT": ("Bukit Panjang", "Expo"),
     "TE": ("Woodlands North", "Bayshore"),
     "BP": ("Choa Chu Kang", "Bukit Panjang"),

@@ -212,6 +212,41 @@ class TestRoutePreferenceInfluence:
         assert fastest_path[-1][0] == dest
 
 
+
+
+class TestCompletedCircleLineRouting:
+    """Regression tests for the completed Circle Line Stage 6 loop."""
+
+    def test_ccl6_connects_harbourfront_to_marina_bay_without_transfer(self):
+        """Telok Blangah to Marina Bay should stay on the completed CCL."""
+        results = find_routes(
+            ROUTE_GRAPH, "telok-blangah", "marina-bay", "FASTEST", max_routes=1
+        )
+
+        assert results, "Expected a route through the completed Circle Line"
+        path = results[0][0]
+
+        assert path[0] == ("telok-blangah", "CC")
+        assert path[-1] == ("marina-bay", "CC")
+        assert _count_transfers(path, ROUTE_GRAPH) == 0
+        assert ("prince-edward-road", "CC") in path
+
+    def test_keppel_to_bayfront_uses_ccl6_not_ne_dt_detour(self):
+        """The new CCL6 stretch should be the direct route to Bayfront."""
+        results = find_routes(ROUTE_GRAPH, "keppel", "bayfront", "FASTEST", max_routes=1)
+
+        assert results, "Expected a route from Keppel to Bayfront"
+        path = results[0][0]
+
+        assert path == [
+            ("keppel", "CC"),
+            ("cantonment", "CC"),
+            ("prince-edward-road", "CC"),
+            ("marina-bay", "CC"),
+            ("bayfront", "CC"),
+        ]
+
+
 class TestWheelchairPropertyWithInaccessibleEdges:
     """Property test using a synthetic graph with inaccessible edges.
 

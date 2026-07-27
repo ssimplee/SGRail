@@ -77,7 +77,7 @@ def seed_station_lines(stations_data: list) -> dict:
         "NS": ("Marina South Pier", "Jurong East"),
         "EW": ("Pasir Ris", "Tuas Link"),
         "NE": ("Punggol", "HarbourFront"),
-        "CC": ("Dhoby Ghaut", "HarbourFront"),
+        "CC": ("Clockwise Loop", "Anticlockwise Loop"),
         "DT": ("Bukit Panjang", "Expo"),
         "TE": ("Woodlands North", "Sungei Bedok"),
         "CE": ("Bayfront", "Marina Bay"),

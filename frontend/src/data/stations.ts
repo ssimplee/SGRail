@@ -38,9 +38,9 @@ export const STATIONS: MapStation[] = [
   {
     id: "marina-bay",
     code: "NS27",
-    codes: ["NS27", "CE2", "TE20"],
+    codes: ["NS27", "CC33", "TE20"],
     name: "Marina Bay",
-    lines: ["NS", "CE", "TE"],
+    lines: ["NS", "CC", "TE"],
     x: 896.1,
     y: 876.5,
     hitRadius: 22,
@@ -1323,10 +1323,10 @@ export const STATIONS: MapStation[] = [
   // DT15 Promenade — already listed under CC line
   {
     id: "bayfront",
-    code: "CE1",
-    codes: ["CE1", "DT16"],
+    code: "CC34",
+    codes: ["CC34", "DT16"],
     name: "Bayfront",
-    lines: ["CE", "DT"],
+    lines: ["CC", "DT"],
     x: 978.8,
     y: 841.6,
     hitRadius: 22,

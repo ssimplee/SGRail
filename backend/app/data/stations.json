@@ -29,12 +29,12 @@
     "name": "Marina Bay",
     "codes": [
       "NS27",
-      "CE2",
+      "CC33",
       "TE20"
     ],
     "lines": [
       "NS",
-      "CE",
+      "CC",
       "TE"
     ],
     "map_x": 896.1,
@@ -2356,11 +2356,11 @@
     "id": "bayfront",
     "name": "Bayfront",
     "codes": [
-      "CE1",
+      "CC34",
       "DT16"
     ],
     "lines": [
-      "CE",
+      "CC",
       "DT"
     ],
     "map_x": 978.8,
