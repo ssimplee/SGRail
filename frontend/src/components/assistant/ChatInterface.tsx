@@ -11,7 +11,7 @@ import { SuggestionChips } from "./SuggestionChips";
  * Validates: Requirements 22.1, 23.1, 29.4
  */
 export function ChatInterface() {
-  const { messages, isLoading, send } = useAssistant();
+  const { messages, isLoading, send, answerQuickReply } = useAssistant();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,8 +43,13 @@ export function ChatInterface() {
           <SuggestionChips onSelect={handleSuggestionSelect} />
         ) : (
           <>
-            {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
+            {messages.map((message, index) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                isLatest={index === messages.length - 1}
+                onQuickReply={answerQuickReply}
+              />
             ))}
 
             {/* Loading indicator */}

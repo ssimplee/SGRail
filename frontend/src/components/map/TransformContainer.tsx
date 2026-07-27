@@ -34,13 +34,31 @@ export interface MapViewHandle {
   focusOnPoint: (x: number, y: number, scale?: number) => void;
 }
 
-const MIN_SCALE = 1;
+const MIN_SCALE = 0.3;
 const MAX_SCALE = 5;
 const ZOOM_STEP = 0.5;
 
 /** Zoom level used when centring on a station, close enough to read labels */
 const FOCUS_SCALE = 2;
 const FOCUS_ANIMATION_MS = 400;
+
+/** Map content is laid out on a fixed 1600×1000 stage (see contentStyle below) */
+const CONTENT_WIDTH = 1600;
+const CONTENT_HEIGHT = 1000;
+
+/**
+ * Scale that makes the fixed-size map stage fill the wrapper viewport with
+ * no letterboxing — the same "cover" behaviour as CSS background-size or
+ * Google Maps' initial view. Clamped to the configured zoom bounds so it
+ * never asks the library to render outside what it's configured to allow.
+ */
+function computeCoverScale(wrapper: HTMLElement): number {
+  const scale = Math.max(
+    wrapper.clientWidth / CONTENT_WIDTH,
+    wrapper.clientHeight / CONTENT_HEIGHT,
+  );
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+}
 
 export const TransformContainer = forwardRef<
   MapViewHandle,
@@ -69,7 +87,31 @@ export const TransformContainer = forwardRef<
   }, []);
 
   const handleReset = useCallback(() => {
-    transformRef.current?.resetTransform();
+    const api = transformRef.current;
+    const wrapper = api?.instance.wrapperComponent;
+    if (!api || !wrapper) return;
+    api.centerView(computeCoverScale(wrapper), FOCUS_ANIMATION_MS);
+  }, []);
+
+  const handleMapInit = useCallback((api: ReactZoomPanPinchRef) => {
+    const wrapper = api.instance.wrapperComponent;
+    if (!wrapper) return;
+
+    // wrapper.clientWidth/Height can still read 0 here — onInit fires as
+    // soon as the DOM nodes exist, which can be a layout pass before the
+    // surrounding flex/grid chain has resolved a real height. Wait for a
+    // ResizeObserver to confirm an actual size (the same signal the
+    // library's own centerOnInit waits for) before computing the fit,
+    // otherwise the cover scale collapses to MIN_SCALE.
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      if (width === 0 || height === 0) return;
+      observer.disconnect();
+      api.centerView(computeCoverScale(wrapper), 0);
+    });
+    observer.observe(wrapper);
   }, []);
 
   useImperativeHandle(
@@ -98,19 +140,20 @@ export const TransformContainer = forwardRef<
       <TransformWrapper
         ref={transformRef}
         initialScale={0.6}
-        minScale={0.3}
+        minScale={MIN_SCALE}
         maxScale={MAX_SCALE}
         centerOnInit
         limitToBounds={false}
         panning={{ velocityDisabled: false }}
-        wheel={{ smoothStep: 0.05 }}
+        wheel={{ smoothStep: 0.002 }}
         pinch={{ step: 5 }}
         doubleClick={{ disabled: false, step: 0.7 }}
+        onInit={handleMapInit}
       >
         <div className="relative h-full w-full">
           <TransformComponent
             wrapperStyle={{ width: "100%", height: "100%" }}
-            contentStyle={{ width: "1600px", height: "1000px" }}
+            contentStyle={{ width: `${CONTENT_WIDTH}px`, height: `${CONTENT_HEIGHT}px` }}
           >
             {children}
           </TransformComponent>

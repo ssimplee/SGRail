@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Eye, MonitorSmartphone, Palette, Type } from "lucide-react";
+import { Eye, Moon, MonitorSmartphone, Palette, Type } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -19,6 +19,8 @@ const TEXT_SCALE_OPTIONS = [
  * - Text size (Normal / Large / Extra Large) → sets CSS variable --font-size on <html>
  * - High contrast toggle → adds/removes .high-contrast class on <html>
  * - Colour-blind labels toggle → stored in state for map components
+ * - Dark mode toggle → adds/removes .dark class on <html> (applied app-wide
+ *   by AppProviders, not just while this screen is mounted)
  * - Reduced motion toggle → adds/removes .reduce-motion class on <html>
  *
  * Validates: Requirements 26.1, 26.2, 26.3, 26.7
@@ -29,10 +31,12 @@ export function AccessibilitySettings() {
     highContrast,
     colourBlindLabels,
     reducedMotion,
+    darkMode,
     setTextScale,
     toggleHighContrast,
     toggleColourBlindLabels,
     toggleReducedMotion,
+    toggleDarkMode,
   } = usePreferencesStore();
 
   // Apply text scale to <html> CSS variable
@@ -123,6 +127,22 @@ export function AccessibilitySettings() {
           checked={colourBlindLabels}
           onCheckedChange={toggleColourBlindLabels}
           aria-label="Toggle colour-blind friendly labels"
+        />
+      </div>
+
+      {/* Dark Mode */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Moon className="size-4 text-muted-foreground" />
+          <Label htmlFor="dark-mode" className="text-sm font-medium">
+            Dark Mode
+          </Label>
+        </div>
+        <Switch
+          id="dark-mode"
+          checked={darkMode}
+          onCheckedChange={toggleDarkMode}
+          aria-label="Toggle dark mode"
         />
       </div>
 

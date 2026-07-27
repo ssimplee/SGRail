@@ -15,9 +15,11 @@ import { z } from "zod";
 import { Camera, X, MapPin } from "lucide-react";
 
 import { STATIONS } from "@/data/stations";
+import { ALL_LINE_CODES, LINE_COLORS } from "@/data/lineColors";
+import { StationSearchSelect } from "@/components/shared/StationSearchSelect";
+import { cn } from "@/lib/utils";
 import {
   INCIDENT_CATEGORIES,
-  MRT_LINES,
   type IncidentCreateRequest,
   type IncidentCategory,
 } from "@/types/incident.types";
@@ -74,13 +76,6 @@ export interface IncidentSubmitFormProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Sorted station options for dropdown */
-const STATION_OPTIONS = STATIONS.map((s) => ({
-  value: s.id,
-  label: `${s.name} (${s.code})`,
-  lines: s.lines,
-})).sort((a, b) => a.label.localeCompare(b.label));
-
 /** Get the current datetime-local value (defaults to now) */
 function getCurrentDateTimeLocal(): string {
   const now = new Date();
@@ -126,10 +121,10 @@ export function IncidentSubmitForm({
 
   // Determine available lines based on selected station
   const availableLines = useMemo(() => {
-    if (!selectedStationId) return MRT_LINES;
+    if (!selectedStationId) return ALL_LINE_CODES;
     const station = STATIONS.find((s) => s.id === selectedStationId);
-    if (!station) return MRT_LINES;
-    return MRT_LINES.filter((l) => station.lines.includes(l.value));
+    if (!station) return ALL_LINE_CODES;
+    return ALL_LINE_CODES.filter((l) => station.lines.includes(l));
   }, [selectedStationId]);
 
   // Check GPS availability
@@ -228,20 +223,14 @@ export function IncidentSubmitForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Station *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a station" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {STATION_OPTIONS.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <StationSearchSelect
+                  id="incident-station"
+                  placeholder="Select a station"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -254,23 +243,41 @@ export function IncidentSubmitForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Line (optional)</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value || ""}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a line" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {availableLines.map((l) => (
-                    <SelectItem key={l.value} value={l.value}>
-                      {l.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <div
+                  className="flex flex-wrap gap-1.5"
+                  role="group"
+                  aria-label="Select line"
+                >
+                  {availableLines.map((line) => {
+                    const active = field.value === line;
+                    const color = LINE_COLORS[line] ?? "#6b7280";
+                    return (
+                      <button
+                        key={line}
+                        type="button"
+                        onClick={() =>
+                          field.onChange(active ? undefined : line)
+                        }
+                        aria-pressed={active}
+                        className={cn(
+                          "rounded-full border px-2 py-0.5 text-xs font-medium transition-colors",
+                          active
+                            ? "text-white"
+                            : "text-foreground hover:bg-accent",
+                        )}
+                        style={
+                          active
+                            ? { backgroundColor: color, borderColor: color }
+                            : { borderColor: color }
+                        }
+                      >
+                        {line}
+                      </button>
+                    );
+                  })}
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Navigation, Bookmark, Loader2, AlertCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,12 @@ import { RouteResultList } from "@/components/route/RouteResultCard";
 import { useRoutePlanner } from "@/features/routes/useRoutePlanner";
 import { useMapStore } from "@/store/mapStore";
 import { useJourneyStore } from "@/store/journeyStore";
+import { useRouteStore } from "@/store/routeStore";
 import { createSavedRoute } from "@/services/user.api";
 import { STATIONS } from "@/data/stations";
 import type { RoutePreference, RouteResult } from "@/types/route.types";
 import type { RouteStop } from "@/features/journey-tracking/journeyTracker.types";
+import type { RoutePrefillState } from "@/types/assistant.types";
 
 /**
  * Extract an ordered list of station IDs from a route result's steps.
@@ -122,18 +124,67 @@ function deriveRouteStops(route: RouteResult): RouteStop[] {
  * Validates: Requirements 11.1–11.4, 13.1–13.6
  */
 export function RoutePage() {
-  const [preference, setPreference] = useState<RoutePreference>("FASTEST");
-  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
-  const [lastRequest, setLastRequest] = useState<{
-    originStationId: string;
-    destinationStationId: string;
-  } | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Captured once on mount — a route handed off from the AI assistant's
+  // wizard (see useAssistant.ts) arrives as router state with the origin,
+  // destination, mode, and preference already decided conversationally.
+  const [prefill] = useState<RoutePrefillState | null>(
+    () => (location.state as RoutePrefillState | null) ?? null,
+  );
+
+  // Request/result state lives in routeStore, not local useState — local
+  // state resets on every unmount, which happens on every tab switch in
+  // this app's router, silently dropping the last computed route (AI-planned
+  // or manual) the moment you navigated away. See AIPLAN.md phase 19.
+  const storedOriginId = useRouteStore((s) => s.originStationId);
+  const storedDestinationId = useRouteStore((s) => s.destinationStationId);
+  const storedMode = useRouteStore((s) => s.mode);
+  const preference = useRouteStore((s) => s.preference);
+  const setPreference = useRouteStore((s) => s.setPreference);
+  const setRouteRequest = useRouteStore((s) => s.setRequest);
+  const storedResult = useRouteStore((s) => s.lastResult);
+  const setStoredResult = useRouteStore((s) => s.setResult);
+  const selectedRouteIndex = useRouteStore((s) => s.selectedRouteIndex);
+  const setSelectedRouteIndex = useRouteStore((s) => s.setSelectedRouteIndex);
 
   const { planRoute, data, isLoading, error, reset } = useRoutePlanner();
   const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
   const clearHighlights = useMapStore((s) => s.clearHighlights);
   const setActiveRoute = useJourneyStore((s) => s.setActiveRoute);
-  const navigate = useNavigate();
+
+  // A wizard hand-off with a known departure time (LEAVE_NOW) can go
+  // straight to results; LEAVE_AT/ARRIVE_BY still need an exact time, so
+  // the form is left prefilled but unsubmitted for the user to finish.
+  useEffect(() => {
+    if (!prefill?.autoSubmit) return;
+    setSelectedRouteIndex(0);
+    setPreference(prefill.preference);
+    setRouteRequest({
+      originStationId: prefill.originStationId,
+      destinationStationId: prefill.destinationStationId,
+      mode: prefill.mode,
+      preference: prefill.preference,
+    });
+    planRoute(
+      {
+        originStationId: prefill.originStationId,
+        destinationStationId: prefill.destinationStationId,
+        mode: prefill.mode,
+        preference: prefill.preference,
+      },
+      { onSuccess: setStoredResult },
+    );
+    // Clear the handed-off state so navigating back/refreshing doesn't replay it.
+    navigate(location.pathname, { replace: true, state: null });
+    // Intentionally run once on mount only — prefill is already captured.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The route results to render: this mount's own fresh mutation result if
+  // one exists yet, else whatever was last stored (restored on remount).
+  const displayData = data ?? storedResult;
 
   // Save route mutation
   const saveRouteMutation = useMutation({
@@ -141,7 +192,7 @@ export function RoutePage() {
   });
 
   // Extract route station IDs when routes change for map highlighting
-  const routes = data?.routes ?? [];
+  const routes = displayData?.routes ?? [];
 
   // Highlight selected route on map whenever selection changes
   const highlightedIds = useMemo(() => {
@@ -171,16 +222,21 @@ export function RoutePage() {
       departureTime?: string;
     }) => {
       setSelectedRouteIndex(0);
-      setLastRequest({
+      setRouteRequest({
         originStationId: params.originStationId,
         destinationStationId: params.destinationStationId,
-      });
-      planRoute({
-        ...params,
+        mode: params.mode,
         preference,
       });
+      planRoute(
+        {
+          ...params,
+          preference,
+        },
+        { onSuccess: setStoredResult },
+      );
     },
-    [preference, planRoute]
+    [preference, planRoute, setRouteRequest, setStoredResult, setSelectedRouteIndex]
   );
 
   const handleStartTracking = useCallback(
@@ -209,13 +265,13 @@ export function RoutePage() {
   );
 
   const handleSaveRoute = useCallback(() => {
-    if (!lastRequest) return;
+    if (!storedOriginId || !storedDestinationId) return;
     saveRouteMutation.mutate({
-      originStationId: lastRequest.originStationId,
-      destinationStationId: lastRequest.destinationStationId,
+      originStationId: storedOriginId,
+      destinationStationId: storedDestinationId,
       preference,
     });
-  }, [lastRequest, preference, saveRouteMutation]);
+  }, [storedOriginId, storedDestinationId, preference, saveRouteMutation]);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -228,7 +284,15 @@ export function RoutePage() {
       </div>
 
       {/* Route Input Form */}
-      <RouteInputForm onSubmit={handlePlanRoute} isLoading={isLoading} />
+      <RouteInputForm
+        onSubmit={handlePlanRoute}
+        isLoading={isLoading}
+        initialOriginId={prefill?.originStationId ?? storedOriginId ?? undefined}
+        initialDestinationId={
+          prefill?.destinationStationId ?? storedDestinationId ?? undefined
+        }
+        initialMode={prefill?.mode ?? storedMode}
+      />
 
       {/* Preference Selector */}
       <div className="border-t px-4 py-3">
@@ -270,10 +334,10 @@ export function RoutePage() {
           </div>
 
           {/* Source & computation time */}
-          {data && (
+          {displayData && (
             <p className="text-[10px] text-muted-foreground">
-              Source: {data.source} · Computed at{" "}
-              {new Date(data.computedAt).toLocaleTimeString()}
+              Source: {displayData.source} · Computed at{" "}
+              {new Date(displayData.computedAt).toLocaleTimeString()}
             </p>
           )}
 
@@ -286,7 +350,7 @@ export function RoutePage() {
       )}
 
       {/* Empty state when no results and not loading */}
-      {!isLoading && !error && routes.length === 0 && !data && (
+      {!isLoading && !error && routes.length === 0 && !displayData && (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
           <Navigation className="size-8 opacity-50" />
           <p className="text-sm">

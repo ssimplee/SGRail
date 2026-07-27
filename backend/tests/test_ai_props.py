@@ -263,15 +263,67 @@ class _StubLLMProvider:
         }
 
 
-def test_hybrid_provider_short_circuits_classifiable_intent():
-    """A message the rule-based engine can classify never reaches the LLM."""
+class _FlakyThenHealthyLLMProvider:
+    """Simulates a provider that fails once (e.g. a 429) then recovers —
+    its own internal fallback marks itself _isDegraded, same as the real
+    OpenAI/Groq providers' except-block fallback."""
+
+    def __init__(self):
+        self.call_count = 0
+
+    def chat(self, message: str, context: dict) -> dict:
+        self.call_count += 1
+        if self.call_count == 1:
+            return {
+                "reply": "degraded fallback reply",
+                "intent": "OUT_OF_SCOPE",
+                "_isDegraded": True,
+            }
+        return {"reply": "real llm reply", "intent": "OUT_OF_SCOPE"}
+
+
+def test_hybrid_provider_does_not_cache_degraded_fallback_response():
+    """A transient provider failure must not get 'burned in' to the cache —
+    the next identical request should retry the provider, not keep serving
+    the stale fallback for the rest of the TTL. See AIPLAN.md phase 20."""
+    provider = _FlakyThenHealthyLLMProvider()
+    hybrid = HybridProvider(provider)
+
+    first = hybrid.chat("a message with no mrt signal at all", {})
+    second = hybrid.chat("a message with no mrt signal at all", {})
+
+    assert provider.call_count == 2  # second call retried, wasn't a cache hit
+    assert first["reply"] == "degraded fallback reply"
+    assert second["reply"] == "real llm reply"
+    assert "_isDegraded" not in first  # marker stripped, never leaks to the API
+    assert "_isDegraded" not in second
+
+
+def test_hybrid_provider_caches_a_real_response_normally():
+    """Sanity check: the fix doesn't disable caching entirely — a normal
+    (non-degraded) response is still cached as before."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    first = hybrid.chat("How much does an MRT ticket cost today", {})
+    second = hybrid.chat("How much does an MRT ticket cost today", {})
+
+    assert stub.call_count == 1
+    assert first == second
+
+
+def test_hybrid_provider_forwards_classifiable_intent_to_llm():
+    """Since the agentic redesign (AIPLAN.md, "Agentic tool-calling"), a
+    message the rule-based engine could classify no longer short-circuits
+    to the free path — it reaches the LLM too, so tool-backed answers are
+    possible for every intent, not just OUT_OF_SCOPE leftovers."""
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub)
 
     response = hybrid.chat("Last train from Bugis", {})
 
-    assert response["intent"] == "LAST_TRAIN"
-    assert stub.call_count == 0
+    assert stub.call_count == 1
+    assert response["reply"] == "stub reply"
 
 
 def test_hybrid_provider_forwards_out_of_scope_to_llm():
@@ -313,14 +365,28 @@ def test_hybrid_provider_daily_cap_forces_rule_based_fallback():
     assert "mrt" in second["reply"].lower()
 
 
-def test_hybrid_provider_rejects_message_with_no_mrt_signal():
-    """A message with zero MRT-related signal is rejected for free —
-    never reaches the LLM, closing the 'use the chatbot as a free general
-    LLM proxy' abuse vector (e.g. 'code me a website')."""
+def test_hybrid_provider_forwards_off_topic_message_to_llm():
+    """A message with no MRT-related signal at all (e.g. 'Code me a
+    website') is no longer rejected by a keyword gate — it reaches the
+    wrapped LLM, whose own system prompt performs the real semantic
+    scope-restriction judgment. See AIPLAN.md."""
     stub = _StubLLMProvider()
     hybrid = HybridProvider(stub)
 
     response = hybrid.chat("Code me a website", {})
+
+    assert stub.call_count == 1
+    assert response["reply"] == "stub reply"
+
+
+@pytest.mark.parametrize("message", ["", "   ", "\n\t "])
+def test_hybrid_provider_rejects_empty_message_without_llm_call(message):
+    """Empty or whitespace-only messages are rejected for free — the one
+    case ChatRequestSchema doesn't already prevent (no min length)."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    response = hybrid.chat(message, {})
 
     assert stub.call_count == 0
     assert response["intent"] == "OUT_OF_SCOPE"
@@ -379,3 +445,134 @@ def test_chat_request_schema_accepts_message_at_limit():
     schema = ChatRequestSchema()
     data = schema.load({"message": "a" * 500})
     assert data["message"] == "a" * 500
+
+
+# ---------------------------------------------------------------------------
+# Provider-failure classification — degraded replies name their cause
+# instead of looking like a normal (possibly wrong-topic) answer.
+# ---------------------------------------------------------------------------
+
+
+def test_groq_provider_429_prepends_rate_limited_note():
+    """A 429 from Groq is classified as rate_limited and the fallback reply
+    leads with an honest note naming that cause, in the request's language."""
+    import requests
+    from unittest.mock import MagicMock, patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    resp = MagicMock()
+    resp.status_code = 429
+    err = requests.exceptions.HTTPError("429 rate limited")
+    err.response = resp
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.side_effect = err
+        result = provider.chat("does Bukit Panjang have a lift", {"language": "en"})
+
+    assert result["reply"].startswith("The AI assistant has hit today's usage limit")
+    assert "Bukit Panjang" in result["reply"]  # real rule-based answer still included
+
+
+def test_groq_provider_429_note_respects_language_context():
+    """The rate-limit note is translated per context.language, not just English."""
+    import requests
+    from unittest.mock import MagicMock, patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    resp = MagicMock()
+    resp.status_code = 429
+    err = requests.exceptions.HTTPError("429 rate limited")
+    err.response = resp
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.side_effect = err
+        result = provider.chat("from Bishan to Jurong East", {"language": "zh"})
+
+    assert result["reply"].startswith("AI助手今日的使用额度已用完")
+
+
+def test_groq_provider_non_429_failure_uses_generic_provider_error_note():
+    """A non-rate-limit failure (network error, timeout, etc.) gets the
+    generic 'temporarily unavailable' note, not the rate-limit-specific one."""
+    import requests
+    from unittest.mock import patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.side_effect = requests.exceptions.ConnectionError("boom")
+        result = provider.chat("does Bukit Panjang have a lift", {"language": "en"})
+
+    assert result["reply"].startswith("The AI assistant is temporarily unavailable")
+    assert "hit today's usage limit" not in result["reply"]
+
+
+def test_hybrid_provider_daily_cap_note_names_the_cause():
+    """Once the daily call budget is exhausted, the fallback reply says so
+    explicitly rather than silently returning a plain rule-based answer."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub, daily_cap=1)
+
+    hybrid.chat("What's SMRT's contact number?", {})
+    second = hybrid.chat("does Bukit Panjang have a lift", {"language": "en"})
+
+    assert second["reply"].startswith("The AI assistant has reached its daily call limit")
+
+
+def test_out_of_scope_reply_gives_example_prompts_not_vague_decline():
+    """The OUT_OF_SCOPE reply should guide the user toward a better question
+    with concrete examples, not just a vague 'I'm MRT-focused' catch-all."""
+    response = _assistant.chat("asdkfjaslkdfj random gibberish", {})
+
+    assert response["intent"] == "OUT_OF_SCOPE"
+    assert "for example" in response["reply"].lower()
+    assert "bishan" in response["reply"].lower()
+
+
+def test_out_of_scope_reply_respects_language_context():
+    """The OUT_OF_SCOPE example-prompt reply is translated per
+    context.language, matching the app's 4 supported UI languages."""
+    response = _assistant.chat("asdkfjaslkdfj random gibberish", {"language": "zh"})
+
+    assert response["intent"] == "OUT_OF_SCOPE"
+    assert "我不太明白您的问题" in response["reply"]
+
+
+def test_out_of_scope_reply_detects_script_over_stale_language_hint():
+    """A Chinese/Tamil-script message should reply in that language even
+    when context.language still says 'en' (the app's UI setting, which the
+    user may not have changed just because they typed in another script —
+    this was the actual bug the language-note feature shipped with)."""
+    zh_response = _assistant.chat("从比夏到裕廊东怎么走？", {"language": "en"})
+    assert "我不太明白您的问题" in zh_response["reply"]
+
+    ta_response = _assistant.chat(
+        "பிஷானில் இருந்து ஜூரோங் ஈஸ்ட் எப்படி செல்வது?", {"language": "en"}
+    )
+    assert "நீங்கள் கேட்பது என்னவென்று" in ta_response["reply"]
+
+
+def test_groq_provider_429_note_detects_script_over_stale_language_hint():
+    """Same script-detection override applies to the degraded-cause note
+    prepended on a provider failure, not just the OUT_OF_SCOPE reply."""
+    import requests
+    from unittest.mock import MagicMock, patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    resp = MagicMock()
+    resp.status_code = 429
+    err = requests.exceptions.HTTPError("429 rate limited")
+    err.response = resp
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.side_effect = err
+        result = provider.chat("从比夏到裕廊东怎么走？", {"language": "en"})
+
+    assert result["reply"].startswith("AI助手今日的使用额度已用完")

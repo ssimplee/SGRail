@@ -1,10 +1,15 @@
 import { Bot, User } from "lucide-react";
-import type { ChatMessage } from "@/types/assistant.types";
+import type { ChatMessage, RouteWizardStep } from "@/types/assistant.types";
 import { cn } from "@/lib/utils";
 import { ActionCard } from "./ActionCard";
+import { RouteResultList } from "@/components/route/RouteResultCard";
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  /** Only the latest message's quick replies are shown — answered
+   *  questions earlier in the history stay as plain text. */
+  isLatest?: boolean;
+  onQuickReply?: (step: RouteWizardStep, value: string, label: string) => void;
 }
 
 /**
@@ -12,7 +17,11 @@ interface MessageBubbleProps {
  *
  * Validates: Requirements 22.1, 29.4
  */
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  isLatest = false,
+  onQuickReply,
+}: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   return (
@@ -29,7 +38,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         </div>
       )}
 
-      <div className={cn("flex flex-col max-w-[75%] gap-1", isUser && "items-end")}>
+      <div
+        className={cn(
+          "flex flex-col gap-1",
+          // Real route results need real width for the summary row and
+          // step list — a plain text bubble stays narrow either way.
+          message.routeResults?.length ? "max-w-[95%] w-full" : "max-w-[75%]",
+          isUser && "items-end"
+        )}
+      >
         {/* Message bubble */}
         <div
           className={cn(
@@ -47,9 +64,36 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           )}
         </div>
 
+        {/* Real computed route(s) from the agentic assistant's plan_route tool */}
+        {!isUser && message.routeResults?.length && (
+          <div className="w-full">
+            <RouteResultList routes={message.routeResults} />
+          </div>
+        )}
+
         {/* Action card for structured responses */}
-        {!isUser && (message.stationIds?.length || message.uiAction) && (
-          <ActionCard message={message} />
+        {!isUser &&
+          !message.suppressActionCard &&
+          (message.stationIds?.length || message.uiAction) && (
+            <ActionCard message={message} />
+          )}
+
+        {/* Quick-reply chips for the route-planning follow-up wizard */}
+        {!isUser && isLatest && message.quickReplies && message.wizardStep && (
+          <div className="flex flex-wrap gap-2">
+            {message.quickReplies.map((reply) => (
+              <button
+                key={reply.value}
+                type="button"
+                onClick={() =>
+                  onQuickReply?.(message.wizardStep!, reply.value, reply.label)
+                }
+                className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {reply.label}
+              </button>
+            ))}
+          </div>
         )}
 
         {/* Data freshness indicator */}

@@ -274,9 +274,9 @@ describe("RouteInputForm current location", () => {
     fireEvent.click(match);
   }
 
-  /** Open a station combobox by focusing it, then pick a listed option. */
+  /** Open a station combobox by clicking its trigger, then pick a listed option. */
   async function chooseFromCombobox(fieldLabel: RegExp, optionLabel: RegExp) {
-    fireEvent.focus(screen.getByRole("combobox", { name: fieldLabel }));
+    fireEvent.click(screen.getByRole("combobox", { name: fieldLabel }));
     await pickOption(optionLabel);
   }
 
@@ -293,8 +293,9 @@ describe("RouteInputForm current location", () => {
     const destination = screen.getByRole("combobox", {
       name: /destination station/i,
     });
-    fireEvent.focus(destination);
-    fireEvent.change(destination, { target: { value: "Orchard" } });
+    fireEvent.click(destination);
+    const searchInput = await screen.findByPlaceholderText(/search stations/i);
+    fireEvent.change(searchInput, { target: { value: "Orchard" } });
     await pickOption(/^OrchardNS22/);
 
     fireEvent.click(screen.getByRole("button", { name: /plan route/i }));
