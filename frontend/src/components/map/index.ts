@@ -4,5 +4,6 @@ export { MapControls } from "./MapControls";
 export { NearestStationInfo } from "./NearestStationInfo";
 export { NearestStationMarker } from "./NearestStationMarker";
 export { LocationErrorCard } from "./LocationErrorCard";
+export { MapTapHint } from "./MapTapHint";
 export { SearchBar } from "./SearchBar";
 export { JourneyTrackingOverlay } from "./JourneyTrackingOverlay";
