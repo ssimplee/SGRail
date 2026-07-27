@@ -33,6 +33,7 @@ export function MapPage() {
     if (!boardStep) return null;
     return {
       eta: estimateTrainHeadway(new Date(), `${boardStep.line}:${boardStep.direction}`).nextLabel,
+      stationId: boardStep.stationId ?? null,
       stationName: boardStep.station ?? null,
     };
   }, [activeRoute]);
@@ -88,6 +89,7 @@ export function MapPage() {
         <JourneyTrackingOverlay
           journeyState={journeyState}
           nextTrainEta={boardingTrain?.eta}
+          nextTrainStationId={boardingTrain?.stationId}
           nextTrainStationName={boardingTrain?.stationName}
           onOpenRoute={() => navigate("/route")}
           onStopTracking={() => {

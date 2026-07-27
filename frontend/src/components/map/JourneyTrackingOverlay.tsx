@@ -21,6 +21,7 @@ export interface JourneyTrackingOverlayProps {
   onStopTracking: () => void;
   onOpenRoute?: () => void;
   nextTrainEta?: string | null;
+  nextTrainStationId?: string | null;
   nextTrainStationName?: string | null;
 }
 
@@ -146,6 +147,7 @@ export function JourneyTrackingOverlay({
   onStopTracking,
   onOpenRoute,
   nextTrainEta,
+  nextTrainStationId,
   nextTrainStationName,
 }: JourneyTrackingOverlayProps) {
   const { currentPhase, routeProgress, confidence, nextAction, nearestStation } =
@@ -155,7 +157,8 @@ export function JourneyTrackingOverlay({
   const confidenceInfo = getConfidenceLabel(confidence);
   const showBoardingTrainEta =
     Boolean(nextTrainEta) &&
-    (currentPhase === "approaching-start" || currentPhase === "at-start");
+    currentPhase !== "journey-complete" &&
+    (!nextTrainStationId || nearestStation?.id === nextTrainStationId);
 
   return (
     <div
