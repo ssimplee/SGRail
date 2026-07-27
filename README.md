@@ -252,9 +252,9 @@ Ensure your production deployment uses HTTPS (e.g., via a reverse proxy with TLS
 
 The MRT map image is stored locally in `frontend/public/mrt/`. The application does **not** hotlink external map images.
 
-- Replace `singapore-mrt-map.webp` with your own MRT map asset
+- Replace `singapore-mrt-map.png` with your own MRT map asset, keeping the filename (it is referenced directly in `MRTMapComponent.tsx`)
 - Update `frontend/public/mrt/attribution.txt` with the appropriate licence or attribution for the map image you use
-- Ensure the image is optimised for web delivery (WebP recommended, compressed)
+- Ensure the image is optimised for web delivery (compressed; the current asset is a 2000×1332 PNG)
 - The SVG overlay coordinates in the Station Coordinate Dataset are calibrated to the specific map image — if you replace the map, you must recalibrate
 
 ---
@@ -268,7 +268,7 @@ The SVG interaction overlay uses a viewBox coordinate system (0–1600 × 0–10
 A calibration tool is available in development builds (`src/components/map/CalibrationMode.tsx`). To use it:
 
 1. Start the frontend dev server (`npm run dev`)
-2. Enable calibration mode via the dev tools or a feature flag
+2. Append `?calibrate=1` to the URL (e.g. `http://localhost:5173/?calibrate=1`) — the overlay is hidden without it
 3. Click on station positions on the map to record new (x, y) coordinates
 4. Export the updated coordinate dataset
 5. Replace the station coordinate data in `src/data/stations.ts`
