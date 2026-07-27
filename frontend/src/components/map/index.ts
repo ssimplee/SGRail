@@ -1,5 +1,8 @@
 export { MRTMapComponent } from "./MRTMapComponent";
 export { TransformContainer } from "./TransformContainer";
 export { MapControls } from "./MapControls";
+export { NearestStationInfo } from "./NearestStationInfo";
+export { NearestStationMarker } from "./NearestStationMarker";
+export { LocationErrorCard } from "./LocationErrorCard";
 export { SearchBar } from "./SearchBar";
 export { JourneyTrackingOverlay } from "./JourneyTrackingOverlay";

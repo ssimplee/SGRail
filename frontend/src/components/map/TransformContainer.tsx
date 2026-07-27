@@ -1,4 +1,10 @@
-import { useRef, useCallback, type ReactNode } from "react";
+import {
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  forwardRef,
+  type ReactNode,
+} from "react";
 import {
   TransformWrapper,
   TransformComponent,
@@ -13,20 +19,45 @@ interface TransformContainerProps {
   onToggleCrowd?: () => void;
   stationLabelsActive?: boolean;
   onToggleStationLabels?: () => void;
+  onLocateMe?: () => void;
+  isLocating?: boolean;
+}
+
+/**
+ * Imperative handle for driving the viewport from outside the container.
+ */
+export interface MapViewHandle {
+  /**
+   * Centre the viewport on a point given in map-image coordinates — the same
+   * 1600×1000 space the SVG overlay and station x/y values use.
+   */
+  focusOnPoint: (x: number, y: number, scale?: number) => void;
 }
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 5;
 const ZOOM_STEP = 0.5;
 
-export function TransformContainer({
-  children,
-  className,
-  crowdLayerActive,
-  onToggleCrowd,
-  stationLabelsActive,
-  onToggleStationLabels,
-}: TransformContainerProps) {
+/** Zoom level used when centring on a station, close enough to read labels */
+const FOCUS_SCALE = 2;
+const FOCUS_ANIMATION_MS = 400;
+
+export const TransformContainer = forwardRef<
+  MapViewHandle,
+  TransformContainerProps
+>(function TransformContainer(
+  {
+    children,
+    className,
+    crowdLayerActive,
+    onToggleCrowd,
+    stationLabelsActive,
+    onToggleStationLabels,
+    onLocateMe,
+    isLocating,
+  },
+  ref,
+) {
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
 
   const handleZoomIn = useCallback(() => {
@@ -40,6 +71,27 @@ export function TransformContainer({
   const handleReset = useCallback(() => {
     transformRef.current?.resetTransform();
   }, []);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusOnPoint(x, y, scale = FOCUS_SCALE) {
+        const api = transformRef.current;
+        const wrapper = api?.instance.wrapperComponent;
+        if (!api || !wrapper) return;
+
+        // setTransform positions the content's top-left corner, so shift by
+        // half the viewport to bring the requested point to the centre.
+        api.setTransform(
+          wrapper.clientWidth / 2 - x * scale,
+          wrapper.clientHeight / 2 - y * scale,
+          scale,
+          FOCUS_ANIMATION_MS,
+        );
+      },
+    }),
+    [],
+  );
 
   return (
     <div className={className}>
@@ -70,9 +122,11 @@ export function TransformContainer({
             onToggleCrowd={onToggleCrowd}
             stationLabelsActive={stationLabelsActive}
             onToggleStationLabels={onToggleStationLabels}
+            onLocateMe={onLocateMe}
+            isLocating={isLocating}
           />
         </div>
       </TransformWrapper>
     </div>
   );
-}
+});

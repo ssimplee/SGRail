@@ -1,5 +1,11 @@
-import { useState, useCallback, useRef } from "react";
-import { ArrowDownUp, MapPin, Clock, Loader2 } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import {
+  ArrowDownUp,
+  MapPin,
+  MapPinOff,
+  Clock,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +19,12 @@ import {
 } from "@/components/ui/command";
 import { STATIONS, type MapStation } from "@/data/stations";
 import { cn } from "@/lib/utils";
+import { useCurrentLocation } from "@/features/geolocation/useCurrentLocation";
+import {
+  findNearestStations,
+  formatDistance,
+} from "@/features/geolocation/geolocation.utils";
+import type { NearestStation } from "@/features/geolocation/geolocation.types";
 
 /**
  * Props for the RouteInputForm component.
@@ -48,27 +60,59 @@ type TimeMode = "LEAVE_NOW" | "LEAVE_AT" | "ARRIVE_BY";
 export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormProps) {
   const [origin, setOrigin] = useState<MapStation | null>(null);
   const [destination, setDestination] = useState<MapStation | null>(null);
-  const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  const [usingCurrentLocation, setUsingCurrentLocation] = useState(false);
   const [timeMode, setTimeMode] = useState<TimeMode>("LEAVE_NOW");
   const [departureTime, setDepartureTime] = useState("");
 
-  const handleSwap = useCallback(() => {
-    if (useCurrentLocation) {
-      // Can't swap when origin is "current location" — just set origin to old destination
-      setUseCurrentLocation(false);
-      setOrigin(destination);
-      setDestination(null);
-    } else {
-      const temp = origin;
-      setOrigin(destination);
-      setDestination(temp);
+  const {
+    location,
+    status: locationStatus,
+    error: locationError,
+    requestLocation,
+    clearLocation,
+  } = useCurrentLocation();
+  const [gpsStation, setGpsStation] = useState<NearestStation | null>(null);
+
+  // A GPS fix is not a station, and the backend only routes between stations.
+  // Resolve the fix to the nearest one and use that as the real origin, so the
+  // request carries a station id rather than a placeholder.
+  useEffect(() => {
+    if (!location) {
+      setGpsStation(null);
+      return;
     }
-  }, [origin, destination, useCurrentLocation]);
+    const nearest = findNearestStations(location, STATIONS, 1)[0] ?? null;
+    setGpsStation(nearest);
+    if (nearest) setOrigin(nearest.station);
+  }, [location]);
+
+  const handleUseCurrentLocation = useCallback(() => {
+    setUsingCurrentLocation(true);
+    setOrigin(null);
+    requestLocation();
+  }, [requestLocation]);
+
+  const handleClearCurrentLocation = useCallback(() => {
+    setUsingCurrentLocation(false);
+    setGpsStation(null);
+    setOrigin(null);
+    clearLocation();
+  }, [clearLocation]);
+
+  const handleSwap = useCallback(() => {
+    // Once a fix has resolved, origin holds a real station, so a swap is an
+    // ordinary swap — it just stops being tied to the user's location.
+    setUsingCurrentLocation(false);
+    setGpsStation(null);
+    clearLocation();
+    setOrigin(destination);
+    setDestination(origin);
+  }, [origin, destination, clearLocation]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      const originId = useCurrentLocation ? "current-location" : origin?.id;
+      const originId = origin?.id;
       const destinationId = destination?.id;
 
       if (!originId || !destinationId) return;
@@ -80,11 +124,11 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
         departureTime: timeMode !== "LEAVE_NOW" ? departureTime : undefined,
       });
     },
-    [origin, destination, useCurrentLocation, timeMode, departureTime, onSubmit],
+    [origin, destination, timeMode, departureTime, onSubmit],
   );
 
   const canSubmit =
-    (useCurrentLocation || origin !== null) &&
+    origin !== null &&
     destination !== null &&
     (timeMode === "LEAVE_NOW" || departureTime.length > 0);
 
@@ -96,17 +140,46 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
           {/* From station */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="origin-station">From</Label>
-            {useCurrentLocation ? (
-              <div className="flex h-9 items-center gap-2 rounded-md border px-3 text-sm bg-muted">
-                <MapPin className="size-4 text-primary" />
-                <span>Current location</span>
-                <button
-                  type="button"
-                  className="ml-auto text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => setUseCurrentLocation(false)}
-                >
-                  Change
-                </button>
+            {usingCurrentLocation ? (
+              <div className="flex flex-col gap-1">
+                <div className="flex h-9 items-center gap-2 rounded-md border px-3 text-sm bg-muted">
+                  {locationStatus === "requesting" ? (
+                    <>
+                      <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
+                      <span>Finding your location…</span>
+                    </>
+                  ) : locationError ? (
+                    <>
+                      <MapPinOff className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate">Location unavailable</span>
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="size-4 shrink-0 text-primary" />
+                      {/* Name the station we resolved to — never substitute
+                          one silently, the walk could be a long one. */}
+                      <span className="truncate">
+                        {gpsStation
+                          ? `${gpsStation.station.name} · ${formatDistance(
+                              gpsStation.distanceMetres,
+                            )} away`
+                          : "Current location"}
+                      </span>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    className="ml-auto shrink-0 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={handleClearCurrentLocation}
+                  >
+                    Change
+                  </button>
+                </div>
+                {locationError && (
+                  <p className="text-xs text-muted-foreground" role="alert">
+                    {locationError}
+                  </p>
+                )}
               </div>
             ) : (
               <StationCombobox
@@ -115,10 +188,7 @@ export function RouteInputForm({ onSubmit, isLoading = false }: RouteInputFormPr
                 selected={origin}
                 onSelect={setOrigin}
                 showCurrentLocation
-                onUseCurrentLocation={() => {
-                  setUseCurrentLocation(true);
-                  setOrigin(null);
-                }}
+                onUseCurrentLocation={handleUseCurrentLocation}
               />
             )}
           </div>

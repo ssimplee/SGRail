@@ -127,14 +127,16 @@ def _get_edge_between(from_node: GraphNode, to_node: GraphNode) -> GraphEdge | N
 # Maps (line_code, direction_index) to terminus station name.
 # direction_index: 0 = "up" (towards higher station codes), 1 = "down" (towards lower)
 # For simplicity we use terminus names as directions.
+# The trailing comments are the terminus station codes — index 0 must be the
+# higher one, or the platform sign we print names the wrong end of the line.
 LINE_TERMINI: dict[str, tuple[str, str]] = {
-    "NS": ("Marina South Pier", "Jurong East"),
-    "EW": ("Pasir Ris", "Tuas Link"),
-    "NE": ("Punggol", "HarbourFront"),
-    "CC": ("Clockwise Loop", "Anticlockwise Loop"),
-    "DT": ("Bukit Panjang", "Expo"),
-    "TE": ("Woodlands North", "Bayshore"),
-    "BP": ("Choa Chu Kang", "Bukit Panjang"),
+    "NS": ("Marina South Pier", "Jurong East"),  # NS28 / NS1
+    "EW": ("Tuas Link", "Pasir Ris"),  # EW33 / EW1
+    "NE": ("Punggol Coast", "HarbourFront"),  # NE18 / NE1
+    "CC": ("Clockwise Loop", "Anticlockwise Loop"),  # loop — not code-ordered
+    "DT": ("Expo", "Bukit Panjang"),  # DT35 / DT1
+    "TE": ("Bayshore", "Woodlands North"),  # TE29 / TE1
+    "BP": ("Bukit Panjang", "Choa Chu Kang"),  # BP6 / BP1
 }
 
 

@@ -1,5 +1,7 @@
-import { RefreshCw, Navigation, AlertTriangle } from "lucide-react";
+import { RefreshCw, Info, AlertTriangle, X } from "lucide-react";
 import type { NearestStation } from "@/features/geolocation/geolocation.types";
+import { formatDistance } from "@/features/geolocation/geolocation.utils";
+import { cn } from "@/lib/utils";
 
 /** Accuracy threshold in metres above which we prompt manual confirmation */
 const POOR_ACCURACY_THRESHOLD = 100;
@@ -11,10 +13,14 @@ interface NearestStationInfoProps {
   accuracy: number;
   /** Callback to refresh location */
   onRefresh: () => void;
-  /** Callback when user taps "walk here" */
-  onWalkHere: () => void;
+  /** Callback to open the station's detail panel */
+  onViewDetails: () => void;
   /** Callback when user wants to manually select a station (poor accuracy) */
   onManualSelect?: () => void;
+  /** Callback to close the card and clear the location result */
+  onDismiss?: () => void;
+  /** Extra classes, mainly to reposition the card away from the search bar */
+  className?: string;
 }
 
 /**
@@ -25,7 +31,7 @@ interface NearestStationInfoProps {
  * - GPS accuracy value
  * - Warning when accuracy is poor (>100m)
  * - Refresh button to re-request location
- * - "Walk here" action button (placeholder)
+ * - Action button opening the station's detail panel
  *
  * Validates: Requirements 6.3, 6.4, 6.5, 6.6
  */
@@ -33,8 +39,10 @@ export function NearestStationInfo({
   nearestStation,
   accuracy,
   onRefresh,
-  onWalkHere,
+  onViewDetails,
   onManualSelect,
+  onDismiss,
+  className,
 }: NearestStationInfoProps) {
   const isPoorAccuracy = accuracy > POOR_ACCURACY_THRESHOLD;
   const formattedDistance = formatDistance(nearestStation.distanceMetres);
@@ -42,26 +50,41 @@ export function NearestStationInfo({
 
   return (
     <div
-      className="absolute left-4 top-4 z-10 w-72 rounded-lg border border-border bg-card p-3 shadow-lg"
+      className={cn(
+        "absolute left-4 top-4 z-10 w-72 rounded-lg border border-border bg-card p-3 shadow-lg",
+        className,
+      )}
       role="region"
       aria-label="Nearest station information"
     >
       {/* Station name and distance */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-1">
         <p className="text-sm font-semibold text-foreground">
           {nearestStation.station.name}{" "}
           <span className="font-normal text-muted-foreground">
             — {formattedDistance} away
           </span>
         </p>
-        <button
-          onClick={onRefresh}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          aria-label="Refresh location"
-          type="button"
-        >
-          <RefreshCw className="size-4" />
-        </button>
+        <div className="flex shrink-0 items-center">
+          <button
+            onClick={onRefresh}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            aria-label="Refresh location"
+            type="button"
+          >
+            <RefreshCw className="size-4" />
+          </button>
+          {onDismiss && (
+            <button
+              onClick={onDismiss}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              aria-label="Dismiss nearest station"
+              type="button"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* GPS accuracy */}
@@ -91,26 +114,16 @@ export function NearestStationInfo({
         </div>
       )}
 
-      {/* Walk here action */}
+      {/* Opens the station panel. Deliberately not labelled "walk" — this
+          gives no directions, and the card already states the distance. */}
       <button
-        onClick={onWalkHere}
+        onClick={onViewDetails}
         className="mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         type="button"
       >
-        <Navigation className="size-3.5" />
-        Walk to {nearestStation.station.name}
+        <Info className="size-3.5" />
+        Station details
       </button>
     </div>
   );
-}
-
-/**
- * Format a distance value in metres to a human-readable string.
- * Under 1000m shows metres, above shows km with one decimal.
- */
-function formatDistance(metres: number): string {
-  if (metres < 1000) {
-    return `${Math.round(metres)}m`;
-  }
-  return `${(metres / 1000).toFixed(1)}km`;
 }
