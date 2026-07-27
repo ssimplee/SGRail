@@ -61,6 +61,7 @@ class RouteResultSchema(Schema):
     dataFreshness = fields.DateTime(allow_none=True, load_default=None)
     lastTrainWarnings = fields.List(fields.Dict(), load_default=[])
     accessibilityWarnings = fields.List(fields.Dict(), load_default=[])
+    serviceAlerts = fields.List(fields.Dict(), load_default=[])
     steps = fields.List(fields.Nested(RouteStepSchema), required=True)
 
 

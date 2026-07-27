@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { MRTMapComponent } from "@/components/map/MRTMapComponent";
 import { SearchBar } from "@/components/map/SearchBar";
 import { MapIntroDialog } from "@/components/map/MapIntroDialog";
@@ -8,6 +9,7 @@ import { useMapStore } from "@/store/mapStore";
 import { useJourneyStore } from "@/store/journeyStore";
 import { JourneyTrackingOverlay } from "@/components/map/JourneyTrackingOverlay";
 import { useJourneyTracker } from "@/features/journey-tracking/useJourneyTracker";
+import { estimateTrainHeadway } from "@/utils/trainHeadway";
 import type { MapStation } from "@/data/stations";
 
 /** localStorage key remembering that the map intro dialog has been seen */
@@ -20,11 +22,17 @@ const MAP_INTRO_KEY = "sgrail.map-intro-seen";
  * Validates: Requirements 1, 2, 3, 9, 28.1, 29.1, 34.5, 35.2, 35.3
  */
 export function MapPage() {
+  const navigate = useNavigate();
   const selectedStation = useMapStore((state) => state.selectedStation);
   const selectStation = useMapStore((state) => state.selectStation);
 
   const { activeRoute, routeStops, clearRoute } = useJourneyStore();
   const { journeyState, startTracking, stopTracking } = useJourneyTracker(routeStops);
+  const nextTrainEta = useMemo(() => {
+    const boardStep = activeRoute?.steps.find((step) => step.type === "board");
+    if (!boardStep) return null;
+    return estimateTrainHeadway(new Date(), `${boardStep.line}:${boardStep.direction}`).nextLabel;
+  }, [activeRoute]);
 
   const { visible: introVisible, dismiss: dismissIntro } =
     useFirstRunHint(MAP_INTRO_KEY);
@@ -76,6 +84,8 @@ export function MapPage() {
       {journeyState.isTracking && (
         <JourneyTrackingOverlay
           journeyState={journeyState}
+          nextTrainEta={nextTrainEta}
+          onOpenRoute={() => navigate("/route")}
           onStopTracking={() => {
             stopTracking();
             clearRoute();

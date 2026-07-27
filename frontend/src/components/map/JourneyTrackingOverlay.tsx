@@ -19,6 +19,8 @@ import type { JourneyPhase, JourneyState } from "@/features/journey-tracking/jou
 export interface JourneyTrackingOverlayProps {
   journeyState: JourneyState;
   onStopTracking: () => void;
+  onOpenRoute?: () => void;
+  nextTrainEta?: string | null;
 }
 
 /**
@@ -141,6 +143,8 @@ function getConfidenceLabel(confidence: number): {
 export function JourneyTrackingOverlay({
   journeyState,
   onStopTracking,
+  onOpenRoute,
+  nextTrainEta,
 }: JourneyTrackingOverlayProps) {
   const { currentPhase, routeProgress, confidence, nextAction, nearestStation } =
     journeyState;
@@ -150,13 +154,23 @@ export function JourneyTrackingOverlay({
 
   return (
     <div
+      onClick={onOpenRoute}
+      onKeyDown={(event) => {
+        if (!onOpenRoute) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenRoute();
+        }
+      }}
       className={cn(
         "absolute bottom-20 left-3 right-3 z-30 rounded-xl border p-3 shadow-lg backdrop-blur-sm",
-        "sm:left-auto sm:right-4 sm:bottom-24 sm:w-80",
+        "sm:left-auto sm:right-20 sm:bottom-24 sm:w-80",
+        onOpenRoute && "cursor-pointer transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         phaseConfig.bgColour,
         phaseConfig.borderColour
       )}
-      role="status"
+      role={onOpenRoute ? "button" : "status"}
+      tabIndex={onOpenRoute ? 0 : undefined}
       aria-live="polite"
       aria-label="Journey tracking status"
     >
@@ -200,7 +214,10 @@ export function JourneyTrackingOverlay({
         {/* Stop tracking button */}
         {currentPhase !== "journey-complete" && (
           <button
-            onClick={onStopTracking}
+            onClick={(event) => {
+              event.stopPropagation();
+              onStopTracking();
+            }}
             className="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
             aria-label="Stop tracking"
           >
@@ -232,6 +249,12 @@ export function JourneyTrackingOverlay({
           <p className={cn("text-sm leading-tight", phaseConfig.colour)}>
             {nextAction}
           </p>
+        </div>
+      )}
+
+      {nextTrainEta && currentPhase !== "journey-complete" && (
+        <div className="mt-1.5 text-xs font-medium text-blue-700">
+          Estimated next train: {nextTrainEta}
         </div>
       )}
 

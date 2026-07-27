@@ -20,6 +20,7 @@ import {
   getStationCrowd,
   type StationExit,
 } from "@/services/stations.api";
+import { estimateTrainHeadway } from "@/utils/trainHeadway";
 
 export interface StationPanelProps {
   station: MapStation | null;
@@ -269,12 +270,21 @@ function generateMockData(station: MapStation): MockStationData {
   // Arrivals - generate for each line at the station
   const arrivals: ArrivalEntry[] = station.lines.flatMap((line) => {
     const termini = LINE_TERMINI[line] ?? ["Terminus A", "Terminus B"];
-    return termini.map((direction) => ({
-      line,
-      direction,
-      nextTrain: `${Math.floor(Math.random() * 5) + 1} min`,
-      subsequentTrain: `${Math.floor(Math.random() * 5) + 5} min`,
-    }));
+    return termini.map((direction) => {
+      const estimate = estimateTrainHeadway(new Date(), `${line}:${direction}`);
+      return {
+        line,
+        direction,
+        nextTrain: estimate.nextLabel,
+        subsequentTrain: estimate.subsequentLabel,
+        nextTrainMinutes: estimate.nextMinutes,
+        subsequentTrainMinutes: estimate.subsequentMinutes,
+        nextTrainAt: estimate.nextAt.toISOString(),
+        subsequentTrainAt: estimate.subsequentAt.toISOString(),
+        headwayBand: estimate.band,
+        operating: true,
+      };
+    });
   });
 
   // Timings - weekday only for simplicity
@@ -318,7 +328,7 @@ function generateMockData(station: MapStation): MockStationData {
 
   return {
     arrivals,
-    arrivalsSource: "Demo data (offline)",
+    arrivalsSource: "estimated",
     arrivalsUpdatedAt: now,
     timings,
     crowd,

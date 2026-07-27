@@ -4,6 +4,7 @@ import {
   ChevronUp,
   Clock,
   Footprints,
+  AlertTriangle,
   Navigation,
   Train,
   Users,
@@ -11,6 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DataSourceLabel } from "@/components/common/DataSourceLabel";
 import {
   Collapsible,
   CollapsibleContent,
@@ -57,6 +59,8 @@ export function RouteResultCard({
   const [isExpanded, setIsExpanded] = useState(index === 0);
 
   const hasWarnings = route.lastTrainWarnings && route.lastTrainWarnings.length > 0;
+  const serviceAlerts = route.serviceAlerts ?? [];
+  const hasServiceAlerts = serviceAlerts.length > 0;
 
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
@@ -64,7 +68,7 @@ export function RouteResultCard({
         className={cn(
           "overflow-hidden transition-shadow",
           isSelected && "ring-2 ring-primary",
-          hasWarnings && "border-amber-200",
+          (hasWarnings || hasServiceAlerts) && "border-amber-200",
         )}
         role="article"
         aria-label={`Route option ${index + 1}: ${route.totalMinutes} minutes, ${route.transfers} transfer${route.transfers !== 1 ? "s" : ""}`}
@@ -82,6 +86,12 @@ export function RouteResultCard({
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   Route {index + 1}
                 </span>
+                {hasServiceAlerts && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                    <AlertTriangle className="size-3" />
+                    Live LTA notice
+                  </span>
+                )}
                 {hasWarnings && (
                   <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                     ⚠ Timing warning
@@ -158,6 +168,26 @@ export function RouteResultCard({
                     <span>♿</span>
                     <span>{warning.message} ({warning.station})</span>
                   </div>
+                ))}
+              </div>
+            )}
+
+            {/* Live service notices affecting this route */}
+            {hasServiceAlerts && (
+              <div className="mb-3 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                <div className="flex flex-wrap items-center gap-2">
+                  <AlertTriangle className="size-4 text-amber-600" />
+                  <span className="font-semibold">Service notice on this route</span>
+                  <DataSourceLabel
+                    source={serviceAlerts[0].source}
+                    updatedAt={serviceAlerts[0].createdAt}
+                  />
+                </div>
+                {serviceAlerts.map((alert) => (
+                  <p key={`${alert.lineCode}-${alert.createdAt}`} className="leading-relaxed">
+                    <span className="font-semibold">{alert.lineCode}</span>
+                    <span> - {alert.message}</span>
+                  </p>
                 ))}
               </div>
             )}

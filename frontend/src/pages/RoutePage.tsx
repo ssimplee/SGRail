@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Navigation, Bookmark, Loader2, AlertCircle } from "lucide-react";
+import { Navigation, Bookmark, Loader2, AlertCircle, Clock, History, Square } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -132,7 +132,11 @@ export function RoutePage() {
   const { planRoute, data, isLoading, error, reset } = useRoutePlanner();
   const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
   const clearHighlights = useMapStore((s) => s.clearHighlights);
+  const activeRoute = useJourneyStore((s) => s.activeRoute);
+  const activeRouteMeta = useJourneyStore((s) => s.activeRouteMeta);
+  const routeHistory = useJourneyStore((s) => s.routeHistory);
   const setActiveRoute = useJourneyStore((s) => s.setActiveRoute);
+  const clearRoute = useJourneyStore((s) => s.clearRoute);
   const navigate = useNavigate();
 
   // Save route mutation
@@ -187,25 +191,38 @@ export function RoutePage() {
     (routeIndex: number) => {
       const route = routes[routeIndex];
       if (!route) return;
+      if (
+        activeRoute &&
+        !window.confirm(
+          "A route is already being tracked. Start this route and move the current one to history?"
+        )
+      ) {
+        return;
+      }
       const routeStops = deriveRouteStops(route);
+      const origin = STATIONS.find((s) => s.id === lastRequest?.originStationId);
+      const destination = STATIONS.find((s) => s.id === lastRequest?.destinationStationId);
       setActiveRoute(
+        route,
+        routeStops
+        ,
         {
+          title: `${origin?.name ?? "Origin"} to ${destination?.name ?? "Destination"}`,
+          originStationId: lastRequest?.originStationId ?? "",
+          destinationStationId: lastRequest?.destinationStationId ?? "",
+          originStationName: origin?.name ?? "Origin",
+          destinationStationName: destination?.name ?? "Destination",
           totalMinutes: route.totalMinutes,
-          walkingMinutes: route.walkingMinutes,
           stops: route.stops,
           transfers: route.transfers,
-          estimatedFare: route.estimatedFare ?? "",
-          crowdEstimate: route.crowdEstimate ?? "",
-          steps: route.steps,
-        },
-        routeStops
+        }
       );
       toast.success("Journey tracking started", {
         description: "You'll receive transfer and alighting reminders.",
       });
       navigate("/");
     },
-    [routes, setActiveRoute, navigate]
+    [activeRoute, lastRequest, routes, setActiveRoute, navigate]
   );
 
   const handleSaveRoute = useCallback(() => {
@@ -216,6 +233,13 @@ export function RoutePage() {
       preference,
     });
   }, [lastRequest, preference, saveRouteMutation]);
+
+  const handleStopCurrentRoute = useCallback(() => {
+    clearRoute();
+    toast.success("Journey tracking stopped", {
+      description: "The route was moved to your chosen route history.",
+    });
+  }, [clearRoute]);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -229,6 +253,35 @@ export function RoutePage() {
 
       {/* Route Input Form */}
       <RouteInputForm onSubmit={handlePlanRoute} isLoading={isLoading} />
+
+      {/* Current tracked route */}
+      {activeRoute && activeRouteMeta && (
+        <div className="border-t bg-blue-50/60 px-4 py-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-semibold text-blue-900">Current route</p>
+              <p className="text-xs text-blue-700">{activeRouteMeta.title}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                <Clock className="size-3" />
+                Tracking
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleStopCurrentRoute}
+                className="h-8 border-blue-200 bg-white text-blue-800 hover:bg-blue-50"
+              >
+                <Square className="size-3" />
+                Stop
+              </Button>
+            </div>
+          </div>
+          <RouteResultList routes={[activeRoute as RouteResult]} />
+        </div>
+      )}
 
       {/* Preference Selector */}
       <div className="border-t px-4 py-3">
@@ -293,6 +346,33 @@ export function RoutePage() {
             Select your stations and preferences, then tap "Plan Route" to find
             the best journey.
           </p>
+        </div>
+      )}
+
+      {/* Chosen route history */}
+      {routeHistory.length > 0 && (
+        <div className="border-t px-4 py-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+            <History className="size-4" />
+            Chosen route history
+          </div>
+          <ul className="space-y-2">
+            {routeHistory.map((item) => (
+              <li
+                key={item.id}
+                className="rounded-md border bg-card px-3 py-2 text-xs text-muted-foreground"
+              >
+                <div className="font-medium text-foreground">{item.title}</div>
+                <div>
+                  {item.totalMinutes} min · {item.stops} stops · {item.transfers} transfer
+                  {item.transfers === 1 ? "" : "s"}
+                </div>
+                <time dateTime={item.startedAt}>
+                  Started {new Date(item.startedAt).toLocaleTimeString()}
+                </time>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

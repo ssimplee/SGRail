@@ -1,11 +1,18 @@
 import React from "react";
 import { LINE_COLORS } from "@/data/lineColors";
+import { DataSourceLabel } from "@/components/common/DataSourceLabel";
 
 export interface ArrivalEntry {
   line: string;
   direction: string;
   nextTrain: string;
   subsequentTrain: string;
+  nextTrainMinutes?: number | null;
+  subsequentTrainMinutes?: number | null;
+  nextTrainAt?: string | null;
+  subsequentTrainAt?: string | null;
+  headwayBand?: string;
+  operating?: boolean;
 }
 
 export interface ArrivalsSectionProps {
@@ -51,7 +58,7 @@ export function ArrivalsSection({
                 </span>
                 <span className="text-muted-foreground">→ {arrival.direction}</span>
               </div>
-              <div className="text-right font-mono text-xs">
+              <div className="text-right font-mono text-xs leading-tight">
                 <span className="font-semibold">{arrival.nextTrain}</span>
                 {arrival.subsequentTrain && (
                   <span className="text-muted-foreground"> / {arrival.subsequentTrain}</span>
@@ -63,10 +70,7 @@ export function ArrivalsSection({
       )}
 
       <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-        <span className="inline-flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
-          Source: {source}
-        </span>
+        <DataSourceLabel source={source} updatedAt={updatedAt} />
         <time dateTime={updatedAt}>
           Updated: {new Date(updatedAt).toLocaleTimeString()}
         </time>
