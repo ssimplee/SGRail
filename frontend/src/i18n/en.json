@@ -39,5 +39,13 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "save": "Save"
+  },
+  "alerts": {
+    "majorTitle": "Service disruption",
+    "minorTitle": "Service delay",
+    "towards": "towards {{direction}}",
+    "freeBus": "Free bus rides at {{count}} affected stations",
+    "freeShuttle": "Free MRT shuttle at {{count}} stations",
+    "dismiss": "Dismiss alert"
   }
 }

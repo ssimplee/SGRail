@@ -37,6 +37,11 @@ export function CalibrationMode() {
   // Only render in development mode
   if (!import.meta.env.DEV) return null;
 
+  // Opt-in only. Station coordinates are now derived from the map image
+  // rather than placed by hand, so the tool stays out of the way until it
+  // is asked for: append ?calibrate=1 to the URL.
+  if (!new URLSearchParams(window.location.search).has("calibrate")) return null;
+
   return <CalibrationPanel />;
 }
 

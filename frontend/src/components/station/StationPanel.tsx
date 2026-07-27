@@ -8,17 +8,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrivalsSection, type ArrivalEntry } from "./ArrivalsSection";
 import { TimingsSection, type TimingEntry } from "./TimingsSection";
 import { CrowdSection, type CrowdData } from "./CrowdSection";
-import { FacilitiesSection, type FacilitiesData } from "./FacilitiesSection";
 import {
+  FacilitiesSection,
+  type ExitInfo,
+  type FacilitiesData,
+} from "./FacilitiesSection";
+import {
+  getStation,
   getStationArrivals,
   getStationTimings,
   getStationCrowd,
+  type StationExit,
 } from "@/services/stations.api";
 
 export interface StationPanelProps {
   station: MapStation | null;
   open: boolean;
   onClose: () => void;
+}
+
+/**
+ * Exits are seeded either as bare labels ("A") or as objects; the
+ * facilities section always wants the object form.
+ */
+function normaliseExit(exit: StationExit): ExitInfo {
+  return typeof exit === "string" ? { name: exit } : exit;
 }
 
 /**
@@ -30,6 +44,16 @@ export interface StationPanelProps {
  */
 export function StationPanel({ station, open, onClose }: StationPanelProps) {
   const stationId = station?.id ?? "";
+
+  // Fetch station detail — carries facilities, exits and active disruptions
+  // (60s stale time, matching how often service alerts are refreshed)
+  const detailQuery = useQuery({
+    queryKey: ["station-detail", stationId],
+    queryFn: () => getStation(stationId),
+    enabled: open && !!stationId,
+    staleTime: 60_000,
+    retry: 1,
+  });
 
   // Fetch arrivals (30s stale time — real-time transit data)
   const arrivalsQuery = useQuery({
@@ -84,12 +108,24 @@ export function StationPanel({ station, open, onClose }: StationPanelProps) {
         }
       : mockData?.crowd ?? null;
 
-  const facilities: FacilitiesData = mockData?.facilities ?? {
+  const fallbackFacilities: FacilitiesData = mockData?.facilities ?? {
     facilities: [],
     accessibilityStatus: "none",
     disruptions: [],
     exits: [],
   };
+
+  // Prefer the API's facilities and disruptions; the local mock has no
+  // knowledge of live service alerts.
+  const facilities: FacilitiesData = detailQuery.data
+    ? {
+        facilities: detailQuery.data.facilities,
+        accessibilityStatus:
+          detailQuery.data.accessibilityStatus as FacilitiesData["accessibilityStatus"],
+        disruptions: detailQuery.data.disruptions,
+        exits: detailQuery.data.exits.map(normaliseExit),
+      }
+    : fallbackFacilities;
 
   if (!station) return null;
 
@@ -220,7 +256,7 @@ const LINE_TERMINI: Record<string, [string, string]> = {
   NS: ["Jurong East", "Marina South Pier"],
   EW: ["Tuas Link", "Pasir Ris"],
   NE: ["HarbourFront", "Punggol"],
-  CC: ["Dhoby Ghaut", "HarbourFront"],
+  CC: ["Clockwise Loop", "Anticlockwise Loop"],
   DT: ["Bukit Panjang", "Expo"],
   TE: ["Woodlands North", "Bayshore"],
   CG: ["Tanah Merah", "Changi Airport"],

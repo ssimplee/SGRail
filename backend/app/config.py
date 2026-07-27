@@ -55,6 +55,12 @@ class BaseConfig:
     # How long a cached LLM response may be reused for an identical message.
     AI_CACHE_TTL_SECONDS = int(os.getenv("AI_CACHE_TTL_SECONDS", "900"))
 
+    # Service alerts
+    # LTA publishes train service alerts ad hoc, so responses are cached
+    # briefly rather than fetched per request.  Short enough that a real
+    # disruption still surfaces promptly.
+    ALERTS_CACHE_TTL_SECONDS = int(os.getenv("ALERTS_CACHE_TTL_SECONDS", "60"))
+
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""

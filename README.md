@@ -136,6 +136,7 @@ API base: **http://localhost:5000/api/v1**
 | `RATE_LIMIT_AI` | `30/hour` | Rate limit for AI chat requests |
 | `AI_DAILY_CALL_CAP` | `900` | Max paid LLM calls per day before falling back to the free rule-based assistant |
 | `AI_CACHE_TTL_SECONDS` | `900` | How long a cached LLM response is reused for an identical message |
+| `ALERTS_CACHE_TTL_SECONDS` | `60` | How long train service alerts are cached before refetching from LTA |
 
 ---
 

@@ -4,6 +4,7 @@ import { AppRoutes } from "./router";
 import { useResponsive } from "@/hooks/useResponsive";
 import { BottomNav } from "@/components/common/BottomNav";
 import { SideNav } from "@/components/common/SideNav";
+import { AlertBanner } from "@/components/common/AlertBanner";
 
 /**
  * App layout shell that renders navigation and route content.
@@ -22,11 +23,14 @@ function AppLayout() {
 
       {/* Main content area */}
       <main
-        className={`flex-1 overflow-hidden ${
+        className={`flex flex-col flex-1 overflow-hidden ${
           isMobile ? "pb-16" : "pl-20"
         }`}
       >
-        <AppRoutes />
+        <AlertBanner />
+        <div className="flex-1 overflow-hidden">
+          <AppRoutes />
+        </div>
       </main>
 
       {/* Mobile bottom nav */}

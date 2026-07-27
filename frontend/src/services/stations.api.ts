@@ -23,8 +23,14 @@ export interface StationListResponse {
   stations: StationListItem[];
 }
 
+/**
+ * Station exits come back either as bare labels ("A") or as objects,
+ * depending on how the station was seeded.
+ */
+export type StationExit = string | { name: string; description?: string };
+
 export interface StationDetailResponse extends StationListItem {
-  exits: Array<{ name: string; description: string }>;
+  exits: StationExit[];
   disruptions: string[];
 }
 

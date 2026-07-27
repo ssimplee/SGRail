@@ -6,6 +6,7 @@ from app.extensions import db
 from app.models.station import Station
 from app.models.station_line import StationLine
 from app.models.train_timing import TrainTiming
+from app.services import alert_service
 from app.utils.haversine import haversine_distance
 
 
@@ -66,7 +67,7 @@ def get_station_detail(station_id: str) -> dict | None:
         "facilities": station.facilities or [],
         "accessibilityStatus": station.accessibility_status or "unknown",
         "exits": station.exits or [],
-        "disruptions": [],
+        "disruptions": alert_service.get_station_disruption_messages(station.id),
     }
 
 

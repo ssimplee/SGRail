@@ -1,604 +1,3366 @@
 [
   {
-    "id": "jurong-east",
-    "name": "Jurong East",
-    "codes": ["NS1", "EW24"],
-    "lines": ["NS", "EW"],
-    "map_x": 240,
-    "map_y": 560,
-    "latitude": 1.3329,
-    "longitude": 103.7422,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "bukit-batok",
-    "name": "Bukit Batok",
-    "codes": ["NS2"],
-    "lines": ["NS"],
-    "map_x": 260,
-    "map_y": 500,
-    "latitude": 1.3490,
-    "longitude": 103.7496,
+    "id": "marina-south-pier",
+    "name": "Marina South Pier",
+    "codes": [
+      "NS28"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 920.9,
+    "map_y": 913.7,
+    "latitude": 1.2712,
+    "longitude": 103.8632,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "bukit-gombak",
-    "name": "Bukit Gombak",
-    "codes": ["NS3"],
-    "lines": ["NS"],
-    "map_x": 280,
-    "map_y": 450,
-    "latitude": 1.3590,
-    "longitude": 103.7518,
-    "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "choa-chu-kang",
-    "name": "Choa Chu Kang",
-    "codes": ["NS4", "BP1"],
-    "lines": ["NS", "BP"],
-    "map_x": 300,
-    "map_y": 400,
-    "latitude": 1.3853,
-    "longitude": 103.7444,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
-  },
-  {
-    "id": "yew-tee",
-    "name": "Yew Tee",
-    "codes": ["NS5"],
-    "lines": ["NS"],
-    "map_x": 320,
-    "map_y": 360,
-    "latitude": 1.3968,
-    "longitude": 103.7474,
-    "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "kranji",
-    "name": "Kranji",
-    "codes": ["NS7"],
-    "lines": ["NS"],
-    "map_x": 360,
-    "map_y": 290,
-    "latitude": 1.4252,
-    "longitude": 103.7620,
-    "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "woodlands",
-    "name": "Woodlands",
-    "codes": ["NS9", "TE2"],
-    "lines": ["NS", "TE"],
-    "map_x": 450,
-    "map_y": 210,
-    "latitude": 1.4370,
-    "longitude": 103.7865,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "yishun",
-    "name": "Yishun",
-    "codes": ["NS13"],
-    "lines": ["NS"],
-    "map_x": 610,
-    "map_y": 230,
-    "latitude": 1.4293,
-    "longitude": 103.8354,
-    "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
-  },
-  {
-    "id": "ang-mo-kio",
-    "name": "Ang Mo Kio",
-    "codes": ["NS16"],
-    "lines": ["NS"],
-    "map_x": 660,
-    "map_y": 310,
-    "latitude": 1.3700,
-    "longitude": 103.8495,
-    "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
-  },
-  {
-    "id": "bishan",
-    "name": "Bishan",
-    "codes": ["NS17", "CC15"],
-    "lines": ["NS", "CC"],
-    "map_x": 680,
-    "map_y": 360,
-    "latitude": 1.3513,
-    "longitude": 103.8491,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "toa-payoh",
-    "name": "Toa Payoh",
-    "codes": ["NS19"],
-    "lines": ["NS"],
-    "map_x": 720,
-    "map_y": 420,
-    "latitude": 1.3327,
-    "longitude": 103.8472,
-    "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "newton",
-    "name": "Newton",
-    "codes": ["NS21", "DT11"],
-    "lines": ["NS", "DT"],
-    "map_x": 740,
-    "map_y": 490,
-    "latitude": 1.3138,
-    "longitude": 103.8380,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "orchard",
-    "name": "Orchard",
-    "codes": ["NS22", "TE14"],
-    "lines": ["NS", "TE"],
-    "map_x": 720,
-    "map_y": 530,
-    "latitude": 1.3043,
-    "longitude": 103.8318,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "dhoby-ghaut",
-    "name": "Dhoby Ghaut",
-    "codes": ["NS24", "NE6", "CC1"],
-    "lines": ["NS", "NE", "CC"],
-    "map_x": 760,
-    "map_y": 580,
-    "latitude": 1.2994,
-    "longitude": 103.8457,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
-  },
-  {
-    "id": "city-hall",
-    "name": "City Hall",
-    "codes": ["NS25", "EW13"],
-    "lines": ["NS", "EW"],
-    "map_x": 790,
-    "map_y": 610,
-    "latitude": 1.2931,
-    "longitude": 103.8520,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "raffles-place",
-    "name": "Raffles Place",
-    "codes": ["NS26", "EW14"],
-    "lines": ["NS", "EW"],
-    "map_x": 790,
-    "map_y": 650,
-    "latitude": 1.2830,
-    "longitude": 103.8513,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E", "F", "G", "H"]
+    "exits": [
+      "A",
+      "B"
+    ]
   },
   {
     "id": "marina-bay",
     "name": "Marina Bay",
-    "codes": ["NS27", "CE2", "TE20"],
-    "lines": ["NS", "CE", "TE"],
-    "map_x": 810,
-    "map_y": 690,
+    "codes": [
+      "NS27",
+      "CC33",
+      "TE20"
+    ],
+    "lines": [
+      "NS",
+      "CC",
+      "TE"
+    ],
+    "map_x": 896.1,
+    "map_y": 876.5,
     "latitude": 1.2764,
     "longitude": 103.8546,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
   },
   {
-    "id": "marina-south-pier",
-    "name": "Marina South Pier",
-    "codes": ["NS28"],
-    "lines": ["NS"],
-    "map_x": 830,
-    "map_y": 730,
-    "latitude": 1.2712,
-    "longitude": 103.8632,
+    "id": "raffles-place",
+    "name": "Raffles Place",
+    "codes": [
+      "NS26",
+      "EW14"
+    ],
+    "lines": [
+      "NS",
+      "EW"
+    ],
+    "map_x": 884.8,
+    "map_y": 812.4,
+    "latitude": 1.283,
+    "longitude": 103.8513,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H"
+    ]
+  },
+  {
+    "id": "city-hall",
+    "name": "City Hall",
+    "codes": [
+      "NS25",
+      "EW13"
+    ],
+    "lines": [
+      "NS",
+      "EW"
+    ],
+    "map_x": 884.7,
+    "map_y": 771.1,
+    "latitude": 1.2931,
+    "longitude": 103.852,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "dhoby-ghaut",
+    "name": "Dhoby Ghaut",
+    "codes": [
+      "NS24",
+      "NE6",
+      "CC1"
+    ],
+    "lines": [
+      "NS",
+      "NE",
+      "CC"
+    ],
+    "map_x": 790.2,
+    "map_y": 669.7,
+    "latitude": 1.2994,
+    "longitude": 103.8457,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
+  },
+  {
+    "id": "somerset",
+    "name": "Somerset",
+    "codes": [
+      "NS23"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 716.3,
+    "map_y": 615.7,
+    "latitude": 1.3007,
+    "longitude": 103.8387,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": []
   },
   {
-    "id": "pasir-ris",
-    "name": "Pasir Ris",
-    "codes": ["EW1"],
-    "lines": ["EW"],
-    "map_x": 1250,
-    "map_y": 380,
-    "latitude": 1.3731,
-    "longitude": 103.9494,
+    "id": "orchard",
+    "name": "Orchard",
+    "codes": [
+      "NS22",
+      "TE14"
+    ],
+    "lines": [
+      "NS",
+      "TE"
+    ],
+    "map_x": 683.7,
+    "map_y": 570.6,
+    "latitude": 1.3043,
+    "longitude": 103.8318,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "newton",
+    "name": "Newton",
+    "codes": [
+      "NS21",
+      "DT11"
+    ],
+    "lines": [
+      "NS",
+      "DT"
+    ],
+    "map_x": 721.8,
+    "map_y": 506.7,
+    "latitude": 1.3138,
+    "longitude": 103.838,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "novena",
+    "name": "Novena",
+    "codes": [
+      "NS20"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 756.4,
+    "map_y": 470.0,
+    "latitude": 1.3204,
+    "longitude": 103.8438,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": []
   },
   {
-    "id": "tampines",
-    "name": "Tampines",
-    "codes": ["EW2", "DT32"],
-    "lines": ["EW", "DT"],
-    "map_x": 1200,
-    "map_y": 380,
-    "latitude": 1.3545,
-    "longitude": 103.9453,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "tanah-merah",
-    "name": "Tanah Merah",
-    "codes": ["EW4", "CG0"],
-    "lines": ["EW", "CG"],
-    "map_x": 1130,
-    "map_y": 430,
-    "latitude": 1.3272,
-    "longitude": 103.9464,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B"]
-  },
-  {
-    "id": "bedok",
-    "name": "Bedok",
-    "codes": ["EW5"],
-    "lines": ["EW"],
-    "map_x": 1090,
-    "map_y": 450,
-    "latitude": 1.3240,
-    "longitude": 103.9300,
+    "id": "toa-payoh",
+    "name": "Toa Payoh",
+    "codes": [
+      "NS19"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 781.5,
+    "map_y": 421.1,
+    "latitude": 1.3327,
+    "longitude": 103.8472,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": [
+      "A",
+      "B"
+    ]
   },
   {
-    "id": "paya-lebar",
-    "name": "Paya Lebar",
-    "codes": ["EW8", "CC9"],
-    "lines": ["EW", "CC"],
-    "map_x": 970,
-    "map_y": 480,
-    "latitude": 1.3174,
-    "longitude": 103.8932,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "bugis",
-    "name": "Bugis",
-    "codes": ["EW12", "DT14"],
-    "lines": ["EW", "DT"],
-    "map_x": 840,
-    "map_y": 570,
-    "latitude": 1.3009,
-    "longitude": 103.8558,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "outram-park",
-    "name": "Outram Park",
-    "codes": ["EW16", "NE3", "TE17"],
-    "lines": ["EW", "NE", "TE"],
-    "map_x": 730,
-    "map_y": 680,
-    "latitude": 1.2803,
-    "longitude": 103.8395,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
-  },
-  {
-    "id": "buona-vista",
-    "name": "Buona Vista",
-    "codes": ["EW21", "CC22"],
-    "lines": ["EW", "CC"],
-    "map_x": 480,
-    "map_y": 610,
-    "latitude": 1.3074,
-    "longitude": 103.7901,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
-    "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
-  },
-  {
-    "id": "clementi",
-    "name": "Clementi",
-    "codes": ["EW23"],
-    "lines": ["EW"],
-    "map_x": 360,
-    "map_y": 590,
-    "latitude": 1.3150,
-    "longitude": 103.7653,
+    "id": "braddell",
+    "name": "Braddell",
+    "codes": [
+      "NS18"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 781.5,
+    "map_y": 378.4,
+    "latitude": 1.3404,
+    "longitude": 103.8468,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": []
+  },
+  {
+    "id": "bishan",
+    "name": "Bishan",
+    "codes": [
+      "NS17",
+      "CC15"
+    ],
+    "lines": [
+      "NS",
+      "CC"
+    ],
+    "map_x": 792.7,
+    "map_y": 348.8,
+    "latitude": 1.3513,
+    "longitude": 103.8491,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "ang-mo-kio",
+    "name": "Ang Mo Kio",
+    "codes": [
+      "NS16"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 781.5,
+    "map_y": 289.0,
+    "latitude": 1.37,
+    "longitude": 103.8495,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "yio-chu-kang",
+    "name": "Yio Chu Kang",
+    "codes": [
+      "NS15"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 781.2,
+    "map_y": 235.7,
+    "latitude": 1.3817,
+    "longitude": 103.8449,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "khatib",
+    "name": "Khatib",
+    "codes": [
+      "NS14"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 781.2,
+    "map_y": 193.7,
+    "latitude": 1.4173,
+    "longitude": 103.8329,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "yishun",
+    "name": "Yishun",
+    "codes": [
+      "NS13"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 755.9,
+    "map_y": 147.2,
+    "latitude": 1.4293,
+    "longitude": 103.8354,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "woodlands",
+    "name": "Woodlands",
+    "codes": [
+      "NS9",
+      "TE2"
+    ],
+    "lines": [
+      "NS",
+      "TE"
+    ],
+    "map_x": 505.3,
+    "map_y": 123.9,
+    "latitude": 1.437,
+    "longitude": 103.7865,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "marsiling",
+    "name": "Marsiling",
+    "codes": [
+      "NS8"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 372.4,
+    "map_y": 152.3,
+    "latitude": 1.4325,
+    "longitude": 103.7742,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "kranji",
+    "name": "Kranji",
+    "codes": [
+      "NS7"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 351.3,
+    "map_y": 223.7,
+    "latitude": 1.4252,
+    "longitude": 103.762,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "yew-tee",
+    "name": "Yew Tee",
+    "codes": [
+      "NS5"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 350.4,
+    "map_y": 310.8,
+    "latitude": 1.3968,
+    "longitude": 103.7474,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "choa-chu-kang",
+    "name": "Choa Chu Kang",
+    "codes": [
+      "NS4",
+      "BP1"
+    ],
+    "lines": [
+      "NS",
+      "BP"
+    ],
+    "map_x": 339.8,
+    "map_y": 402.4,
+    "latitude": 1.3853,
+    "longitude": 103.7444,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "bukit-gombak",
+    "name": "Bukit Gombak",
+    "codes": [
+      "NS3"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 350.3,
+    "map_y": 478.1,
+    "latitude": 1.359,
+    "longitude": 103.7518,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "bukit-batok",
+    "name": "Bukit Batok",
+    "codes": [
+      "NS2"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 350.4,
+    "map_y": 551.8,
+    "latitude": 1.349,
+    "longitude": 103.7496,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "jurong-east",
+    "name": "Jurong East",
+    "codes": [
+      "NS1",
+      "EW24"
+    ],
+    "lines": [
+      "NS",
+      "EW"
+    ],
+    "map_x": 362.4,
+    "map_y": 626.9,
+    "latitude": 1.3329,
+    "longitude": 103.7422,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "tuas-link",
+    "name": "Tuas Link",
+    "codes": [
+      "EW33"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 179.2,
+    "map_y": 380.3,
+    "latitude": 1.3409,
+    "longitude": 103.6368,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "pioneer",
+    "name": "Pioneer",
+    "codes": [
+      "EW30"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 183.3,
+    "map_y": 566.9,
+    "latitude": 1.3376,
+    "longitude": 103.6971,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "boon-lay",
     "name": "Boon Lay",
-    "codes": ["EW27"],
-    "lines": ["EW"],
-    "map_x": 130,
-    "map_y": 600,
+    "codes": [
+      "EW27"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 202.4,
+    "map_y": 600.5,
     "latitude": 1.3386,
-    "longitude": 103.7060,
+    "longitude": 103.706,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "chinese-garden",
+    "name": "Chinese Garden",
+    "codes": [
+      "EW25"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 292.5,
+    "map_y": 626.1,
+    "latitude": 1.3422,
+    "longitude": 103.7323,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "clementi",
+    "name": "Clementi",
+    "codes": [
+      "EW23"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 419.0,
+    "map_y": 626.2,
+    "latitude": 1.315,
+    "longitude": 103.7653,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "dover",
+    "name": "Dover",
+    "codes": [
+      "EW22"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 467.7,
+    "map_y": 626.2,
+    "latitude": 1.3113,
+    "longitude": 103.7786,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "buona-vista",
+    "name": "Buona Vista",
+    "codes": [
+      "EW21",
+      "CC22"
+    ],
+    "lines": [
+      "EW",
+      "CC"
+    ],
+    "map_x": 534.4,
+    "map_y": 625.4,
+    "latitude": 1.3074,
+    "longitude": 103.7901,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "commonwealth",
+    "name": "Commonwealth",
+    "codes": [
+      "EW20"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 563.7,
+    "map_y": 653.9,
+    "latitude": 1.3024,
+    "longitude": 103.7985,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "queenstown",
+    "name": "Queenstown",
+    "codes": [
+      "EW19"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 620.7,
+    "map_y": 707.9,
+    "latitude": 1.2945,
+    "longitude": 103.806,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "redhill",
+    "name": "Redhill",
+    "codes": [
+      "EW18"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 589.4,
+    "map_y": 678.7,
+    "latitude": 1.2892,
+    "longitude": 103.8167,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tiong-bahru",
+    "name": "Tiong Bahru",
+    "codes": [
+      "EW17"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 651.8,
+    "map_y": 739.5,
+    "latitude": 1.2863,
+    "longitude": 103.827,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "outram-park",
+    "name": "Outram Park",
+    "codes": [
+      "EW16",
+      "NE3",
+      "TE17"
+    ],
+    "lines": [
+      "EW",
+      "NE",
+      "TE"
+    ],
+    "map_x": 683.5,
+    "map_y": 769.5,
+    "latitude": 1.2803,
+    "longitude": 103.8395,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
+  },
+  {
+    "id": "tanjong-pagar",
+    "name": "Tanjong Pagar",
+    "codes": [
+      "EW15"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 748.3,
+    "map_y": 832.5,
+    "latitude": 1.2764,
+    "longitude": 103.8465,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bugis",
+    "name": "Bugis",
+    "codes": [
+      "EW12",
+      "DT14"
+    ],
+    "lines": [
+      "EW",
+      "DT"
+    ],
+    "map_x": 954.5,
+    "map_y": 699.3,
+    "latitude": 1.3009,
+    "longitude": 103.8558,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "lavender",
+    "name": "Lavender",
+    "codes": [
+      "EW11"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 977.3,
+    "map_y": 665.1,
+    "latitude": 1.3073,
+    "longitude": 103.8631,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "kallang",
+    "name": "Kallang",
+    "codes": [
+      "EW10"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1036.4,
+    "map_y": 605.1,
+    "latitude": 1.3114,
+    "longitude": 103.8714,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "aljunied",
+    "name": "Aljunied",
+    "codes": [
+      "EW9"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1007.8,
+    "map_y": 634.4,
+    "latitude": 1.3164,
+    "longitude": 103.883,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "paya-lebar",
+    "name": "Paya Lebar",
+    "codes": [
+      "EW8",
+      "CC9"
+    ],
+    "lines": [
+      "EW",
+      "CC"
+    ],
+    "map_x": 1086.8,
+    "map_y": 568.3,
+    "latitude": 1.3174,
+    "longitude": 103.8932,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "eunos",
+    "name": "Eunos",
+    "codes": [
+      "EW7"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1116.3,
+    "map_y": 524.8,
+    "latitude": 1.3199,
+    "longitude": 103.903,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "kembangan",
+    "name": "Kembangan",
+    "codes": [
+      "EW6"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1156.5,
+    "map_y": 485.0,
+    "latitude": 1.321,
+    "longitude": 103.9128,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bedok",
+    "name": "Bedok",
+    "codes": [
+      "EW5"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1222.3,
+    "map_y": 449.6,
+    "latitude": 1.324,
+    "longitude": 103.93,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "tanah-merah",
+    "name": "Tanah Merah",
+    "codes": [
+      "EW4",
+      "CG0"
+    ],
+    "lines": [
+      "EW",
+      "CG"
+    ],
+    "map_x": 1295.8,
+    "map_y": 449.7,
+    "latitude": 1.3272,
+    "longitude": 103.9464,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "simei",
+    "name": "Simei",
+    "codes": [
+      "EW3"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1315.8,
+    "map_y": 424.5,
+    "latitude": 1.3432,
+    "longitude": 103.9531,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tampines",
+    "name": "Tampines",
+    "codes": [
+      "EW2",
+      "DT32"
+    ],
+    "lines": [
+      "EW",
+      "DT"
+    ],
+    "map_x": 1316.4,
+    "map_y": 382.4,
+    "latitude": 1.3545,
+    "longitude": 103.9453,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "pasir-ris",
+    "name": "Pasir Ris",
+    "codes": [
+      "EW1"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 1315.8,
+    "map_y": 347.5,
+    "latitude": 1.3731,
+    "longitude": 103.9494,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "tuas-west-road",
+    "name": "Tuas West Road",
+    "codes": [
+      "EW32"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 180.5,
+    "map_y": 417.5,
+    "latitude": 1.3299,
+    "longitude": 103.6396,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tuas-crescent",
+    "name": "Tuas Crescent",
+    "codes": [
+      "EW31"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 179.2,
+    "map_y": 454.3,
+    "latitude": 1.3212,
+    "longitude": 103.649,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "joo-koon",
+    "name": "Joo Koon",
+    "codes": [
+      "EW29"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 179.2,
+    "map_y": 529.3,
+    "latitude": 1.3277,
+    "longitude": 103.6789,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "lakeside",
+    "name": "Lakeside",
+    "codes": [
+      "EW26"
+    ],
+    "lines": [
+      "EW"
+    ],
+    "map_x": 243.3,
+    "map_y": 623.2,
+    "latitude": 1.3443,
+    "longitude": 103.7209,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "harbourfront",
     "name": "HarbourFront",
-    "codes": ["NE1", "CC29"],
-    "lines": ["NE", "CC"],
-    "map_x": 680,
-    "map_y": 750,
+    "codes": [
+      "NE1",
+      "CC29"
+    ],
+    "lines": [
+      "NE",
+      "CC"
+    ],
+    "map_x": 692.7,
+    "map_y": 882.9,
     "latitude": 1.2654,
     "longitude": 103.8209,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
   },
   {
     "id": "chinatown",
     "name": "Chinatown",
-    "codes": ["NE4", "DT19"],
-    "lines": ["NE", "DT"],
-    "map_x": 750,
-    "map_y": 660,
+    "codes": [
+      "NE4",
+      "DT19"
+    ],
+    "lines": [
+      "NE",
+      "DT"
+    ],
+    "map_x": 757.3,
+    "map_y": 735.0,
     "latitude": 1.2845,
     "longitude": 103.8441,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
+  },
+  {
+    "id": "clarke-quay",
+    "name": "Clarke Quay",
+    "codes": [
+      "NE5"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 767.0,
+    "map_y": 709.5,
+    "latitude": 1.2887,
+    "longitude": 103.8465,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "little-india",
     "name": "Little India",
-    "codes": ["NE7", "DT12"],
-    "lines": ["NE", "DT"],
-    "map_x": 780,
-    "map_y": 540,
+    "codes": [
+      "NE7",
+      "DT12"
+    ],
+    "lines": [
+      "NE",
+      "DT"
+    ],
+    "map_x": 839.9,
+    "map_y": 582.6,
     "latitude": 1.3063,
     "longitude": 103.8493,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
+  },
+  {
+    "id": "farrer-park",
+    "name": "Farrer Park",
+    "codes": [
+      "NE8"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 826.5,
+    "map_y": 540.5,
+    "latitude": 1.3124,
+    "longitude": 103.8544,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "boon-keng",
+    "name": "Boon Keng",
+    "codes": [
+      "NE9"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 826.5,
+    "map_y": 500.7,
+    "latitude": 1.3196,
+    "longitude": 103.8617,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "potong-pasir",
+    "name": "Potong Pasir",
+    "codes": [
+      "NE10"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 850.8,
+    "map_y": 459.4,
+    "latitude": 1.3312,
+    "longitude": 103.8691,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "woodleigh",
+    "name": "Woodleigh",
+    "codes": [
+      "NE11"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 888.3,
+    "map_y": 420.4,
+    "latitude": 1.3392,
+    "longitude": 103.8706,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "serangoon",
     "name": "Serangoon",
-    "codes": ["NE12", "CC13"],
-    "lines": ["NE", "CC"],
-    "map_x": 920,
-    "map_y": 360,
+    "codes": [
+      "NE12",
+      "CC13"
+    ],
+    "lines": [
+      "NE",
+      "CC"
+    ],
+    "map_x": 942.6,
+    "map_y": 379.5,
     "latitude": 1.3497,
     "longitude": 103.8735,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D"]
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "kovan",
+    "name": "Kovan",
+    "codes": [
+      "NE13"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 963.6,
+    "map_y": 346.5,
+    "latitude": 1.3601,
+    "longitude": 103.8851,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "hougang",
+    "name": "Hougang",
+    "codes": [
+      "NE14"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 990.1,
+    "map_y": 319.1,
+    "latitude": 1.3713,
+    "longitude": 103.8925,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "buangkok",
+    "name": "Buangkok",
+    "codes": [
+      "NE15"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 1019.2,
+    "map_y": 290.5,
+    "latitude": 1.3831,
+    "longitude": 103.893,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "sengkang",
+    "name": "Sengkang",
+    "codes": [
+      "NE16"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 1037.2,
+    "map_y": 262.0,
+    "latitude": 1.3917,
+    "longitude": 103.8953,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "punggol",
     "name": "Punggol",
-    "codes": ["NE17"],
-    "lines": ["NE"],
-    "map_x": 1120,
-    "map_y": 210,
+    "codes": [
+      "NE17"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 1107.1,
+    "map_y": 192.2,
     "latitude": 1.4054,
     "longitude": 103.9024,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "bras-basah",
+    "name": "Bras Basah",
+    "codes": [
+      "CC2"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 878.9,
+    "map_y": 709.1,
+    "latitude": 1.2969,
+    "longitude": 103.8505,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "esplanade",
+    "name": "Esplanade",
+    "codes": [
+      "CC3"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 939.2,
+    "map_y": 771.0,
+    "latitude": 1.2938,
+    "longitude": 103.8554,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "promenade",
     "name": "Promenade",
-    "codes": ["CC4", "DT15"],
-    "lines": ["CC", "DT"],
-    "map_x": 850,
-    "map_y": 630,
-    "latitude": 1.2930,
-    "longitude": 103.8610,
+    "codes": [
+      "CC4",
+      "DT15"
+    ],
+    "lines": [
+      "CC",
+      "DT"
+    ],
+    "map_x": 1031.3,
+    "map_y": 792.4,
+    "latitude": 1.293,
+    "longitude": 103.861,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
   },
   {
-    "id": "bayfront",
-    "name": "Bayfront",
-    "codes": ["CE1", "DT16"],
-    "lines": ["CE", "DT"],
-    "map_x": 830,
-    "map_y": 670,
-    "latitude": 1.2815,
-    "longitude": 103.8590,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "id": "nicoll-highway",
+    "name": "Nicoll Highway",
+    "codes": [
+      "CC5"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 1053.9,
+    "map_y": 748.2,
+    "latitude": 1.2997,
+    "longitude": 103.8637,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C", "D", "E"]
+    "exits": []
   },
   {
-    "id": "botanic-gardens",
-    "name": "Botanic Gardens",
-    "codes": ["CC19", "DT9"],
-    "lines": ["CC", "DT"],
-    "map_x": 620,
-    "map_y": 440,
-    "latitude": 1.3224,
-    "longitude": 103.8153,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "id": "stadium",
+    "name": "Stadium",
+    "codes": [
+      "CC6"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 1069.4,
+    "map_y": 707.2,
+    "latitude": 1.3029,
+    "longitude": 103.8753,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": []
   },
   {
-    "id": "caldecott",
-    "name": "Caldecott",
-    "codes": ["CC17", "TE9"],
-    "lines": ["CC", "TE"],
-    "map_x": 640,
-    "map_y": 380,
-    "latitude": 1.3374,
-    "longitude": 103.8395,
-    "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "id": "mountbatten",
+    "name": "Mountbatten",
+    "codes": [
+      "CC7"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 1079.0,
+    "map_y": 662.9,
+    "latitude": 1.3064,
+    "longitude": 103.8824,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": []
+  },
+  {
+    "id": "dakota",
+    "name": "Dakota",
+    "codes": [
+      "CC8"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 1081.4,
+    "map_y": 620.5,
+    "latitude": 1.3085,
+    "longitude": 103.8886,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "macpherson",
     "name": "MacPherson",
-    "codes": ["CC10", "DT26"],
-    "lines": ["CC", "DT"],
-    "map_x": 970,
-    "map_y": 460,
+    "codes": [
+      "CC10",
+      "DT26"
+    ],
+    "lines": [
+      "CC",
+      "DT"
+    ],
+    "map_x": 1043.3,
+    "map_y": 506.0,
     "latitude": 1.3265,
-    "longitude": 103.8900,
+    "longitude": 103.89,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "tai-seng",
+    "name": "Tai Seng",
+    "codes": [
+      "CC11"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 1025.5,
+    "map_y": 457.2,
+    "latitude": 1.3359,
+    "longitude": 103.8878,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bartley",
+    "name": "Bartley",
+    "codes": [
+      "CC12"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 987.7,
+    "map_y": 418.9,
+    "latitude": 1.3426,
+    "longitude": 103.8799,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "lorong-chuan",
+    "name": "Lorong Chuan",
+    "codes": [
+      "CC14"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 864.2,
+    "map_y": 354.4,
+    "latitude": 1.3515,
+    "longitude": 103.8641,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "marymount",
+    "name": "Marymount",
+    "codes": [
+      "CC16"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 711.0,
+    "map_y": 362.6,
+    "latitude": 1.3493,
+    "longitude": 103.8393,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "caldecott",
+    "name": "Caldecott",
+    "codes": [
+      "CC17",
+      "TE9"
+    ],
+    "lines": [
+      "CC",
+      "TE"
+    ],
+    "map_x": 650.4,
+    "map_y": 387.4,
+    "latitude": 1.3374,
+    "longitude": 103.8395,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "botanic-gardens",
+    "name": "Botanic Gardens",
+    "codes": [
+      "CC19",
+      "DT9"
+    ],
+    "lines": [
+      "CC",
+      "DT"
+    ],
+    "map_x": 590.4,
+    "map_y": 463.6,
+    "latitude": 1.3224,
+    "longitude": 103.8153,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "farrer-road",
+    "name": "Farrer Road",
+    "codes": [
+      "CC20"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 545.9,
+    "map_y": 519.1,
+    "latitude": 1.3171,
+    "longitude": 103.8072,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "holland-village",
+    "name": "Holland Village",
+    "codes": [
+      "CC21"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 529.0,
+    "map_y": 571.7,
+    "latitude": 1.312,
+    "longitude": 103.796,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "one-north",
+    "name": "one-north",
+    "codes": [
+      "CC23"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 525.1,
+    "map_y": 666.7,
+    "latitude": 1.2995,
+    "longitude": 103.7875,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "kent-ridge",
+    "name": "Kent Ridge",
+    "codes": [
+      "CC24"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 534.0,
+    "map_y": 704.9,
+    "latitude": 1.2935,
+    "longitude": 103.7845,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "haw-par-villa",
+    "name": "Haw Par Villa",
+    "codes": [
+      "CC25"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 546.5,
+    "map_y": 740.3,
+    "latitude": 1.2826,
+    "longitude": 103.7822,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "pasir-panjang",
+    "name": "Pasir Panjang",
+    "codes": [
+      "CC26"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 568.3,
+    "map_y": 781.5,
+    "latitude": 1.276,
+    "longitude": 103.7916,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "labrador-park",
+    "name": "Labrador Park",
+    "codes": [
+      "CC27"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 595.8,
+    "map_y": 815.3,
+    "latitude": 1.2721,
+    "longitude": 103.8026,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "telok-blangah",
+    "name": "Telok Blangah",
+    "codes": [
+      "CC28"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 630.7,
+    "map_y": 846.9,
+    "latitude": 1.2707,
+    "longitude": 103.8098,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "bukit-panjang",
     "name": "Bukit Panjang",
-    "codes": ["DT1", "BP6"],
-    "lines": ["DT", "BP"],
-    "map_x": 320,
-    "map_y": 350,
+    "codes": [
+      "DT1",
+      "BP6"
+    ],
+    "lines": [
+      "DT",
+      "BP"
+    ],
+    "map_x": 461.9,
+    "map_y": 246.0,
     "latitude": 1.3785,
     "longitude": 103.7618,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet", "retail"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet",
+      "retail"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "cashew",
+    "name": "Cashew",
+    "codes": [
+      "DT2"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 497.1,
+    "map_y": 259.8,
+    "latitude": 1.369,
+    "longitude": 103.7645,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "hillview",
+    "name": "Hillview",
+    "codes": [
+      "DT3"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 504.3,
+    "map_y": 294.3,
+    "latitude": 1.3627,
+    "longitude": 103.7674,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "hume",
+    "name": "Hume",
+    "codes": [
+      "DT4"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 504.2,
+    "map_y": 328.2,
+    "latitude": 1.3536,
+    "longitude": 103.7687,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "beauty-world",
+    "name": "Beauty World",
+    "codes": [
+      "DT5"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 504.3,
+    "map_y": 362.6,
+    "latitude": 1.3415,
+    "longitude": 103.7756,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "king-albert-park",
+    "name": "King Albert Park",
+    "codes": [
+      "DT6"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 504.2,
+    "map_y": 396.5,
+    "latitude": 1.3356,
+    "longitude": 103.7838,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "sixth-avenue",
+    "name": "Sixth Avenue",
+    "codes": [
+      "DT7"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 505.9,
+    "map_y": 430.9,
+    "latitude": 1.3307,
+    "longitude": 103.7972,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tan-kah-kee",
+    "name": "Tan Kah Kee",
+    "codes": [
+      "DT8"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 521.6,
+    "map_y": 453.5,
+    "latitude": 1.3259,
+    "longitude": 103.8073,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "stevens",
     "name": "Stevens",
-    "codes": ["DT10", "TE11"],
-    "lines": ["DT", "TE"],
-    "map_x": 660,
-    "map_y": 470,
-    "latitude": 1.3200,
+    "codes": [
+      "DT10",
+      "TE11"
+    ],
+    "lines": [
+      "DT",
+      "TE"
+    ],
+    "map_x": 673.2,
+    "map_y": 463.2,
+    "latitude": 1.32,
     "longitude": 103.8267,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "bayfront",
+    "name": "Bayfront",
+    "codes": [
+      "CC34",
+      "DT16"
+    ],
+    "lines": [
+      "CC",
+      "DT"
+    ],
+    "map_x": 978.8,
+    "map_y": 841.6,
+    "latitude": 1.2815,
+    "longitude": 103.859,
+    "is_interchange": true,
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
+    "accessibility_status": "full",
+    "exits": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ]
   },
   {
     "id": "expo",
     "name": "Expo",
-    "codes": ["CG1", "DT35"],
-    "lines": ["CG", "DT"],
-    "map_x": 1180,
-    "map_y": 470,
+    "codes": [
+      "CG1",
+      "DT35"
+    ],
+    "lines": [
+      "CG",
+      "DT"
+    ],
+    "map_x": 1389.4,
+    "map_y": 497.7,
     "latitude": 1.3353,
     "longitude": 103.9615,
     "is_interchange": true,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B", "C"]
+    "exits": [
+      "A",
+      "B",
+      "C"
+    ]
   },
   {
     "id": "woodlands-north",
     "name": "Woodlands North",
-    "codes": ["TE1"],
-    "lines": ["TE"],
-    "map_x": 430,
-    "map_y": 170,
+    "codes": [
+      "TE1"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 465.2,
+    "map_y": 81.2,
     "latitude": 1.4486,
     "longitude": 103.7852,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "woodlands-south",
+    "name": "Woodlands South",
+    "codes": [
+      "TE3"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 531.8,
+    "map_y": 152.4,
+    "latitude": 1.427,
+    "longitude": 103.793,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "springleaf",
+    "name": "Springleaf",
+    "codes": [
+      "TE4"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 562.0,
+    "map_y": 183.3,
+    "latitude": 1.3978,
+    "longitude": 103.8187,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "lentor",
+    "name": "Lentor",
+    "codes": [
+      "TE5"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 592.6,
+    "map_y": 215.5,
+    "latitude": 1.3847,
+    "longitude": 103.8361,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "mayflower",
+    "name": "Mayflower",
+    "codes": [
+      "TE6"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 622.2,
+    "map_y": 246.3,
+    "latitude": 1.3737,
+    "longitude": 103.8381,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bright-hill",
+    "name": "Bright Hill",
+    "codes": [
+      "TE7"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 654.1,
+    "map_y": 285.7,
+    "latitude": 1.3632,
+    "longitude": 103.8324,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "upper-thomson",
+    "name": "Upper Thomson",
+    "codes": [
+      "TE8"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 660.5,
+    "map_y": 334.1,
+    "latitude": 1.3539,
+    "longitude": 103.833,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "napier",
+    "name": "Napier",
+    "codes": [
+      "TE12"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 661.4,
+    "map_y": 502.9,
+    "latitude": 1.3067,
+    "longitude": 103.8221,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "orchard-boulevard",
+    "name": "Orchard Boulevard",
+    "codes": [
+      "TE13"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 661.5,
+    "map_y": 536.8,
+    "latitude": 1.3029,
+    "longitude": 103.8276,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   },
   {
     "id": "great-world",
     "name": "Great World",
-    "codes": ["TE15"],
-    "lines": ["TE"],
-    "map_x": 720,
-    "map_y": 570,
+    "codes": [
+      "TE15"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 661.4,
+    "map_y": 611.8,
     "latitude": 1.2935,
     "longitude": 103.8316,
     "is_interchange": false,
-    "facilities": ["lift", "escalator", "toilet"],
+    "facilities": [
+      "lift",
+      "escalator",
+      "toilet"
+    ],
     "accessibility_status": "full",
-    "exits": ["A", "B"]
+    "exits": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "id": "havelock",
+    "name": "Havelock",
+    "codes": [
+      "TE16"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 662.2,
+    "map_y": 652.3,
+    "latitude": 1.2875,
+    "longitude": 103.8359,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "maxwell",
+    "name": "Maxwell",
+    "codes": [
+      "TE18"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 760.5,
+    "map_y": 795.9,
+    "latitude": 1.2794,
+    "longitude": 103.8449,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "shenton-way",
+    "name": "Shenton Way",
+    "codes": [
+      "TE19"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 828.4,
+    "map_y": 861.1,
+    "latitude": 1.2762,
+    "longitude": 103.8504,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "changi-airport",
+    "name": "Changi Airport",
+    "codes": [
+      "CG2"
+    ],
+    "lines": [
+      "CG"
+    ],
+    "map_x": 1444.8,
+    "map_y": 497.8,
+    "latitude": 1.3573,
+    "longitude": 103.9885,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "keppel",
+    "name": "Keppel",
+    "codes": [
+      "CC30"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 741.2,
+    "map_y": 899.3,
+    "latitude": 1.2702,
+    "longitude": 103.8303,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "cantonment",
+    "name": "Cantonment",
+    "codes": [
+      "CC31"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 792.5,
+    "map_y": 906.9,
+    "latitude": 1.2731,
+    "longitude": 103.8367,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "prince-edward-road",
+    "name": "Prince Edward Road",
+    "codes": [
+      "CC32"
+    ],
+    "lines": [
+      "CC"
+    ],
+    "map_x": 846.5,
+    "map_y": 902.4,
+    "latitude": 1.2732,
+    "longitude": 103.8473,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "rochor",
+    "name": "Rochor",
+    "codes": [
+      "DT13"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 867.5,
+    "map_y": 622.4,
+    "latitude": 1.3039,
+    "longitude": 103.8524,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "downtown",
+    "name": "Downtown",
+    "codes": [
+      "DT17"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 911.1,
+    "map_y": 859.6,
+    "latitude": 1.2794,
+    "longitude": 103.8528,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "telok-ayer",
+    "name": "Telok Ayer",
+    "codes": [
+      "DT18"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 831.7,
+    "map_y": 813.8,
+    "latitude": 1.2823,
+    "longitude": 103.8483,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "fort-canning",
+    "name": "Fort Canning",
+    "codes": [
+      "DT20"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 743.3,
+    "map_y": 688.4,
+    "latitude": 1.2924,
+    "longitude": 103.8443,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bencoolen",
+    "name": "Bencoolen",
+    "codes": [
+      "DT21"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 890.5,
+    "map_y": 675.0,
+    "latitude": 1.2987,
+    "longitude": 103.8503,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "jalan-besar",
+    "name": "Jalan Besar",
+    "codes": [
+      "DT22"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 923.2,
+    "map_y": 641.9,
+    "latitude": 1.3054,
+    "longitude": 103.8554,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bendemeer",
+    "name": "Bendemeer",
+    "codes": [
+      "DT23"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 967.1,
+    "map_y": 598.3,
+    "latitude": 1.3137,
+    "longitude": 103.863,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "geylang-bahru",
+    "name": "Geylang Bahru",
+    "codes": [
+      "DT24"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 998.5,
+    "map_y": 567.5,
+    "latitude": 1.3215,
+    "longitude": 103.8719,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "mattar",
+    "name": "Mattar",
+    "codes": [
+      "DT25"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1027.6,
+    "map_y": 536.8,
+    "latitude": 1.3269,
+    "longitude": 103.8833,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "ubi",
+    "name": "Ubi",
+    "codes": [
+      "DT27"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1091.7,
+    "map_y": 472.9,
+    "latitude": 1.33,
+    "longitude": 103.8992,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "kaki-bukit",
+    "name": "Kaki Bukit",
+    "codes": [
+      "DT28"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1122.5,
+    "map_y": 442.1,
+    "latitude": 1.335,
+    "longitude": 103.9085,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bedok-north",
+    "name": "Bedok North",
+    "codes": [
+      "DT29"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1152.8,
+    "map_y": 412.9,
+    "latitude": 1.3348,
+    "longitude": 103.9179,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bedok-reservoir",
+    "name": "Bedok Reservoir",
+    "codes": [
+      "DT30"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1203.4,
+    "map_y": 398.0,
+    "latitude": 1.3366,
+    "longitude": 103.9323,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tampines-west",
+    "name": "Tampines West",
+    "codes": [
+      "DT31"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1256.1,
+    "map_y": 398.0,
+    "latitude": 1.3455,
+    "longitude": 103.9384,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tampines-east",
+    "name": "Tampines East",
+    "codes": [
+      "DT33"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1378.1,
+    "map_y": 424.3,
+    "latitude": 1.3562,
+    "longitude": 103.9549,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "upper-changi",
+    "name": "Upper Changi",
+    "codes": [
+      "DT34"
+    ],
+    "lines": [
+      "DT"
+    ],
+    "map_x": 1378.1,
+    "map_y": 455.0,
+    "latitude": 1.3417,
+    "longitude": 103.9615,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "punggol-coast",
+    "name": "Punggol Coast",
+    "codes": [
+      "NE18"
+    ],
+    "lines": [
+      "NE"
+    ],
+    "map_x": 1142.3,
+    "map_y": 166.7,
+    "latitude": 1.4149,
+    "longitude": 103.9102,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "admiralty",
+    "name": "Admiralty",
+    "codes": [
+      "NS10"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 583.4,
+    "map_y": 124.6,
+    "latitude": 1.4406,
+    "longitude": 103.801,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "sembawang",
+    "name": "Sembawang",
+    "codes": [
+      "NS11"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 639.5,
+    "map_y": 124.6,
+    "latitude": 1.4491,
+    "longitude": 103.8202,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "canberra",
+    "name": "Canberra",
+    "codes": [
+      "NS12"
+    ],
+    "lines": [
+      "NS"
+    ],
+    "map_x": 696.7,
+    "map_y": 124.6,
+    "latitude": 1.4432,
+    "longitude": 103.8295,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "gardens-by-the-bay",
+    "name": "Gardens by the Bay",
+    "codes": [
+      "TE22"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1065.1,
+    "map_y": 842.3,
+    "latitude": 1.2792,
+    "longitude": 103.868,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tanjong-rhu",
+    "name": "Tanjong Rhu",
+    "codes": [
+      "TE23"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1126.3,
+    "map_y": 783.0,
+    "latitude": 1.2972,
+    "longitude": 103.8735,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "katong-park",
+    "name": "Katong Park",
+    "codes": [
+      "TE24"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1154.9,
+    "map_y": 754.4,
+    "latitude": 1.2978,
+    "longitude": 103.8862,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "tanjong-katong",
+    "name": "Tanjong Katong",
+    "codes": [
+      "TE25"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1183.4,
+    "map_y": 725.9,
+    "latitude": 1.2994,
+    "longitude": 103.8974,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "marine-parade",
+    "name": "Marine Parade",
+    "codes": [
+      "TE26"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1212.0,
+    "map_y": 697.4,
+    "latitude": 1.3029,
+    "longitude": 103.9055,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "marine-terrace",
+    "name": "Marine Terrace",
+    "codes": [
+      "TE27"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1240.6,
+    "map_y": 668.5,
+    "latitude": 1.3068,
+    "longitude": 103.9153,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "siglap",
+    "name": "Siglap",
+    "codes": [
+      "TE28"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1269.2,
+    "map_y": 640.0,
+    "latitude": 1.3099,
+    "longitude": 103.9299,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
+  },
+  {
+    "id": "bayshore",
+    "name": "Bayshore",
+    "codes": [
+      "TE29"
+    ],
+    "lines": [
+      "TE"
+    ],
+    "map_x": 1294.3,
+    "map_y": 614.9,
+    "latitude": 1.3129,
+    "longitude": 103.9418,
+    "is_interchange": false,
+    "facilities": [
+      "lift",
+      "escalator"
+    ],
+    "accessibility_status": "full",
+    "exits": []
   }
 ]
