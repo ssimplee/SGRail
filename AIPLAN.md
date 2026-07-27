@@ -353,11 +353,89 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
     headers, probably residual from today's testing volume. Not a code
     issue and not something fixable here; expected to clear on its own.
 
+21. **Degraded replies were indistinguishable from normal ones — a rate
+    limit and a genuinely unclassifiable question both silently produced
+    the exact same generic decline.** (Follow-up confusion during phase 20's
+    live testing: after Groq's daily TPD budget was legitimately exhausted,
+    non-English messages kept coming back as the canned `OUT_OF_SCOPE` line
+    — "I'm an MRT-focused assistant..." — with no indication this was a
+    provider failure rather than the rule-based fallback simply failing to
+    understand the question. There was no way to tell the two apart from
+    the reply text alone.) Two independent fixes, both in the fallback
+    path only (the healthy Groq/OpenAI tool-calling path is unaffected):
+    - `backend/app/integrations/ai_client.py`: `_fallback_response()` now
+      takes an `error_type` ("rate_limited" | "daily_cap" |
+      "provider_error") and prepends a short, honest, language-matched note
+      naming the real cause before the rule-based answer — e.g. "The AI
+      assistant has hit today's usage limit. Please try again in a few
+      minutes — meanwhile, here's a basic answer: ...". A new
+      `_classify_provider_exception()` inspects the caught exception's
+      `.response.status_code` to distinguish a 429 (`rate_limited`) from
+      any other provider failure (`provider_error`); `HybridProvider`'s
+      daily-cap branch and the tool-calling loop's iteration-exceeded case
+      are tagged explicitly. `_DEGRADED_NOTES` holds en/zh/ms/ta text for
+      all three cases, keyed by `context.language` (falls back to `en`).
+    - `backend/app/services/ai_orchestrator.py`: `_handle_out_of_scope()`
+      no longer returns one vague "I'm an MRT-focused assistant..." line —
+      `_OUT_OF_SCOPE_REPLIES` gives per-language guidance with concrete
+      example prompts ("crowd level at Bishan", "last train from Bugis",
+      etc.) so a genuinely unclear question gets actionable guidance
+      instead of a scope-restriction notice. This applies whenever the
+      rule-based path lands on `OUT_OF_SCOPE` — degraded or not.
+    - **Scope note**: this does not make the rule-based fallback itself
+      multi-language-capable — `classify_intent()` and
+      `_extract_station_mentions()` are still English-keyword/English-name
+      only (a Chinese station-name lookup would need a translation table
+      across 180+ stations, judged not worth it for a path that only
+      activates when the real LLM is down). A non-English message that
+      the fallback can't classify still lands on `OUT_OF_SCOPE`, but now
+      with a translated, example-driven reply instead of a fixed English
+      line, and — if the fallback was triggered by an actual provider
+      failure — a translated note naming that cause first.
+    - **Status: done, verified** — `test_ai_props.py` gained 6 new tests
+      covering: a mocked 429 producing the rate-limited note (English and
+      Chinese), a non-429 failure producing the generic provider-error
+      note (and confirming it does *not* claim rate-limiting), the daily
+      cap producing its own note, and the `OUT_OF_SCOPE` reply containing
+      example prompts in both English and Chinese. Also manually verified
+      end-to-end against a live-mocked Groq 429 for both an English
+      facility question (note + correct rule-based answer, both present)
+      and a Chinese route question (note + example-prompt guidance, both
+      in Chinese). Full backend suite: 235/236 passing — the one failure
+      (`test_moderation_props.py`, a `BITCH`-triggering Hypothesis example
+      landing on `profanity_detected` instead of the expected
+      `spam_detected`) is unrelated to this change, in an untouched module.
+    - **Follow-up bug found immediately in live testing**: both replies
+      still came back in English for genuinely Chinese/Tamil messages,
+      because the language selection above used `context.language` (the
+      app's UI setting, defaulting to `"en"`) with no fallback to the
+      message's own text — unlike the real LLM path, which detects
+      language from the message itself first (see `_SYSTEM_PROMPT`'s
+      instruction) and only falls back to the hint when the text is too
+      ambiguous. A user typing Chinese without having changed the UI
+      language dropdown got an English note and an English `OUT_OF_SCOPE`
+      reply. Fix — `backend/app/services/ai_orchestrator.py`:
+      `_detect_script_language()` checks the message's Unicode codepoints
+      for the CJK block (zh) or the Tamil block (ta) — both unambiguous by
+      script, unlike Malay/English which share the Latin alphabet and
+      still rely on `context.language`. `_resolve_reply_language()`
+      combines the two: detected script first, hint as fallback. Both
+      `_handle_out_of_scope()` and `ai_client._fallback_response()`'s note
+      selection now go through this instead of reading `context.language`
+      directly. **Status: done, verified** — 2 more tests added (237/238
+      passing overall) confirming both the `OUT_OF_SCOPE` reply and the
+      degraded-cause note pick zh/ta correctly even with
+      `context.language: "en"`; also manually verified against the exact
+      messages from the reported screenshot.
+
 Not doing (out of scope for a hackathon app): Redis-backed distributed
 cache/rate-limit, self-hosted open-weight model, streaming responses,
 per-user auth-based quotas, Gemini/Anthropic tool-calling (phase 12 covers
 why), real-time official alerts without a real `LTA_ACCOUNT_KEY` (config
-change, not code — architecture already supports it).
+change, not code — architecture already supports it), full multi-language
+station-name matching for the rule-based fallback (phase 21 — only the
+primary Groq/OpenAI tool-calling path resolves non-English station names,
+via the LLM's own translation before calling tools, not the fallback).
 
 ## API key storage
 

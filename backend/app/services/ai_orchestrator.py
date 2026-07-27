@@ -170,6 +170,35 @@ def _now_sgt() -> datetime:
     return datetime.now(tz=_SGT)
 
 
+def _detect_script_language(message: str) -> str | None:
+    """Detect the message's language from its Unicode script, as a
+    lightweight LLM-free signal for the rule-based fallback.
+
+    context.language reflects the app's UI setting, not necessarily what
+    the user is actually typing (e.g. UI left on English while typing in
+    Chinese) — the fallback has no NLP to detect language from text the
+    way the real LLM path does, but script detection is a cheap, reliable
+    substitute for the two supported languages that use a distinct,
+    unambiguous Unicode block. Malay and English both use the Latin
+    alphabet and can't be told apart this way, so they still rely on the
+    context.language hint.
+    """
+    for ch in message:
+        code = ord(ch)
+        if 0x4E00 <= code <= 0x9FFF or 0x3400 <= code <= 0x4DBF:
+            return "zh"
+        if 0x0B80 <= code <= 0x0BFF:
+            return "ta"
+    return None
+
+
+def _resolve_reply_language(message: str, context: dict) -> str:
+    """The language to reply in: detected script takes priority over the
+    context.language hint, mirroring the real LLM path's own instruction
+    to detect from the message text first (see _SYSTEM_PROMPT)."""
+    return _detect_script_language(message) or (context or {}).get("language") or "en"
+
+
 # ---------------------------------------------------------------------------
 # Intent classification
 # ---------------------------------------------------------------------------
@@ -506,13 +535,35 @@ def _handle_incident(message: str, context: dict) -> dict:
     )
 
 
+_OUT_OF_SCOPE_REPLIES: dict[str, str] = {
+    "en": (
+        "I couldn't tell what you're asking — try being more specific about your MRT question. "
+        'For example: "crowd level at Bishan", "last train from Bugis", '
+        '"route from Punggol to Jurong East", or "does Bukit Panjang have a lift".'
+    ),
+    "zh": (
+        "我不太明白您的问题——请具体说明您的地铁相关问题。"
+        "例如：“碧山站的拥挤程度”、“武吉士站的末班车”、"
+        "“从榜鹅到裕廊东的路线”，或“武吉班让站有电梯吗”。"
+    ),
+    "ms": (
+        "Saya tidak pasti apa yang anda tanya — cuba nyatakan soalan MRT anda dengan lebih jelas. "
+        'Contohnya: "tahap kesesakan di Bishan", "tren terakhir dari Bugis", '
+        '"laluan dari Punggol ke Jurong East", atau "adakah Bukit Panjang mempunyai lif".'
+    ),
+    "ta": (
+        "நீங்கள் கேட்பது என்னவென்று எனக்குப் புரியவில்லை — உங்கள் MRT கேள்வியை இன்னும் குறிப்பிட்டு கேளுங்கள். "
+        "எடுத்துக்காட்டு: “பிஷானில் கூட்ட நிலை”, “பூகிஸிலிருந்து கடைசி ரயில்”, "
+        "“பொங்கோலிலிருந்து ஜூரோங் கிழக்கிற்கான பாதை”, அல்லது “புக்கிட் பஞ்சாங்கில் லிப்ட் உள்ளதா”."
+    ),
+}
+
+
 def _handle_out_of_scope(message: str, context: dict) -> dict:
-    """Handle OUT_OF_SCOPE intent — politely decline non-MRT queries."""
-    reply = (
-        "I'm an MRT-focused assistant. I can help with routes, timings, "
-        "crowd levels, facilities, and incidents on the Singapore MRT network. "
-        "How can I help you with your MRT journey?"
-    )
+    """Handle OUT_OF_SCOPE intent — ask for a more specific MRT question,
+    with example prompts, instead of a vague catch-all decline."""
+    language = _resolve_reply_language(message, context or {})
+    reply = _OUT_OF_SCOPE_REPLIES.get(language, _OUT_OF_SCOPE_REPLIES["en"])
     return _build_response(reply=reply, intent="OUT_OF_SCOPE")
 
 

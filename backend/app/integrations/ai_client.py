@@ -137,18 +137,66 @@ def _parse_llm_response(raw_text: str) -> dict:
     }
 
 
-def _fallback_response(message: str, context: dict) -> dict:
+# Short, honest notes prepended to the rule-based reply when it's standing
+# in for a failed LLM call, so the degraded state and its cause are visible
+# to the user instead of looking like a normal (possibly wrong-topic) answer.
+# Keyed by error_type -> language -> note text.
+_DEGRADED_NOTES: dict[str, dict[str, str]] = {
+    "rate_limited": {
+        "en": "The AI assistant has hit today's usage limit. Please try again in a few minutes — meanwhile, here's a basic answer:",
+        "zh": "AI助手今日的使用额度已用完。请几分钟后再试——以下是基础回答：",
+        "ms": "Pembantu AI telah mencapai had penggunaan harian. Sila cuba lagi beberapa minit lagi — sementara itu, ini jawapan asas:",
+        "ta": "AI உதவியாளர் இன்றைய பயன்பாட்டு வரம்பை எட்டிவிட்டது. சில நிமிடங்களில் மீண்டும் முயற்சிக்கவும் — இதற்கிடையில், இது ஒரு அடிப்படை பதில்:",
+    },
+    "daily_cap": {
+        "en": "The AI assistant has reached its daily call limit. Please try again tomorrow — meanwhile, here's a basic answer:",
+        "zh": "AI助手已达到今日调用上限。请明天再试——以下是基础回答：",
+        "ms": "Pembantu AI telah mencapai had panggilan harian. Sila cuba lagi esok — sementara itu, ini jawapan asas:",
+        "ta": "AI உதவியாளர் இன்றைய அழைப்பு வரம்பை எட்டிவிட்டது. நாளை மீண்டும் முயற்சிக்கவும் — இதற்கிடையில், இது ஒரு அடிப்படை பதில்:",
+    },
+    "provider_error": {
+        "en": "The AI assistant is temporarily unavailable. Please try again shortly — meanwhile, here's a basic answer:",
+        "zh": "AI助手暂时无法使用。请稍后再试——以下是基础回答：",
+        "ms": "Pembantu AI tidak tersedia buat sementara waktu. Sila cuba lagi sebentar lagi — sementara itu, ini jawapan asas:",
+        "ta": "AI உதவியாளர் தற்காலிகமாகக் கிடைக்கவில்லை. சிறிது நேரத்தில் மீண்டும் முயற்சிக்கவும் — இதற்கிடையில், இது ஒரு அடிப்படை பதில்:",
+    },
+}
+
+
+def _classify_provider_exception(exc: Exception) -> str:
+    """Map a provider call failure to a _DEGRADED_NOTES key."""
+    response = getattr(exc, "response", None)
+    if response is not None and getattr(response, "status_code", None) == 429:
+        return "rate_limited"
+    return "provider_error"
+
+
+def _fallback_response(
+    message: str, context: dict, error_type: str | None = None
+) -> dict:
     """Generate a response using the RuleBasedAssistant as fallback.
 
     Marked with _isDegraded so HybridProvider never caches it — a transient
     failure (network blip, provider 429, malformed response) shouldn't get
     "burned in" to the cache and keep serving a canned decline for the rest
     of the TTL after the underlying provider has already recovered.
+
+    When error_type is given, a short honest note about the failure (rate
+    limit, daily cap, generic provider error) is prepended to the reply in
+    the request's language, so a degraded answer never looks like a normal
+    one — see AIPLAN.md.
     """
-    from app.services.ai_orchestrator import RuleBasedAssistant
+    from app.services.ai_orchestrator import RuleBasedAssistant, _resolve_reply_language
 
     response = RuleBasedAssistant().chat(message, context)
     response["_isDegraded"] = True
+
+    if error_type is not None:
+        notes = _DEGRADED_NOTES.get(error_type, _DEGRADED_NOTES["provider_error"])
+        language = _resolve_reply_language(message, context or {})
+        note = notes.get(language, notes["en"])
+        response["reply"] = f"{note}\n\n{response['reply']}"
+
     return response
 
 
@@ -265,7 +313,7 @@ def _openai_compatible_chat(
         "Tool-calling loop exceeded %d iterations without a final answer, falling back",
         MAX_TOOL_ITERATIONS,
     )
-    return _fallback_response(message, context)
+    return _fallback_response(message, context, error_type="provider_error")
 
 
 # ---------------------------------------------------------------------------
@@ -295,8 +343,11 @@ class OpenAIProvider:
                 self.API_URL, self.MODEL, self.api_key, message, context, self.TIMEOUT
             )
         except Exception as exc:
-            logger.warning("OpenAI provider failed, falling back to rule-based: %s", exc)
-            return _fallback_response(message, context)
+            error_type = _classify_provider_exception(exc)
+            logger.warning(
+                "OpenAI provider failed (%s), falling back to rule-based: %s", error_type, exc
+            )
+            return _fallback_response(message, context, error_type=error_type)
 
 
 # ---------------------------------------------------------------------------
@@ -326,8 +377,11 @@ class GroqProvider:
                 self.API_URL, self.MODEL, self.api_key, message, context, self.TIMEOUT
             )
         except Exception as exc:
-            logger.warning("Groq provider failed, falling back to rule-based: %s", exc)
-            return _fallback_response(message, context)
+            error_type = _classify_provider_exception(exc)
+            logger.warning(
+                "Groq provider failed (%s), falling back to rule-based: %s", error_type, exc
+            )
+            return _fallback_response(message, context, error_type=error_type)
 
 
 # ---------------------------------------------------------------------------
@@ -381,8 +435,11 @@ class GeminiProvider:
             return _parse_llm_response(raw_content)
 
         except Exception as exc:
-            logger.warning("Gemini provider failed, falling back to rule-based: %s", exc)
-            return _fallback_response(message, context)
+            error_type = _classify_provider_exception(exc)
+            logger.warning(
+                "Gemini provider failed (%s), falling back to rule-based: %s", error_type, exc
+            )
+            return _fallback_response(message, context, error_type=error_type)
 
 
 # ---------------------------------------------------------------------------
@@ -431,8 +488,11 @@ class AnthropicProvider:
             return _parse_llm_response(raw_content)
 
         except Exception as exc:
-            logger.warning("Anthropic provider failed, falling back to rule-based: %s", exc)
-            return _fallback_response(message, context)
+            error_type = _classify_provider_exception(exc)
+            logger.warning(
+                "Anthropic provider failed (%s), falling back to rule-based: %s", error_type, exc
+            )
+            return _fallback_response(message, context, error_type=error_type)
 
 
 # ---------------------------------------------------------------------------
@@ -496,7 +556,7 @@ class HybridProvider:
 
         if not self._consume_daily_budget():
             logger.info("AI daily call cap reached, serving rule-based fallback")
-            return RuleBasedAssistant().chat(message, context)
+            return _fallback_response(message, context, error_type="daily_cap")
 
         response = self.llm_provider.chat(message, context)
         # A degraded (rule-based fallback) response means the provider call

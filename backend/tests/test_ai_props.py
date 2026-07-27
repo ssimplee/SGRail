@@ -445,3 +445,134 @@ def test_chat_request_schema_accepts_message_at_limit():
     schema = ChatRequestSchema()
     data = schema.load({"message": "a" * 500})
     assert data["message"] == "a" * 500
+
+
+# ---------------------------------------------------------------------------
+# Provider-failure classification — degraded replies name their cause
+# instead of looking like a normal (possibly wrong-topic) answer.
+# ---------------------------------------------------------------------------
+
+
+def test_groq_provider_429_prepends_rate_limited_note():
+    """A 429 from Groq is classified as rate_limited and the fallback reply
+    leads with an honest note naming that cause, in the request's language."""
+    import requests
+    from unittest.mock import MagicMock, patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    resp = MagicMock()
+    resp.status_code = 429
+    err = requests.exceptions.HTTPError("429 rate limited")
+    err.response = resp
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.side_effect = err
+        result = provider.chat("does Bukit Panjang have a lift", {"language": "en"})
+
+    assert result["reply"].startswith("The AI assistant has hit today's usage limit")
+    assert "Bukit Panjang" in result["reply"]  # real rule-based answer still included
+
+
+def test_groq_provider_429_note_respects_language_context():
+    """The rate-limit note is translated per context.language, not just English."""
+    import requests
+    from unittest.mock import MagicMock, patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    resp = MagicMock()
+    resp.status_code = 429
+    err = requests.exceptions.HTTPError("429 rate limited")
+    err.response = resp
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.side_effect = err
+        result = provider.chat("from Bishan to Jurong East", {"language": "zh"})
+
+    assert result["reply"].startswith("AI助手今日的使用额度已用完")
+
+
+def test_groq_provider_non_429_failure_uses_generic_provider_error_note():
+    """A non-rate-limit failure (network error, timeout, etc.) gets the
+    generic 'temporarily unavailable' note, not the rate-limit-specific one."""
+    import requests
+    from unittest.mock import patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.side_effect = requests.exceptions.ConnectionError("boom")
+        result = provider.chat("does Bukit Panjang have a lift", {"language": "en"})
+
+    assert result["reply"].startswith("The AI assistant is temporarily unavailable")
+    assert "hit today's usage limit" not in result["reply"]
+
+
+def test_hybrid_provider_daily_cap_note_names_the_cause():
+    """Once the daily call budget is exhausted, the fallback reply says so
+    explicitly rather than silently returning a plain rule-based answer."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub, daily_cap=1)
+
+    hybrid.chat("What's SMRT's contact number?", {})
+    second = hybrid.chat("does Bukit Panjang have a lift", {"language": "en"})
+
+    assert second["reply"].startswith("The AI assistant has reached its daily call limit")
+
+
+def test_out_of_scope_reply_gives_example_prompts_not_vague_decline():
+    """The OUT_OF_SCOPE reply should guide the user toward a better question
+    with concrete examples, not just a vague 'I'm MRT-focused' catch-all."""
+    response = _assistant.chat("asdkfjaslkdfj random gibberish", {})
+
+    assert response["intent"] == "OUT_OF_SCOPE"
+    assert "for example" in response["reply"].lower()
+    assert "bishan" in response["reply"].lower()
+
+
+def test_out_of_scope_reply_respects_language_context():
+    """The OUT_OF_SCOPE example-prompt reply is translated per
+    context.language, matching the app's 4 supported UI languages."""
+    response = _assistant.chat("asdkfjaslkdfj random gibberish", {"language": "zh"})
+
+    assert response["intent"] == "OUT_OF_SCOPE"
+    assert "我不太明白您的问题" in response["reply"]
+
+
+def test_out_of_scope_reply_detects_script_over_stale_language_hint():
+    """A Chinese/Tamil-script message should reply in that language even
+    when context.language still says 'en' (the app's UI setting, which the
+    user may not have changed just because they typed in another script —
+    this was the actual bug the language-note feature shipped with)."""
+    zh_response = _assistant.chat("从比夏到裕廊东怎么走？", {"language": "en"})
+    assert "我不太明白您的问题" in zh_response["reply"]
+
+    ta_response = _assistant.chat(
+        "பிஷானில் இருந்து ஜூரோங் ஈஸ்ட் எப்படி செல்வது?", {"language": "en"}
+    )
+    assert "நீங்கள் கேட்பது என்னவென்று" in ta_response["reply"]
+
+
+def test_groq_provider_429_note_detects_script_over_stale_language_hint():
+    """Same script-detection override applies to the degraded-cause note
+    prepended on a provider failure, not just the OUT_OF_SCOPE reply."""
+    import requests
+    from unittest.mock import MagicMock, patch
+
+    from app.integrations.ai_client import GroqProvider
+
+    resp = MagicMock()
+    resp.status_code = 429
+    err = requests.exceptions.HTTPError("429 rate limited")
+    err.response = resp
+
+    provider = GroqProvider(api_key="fake")
+    with patch("app.integrations.ai_client.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.side_effect = err
+        result = provider.chat("从比夏到裕廊东怎么走？", {"language": "en"})
+
+    assert result["reply"].startswith("AI助手今日的使用额度已用完")
