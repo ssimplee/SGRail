@@ -66,12 +66,19 @@ def create_incident_route():
     Request body:
         stationId, category, title, description, incidentTime (required)
         lineCode, isAnonymous, locationConsent, latitude, longitude (optional)
+        photo (optional multipart file)
 
     Returns:
         201 with created incident data, or
         422 with moderation rejection details.
     """
-    json_data = request.get_json(force=True, silent=True)
+    if request.content_type and request.content_type.startswith("multipart/form-data"):
+        json_data = request.form.to_dict()
+        photo = request.files.get("photo")
+    else:
+        json_data = request.get_json(force=True, silent=True)
+        photo = None
+
     if not json_data:
         return jsonify({"error": "Request body is required"}), 400
 
@@ -84,9 +91,11 @@ def create_incident_route():
     # Use a demo user ID for now (auth will be added later)
     user_id = request.headers.get("X-User-Id", "demo-user")
 
-    result = create_incident(user_id=user_id, data=data)
+    result = create_incident(user_id=user_id, data=data, photo=photo)
 
     if result.get("error") == "moderation_rejected":
+        return jsonify(result), 422
+    if result.get("error") == "image_rejected":
         return jsonify(result), 422
 
     return jsonify(result), 201

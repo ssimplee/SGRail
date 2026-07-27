@@ -6,10 +6,13 @@ Uses the conftest.py fixtures (app, client, db) and seeds data as needed.
 Validates: Requirements 38.5
 """
 
+import io
 from datetime import datetime, timezone
 
 import pytest
+from PIL import Image
 
+from app.models.incident import Incident
 from app.models.station import Station
 from app.models.user import User
 
@@ -48,6 +51,15 @@ def _valid_incident_payload():
     }
 
 
+def _test_image_bytes() -> io.BytesIO:
+    """Return a small valid JPEG upload body."""
+    image = Image.new("RGB", (32, 32), "red")
+    data = io.BytesIO()
+    image.save(data, format="JPEG")
+    data.seek(0)
+    return data
+
+
 # --- Incident endpoint integration tests ---
 
 
@@ -79,9 +91,33 @@ class TestIncidentCreationAndListing:
         ids = [inc["id"] for inc in list_data["incidents"]]
         assert data["id"] in ids
 
+    def test_create_incident_with_photo_persists_photo_url(self, client, db, app, tmp_path):
+        """Multipart incident creation stores a processed image URL."""
+        app.config["UPLOAD_FOLDER"] = str(tmp_path)
+        _seed_base_data(db)
+        payload = _valid_incident_payload()
+
+        resp = client.post(
+            "/api/v1/incidents",
+            data={
+                **payload,
+                "isAnonymous": "false",
+                "locationConsent": "false",
+                "photo": (_test_image_bytes(), "incident.jpg"),
+            },
+            headers={"X-User-Id": "demo-user"},
+            content_type="multipart/form-data",
+        )
+
+        assert resp.status_code == 201
+        data = resp.get_json()
+        assert data["photoUrl"].startswith("/uploads/")
+        assert data["photoUrl"].endswith(".webp")
+        assert (tmp_path / data["photoUrl"].removeprefix("/uploads/")).exists()
+
 
 class TestIncidentInteractions:
-    """POST /incidents/{id}/interactions for like and duplicate detection."""
+    """POST /incidents/{id}/interactions for prototype community counters."""
 
     def test_like_interaction_success(self, client, db):
         """POST with 'like' action → 200 success."""
@@ -106,8 +142,8 @@ class TestIncidentInteractions:
         assert like_resp.status_code == 200
         assert like_resp.get_json()["success"] is True
 
-    def test_duplicate_interaction_returns_409(self, client, db):
-        """POST same action twice → 409 duplicate_action."""
+    def test_repeated_like_simulates_multiple_commuters(self, client, db):
+        """POST same count action twice increments twice for prototype demos."""
         _seed_base_data(db)
         payload = _valid_incident_payload()
 
@@ -119,21 +155,98 @@ class TestIncidentInteractions:
         assert create_resp.status_code == 201
         incident_id = create_resp.get_json()["id"]
 
-        # First like
-        client.post(
+        first = client.post(
             f"/api/v1/incidents/{incident_id}/interactions",
             json={"action": "like"},
             headers={"X-User-Id": "other-user"},
         )
+        assert first.status_code == 200
 
-        # Duplicate like → 409
-        dup_resp = client.post(
+        second = client.post(
             f"/api/v1/incidents/{incident_id}/interactions",
             json={"action": "like"},
             headers={"X-User-Id": "other-user"},
         )
-        assert dup_resp.status_code == 409
-        assert dup_resp.get_json()["error"] == "duplicate_action"
+        assert second.status_code == 200
+
+        incident = db.session.get(Incident, incident_id)
+        assert incident.like_count == 2
+
+    def test_remove_like_decrements_counter(self, client, db):
+        """remove_like removes one prototype count."""
+        _seed_base_data(db)
+        create_resp = client.post(
+            "/api/v1/incidents",
+            json=_valid_incident_payload(),
+            headers={"X-User-Id": "demo-user"},
+        )
+        incident_id = create_resp.get_json()["id"]
+
+        for _ in range(2):
+            client.post(
+                f"/api/v1/incidents/{incident_id}/interactions",
+                json={"action": "like"},
+                headers={"X-User-Id": "other-user"},
+            )
+
+        resp = client.post(
+            f"/api/v1/incidents/{incident_id}/interactions",
+            json={"action": "remove_like"},
+            headers={"X-User-Id": "other-user"},
+        )
+        assert resp.status_code == 200
+        incident = db.session.get(Incident, incident_id)
+        assert incident.like_count == 1
+
+    def test_report_abuse_threshold_removes_from_public_feed(self, client, db):
+        """Three unique abuse reports hide an incident without deleting it."""
+        _seed_base_data(db)
+        payload = _valid_incident_payload()
+        create_resp = client.post(
+            "/api/v1/incidents",
+            json=payload,
+            headers={"X-User-Id": "demo-user"},
+        )
+        incident_id = create_resp.get_json()["id"]
+
+        for idx in range(3):
+            resp = client.post(
+                f"/api/v1/incidents/{incident_id}/interactions",
+                json={"action": "report_abusive"},
+                headers={"X-User-Id": f"reporter-{idx}"},
+            )
+            assert resp.status_code == 200
+
+        incident = db.session.get(Incident, incident_id)
+        assert incident is not None
+        assert incident.status == "removed"
+        assert incident.moderation_status == "flagged"
+
+        list_resp = client.get("/api/v1/incidents?status=active")
+        ids = [inc["id"] for inc in list_resp.get_json()["incidents"]]
+        assert incident_id not in ids
+
+    def test_dislike_threshold_removes_unconfirmed_report(self, client, db):
+        """Five unique dislikes remove an unconfirmed likely-false report."""
+        _seed_base_data(db)
+        create_resp = client.post(
+            "/api/v1/incidents",
+            json=_valid_incident_payload(),
+            headers={"X-User-Id": "demo-user"},
+        )
+        incident_id = create_resp.get_json()["id"]
+
+        for idx in range(5):
+            resp = client.post(
+                f"/api/v1/incidents/{incident_id}/interactions",
+                json={"action": "dislike"},
+                headers={"X-User-Id": f"disliker-{idx}"},
+            )
+            assert resp.status_code == 200
+
+        incident = db.session.get(Incident, incident_id)
+        assert incident is not None
+        assert incident.status == "removed"
 
 
 class TestIncidentModeration:
@@ -153,6 +266,7 @@ class TestIncidentModeration:
         assert resp.status_code == 422
         data = resp.get_json()
         assert data["error"] == "moderation_rejected"
+        assert data["reason"] == "profanity_detected"
 
 
 # --- AI Assistant integration tests ---

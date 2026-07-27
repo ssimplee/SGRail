@@ -8,11 +8,34 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 from sqlalchemy.exc import IntegrityError
+from flask import current_app
+from werkzeug.datastructures import FileStorage
 
 from app.extensions import db
 from app.models.incident import Incident
 from app.models.incident_interaction import IncidentInteraction
+from app.models.user import User
 from app.moderation.pipeline import ModerationPipeline, ModerationResult
+from app.services.image_service import ImageService
+
+
+ABUSE_REPORT_REMOVAL_THRESHOLD = 3
+DISLIKE_REMOVAL_THRESHOLD = 5
+
+
+def _ensure_incident_user(user_id: str) -> None:
+    """Create a lightweight user row for anonymous community interactions."""
+    if db.session.get(User, user_id) is not None:
+        return
+
+    user = User(
+        id=user_id,
+        display_name="Community Commuter",
+        reliability_score=50,
+        badge="regular",
+    )
+    db.session.add(user)
+    db.session.flush()
 
 
 def _parse_incident_time(value: Any) -> datetime:
@@ -56,12 +79,15 @@ class _IncidentQueryProvider:
         ]
 
 
-def create_incident(user_id: str, data: dict[str, Any]) -> dict[str, Any]:
+def create_incident(
+    user_id: str, data: dict[str, Any], photo: FileStorage | None = None
+) -> dict[str, Any]:
     """Create a new incident after running through the moderation pipeline.
 
     Args:
         user_id: ID of the submitting user.
         data: Validated incident data from the schema.
+        photo: Optional uploaded incident photo.
 
     Returns:
         Dict with the created incident or moderation rejection info.
@@ -93,6 +119,26 @@ def create_incident(user_id: str, data: dict[str, Any]) -> dict[str, Any]:
             "details": outcome.details,
         }
 
+    _ensure_incident_user(user_id)
+
+    photo_url = None
+    if photo and photo.filename:
+        try:
+            image_service = ImageService(
+                upload_folder=current_app.config["UPLOAD_FOLDER"],
+                max_mb=current_app.config["UPLOAD_MAX_MB"],
+            )
+            filename = image_service.process_upload(
+                photo.stream,
+                photo.mimetype or "",
+            )
+            photo_url = f"/uploads/{filename}"
+        except ValueError as exc:
+            return {
+                "error": "image_rejected",
+                "reason": str(exc),
+            }
+
     # Determine location — only include if locationConsent is True
     location_lat = None
     location_lng = None
@@ -116,6 +162,7 @@ def create_incident(user_id: str, data: dict[str, Any]) -> dict[str, Any]:
         category=data["category"],
         title=outcome.sanitised_data.get("title", data["title"]),
         description=outcome.sanitised_data.get("description", data["description"]),
+        photo_url=photo_url,
         incident_time=_parse_incident_time(data["incidentTime"]),
         status="active",
         moderation_status=moderation_status,
@@ -196,14 +243,16 @@ def get_incident(incident_id: str) -> Optional[dict[str, Any]]:
 def add_interaction(
     incident_id: str, user_id: str, action: str
 ) -> dict[str, Any]:
-    """Add an interaction (like, dislike, confirm, etc.) to an incident.
+    """Add or remove an interaction counter for an incident.
 
-    Enforces unique constraint on (incident_id, user_id, action).
+    Prototype count actions are intentionally repeatable so a tester can
+    simulate multiple commuters from one browser. The rows are still kept as
+    logs, while public visibility changes by status rather than deletion.
 
     Args:
         incident_id: The incident UUID.
         user_id: The user performing the action.
-        action: One of: like, dislike, confirm, resolve, report_abusive.
+        action: One of: like, dislike, confirm, remove_*, resolve, report_abusive.
 
     Returns:
         Dict with success status or error info.
@@ -212,9 +261,19 @@ def add_interaction(
     if incident is None:
         return {"error": "incident_not_found"}
 
+    if action.startswith("remove_"):
+        return _remove_interaction_count(incident, action)
+
+    interaction_user_id = (
+        f"{user_id}-{uuid.uuid4()}"
+        if action in {"like", "dislike", "confirm", "report_abusive"}
+        else user_id
+    )
+    _ensure_incident_user(interaction_user_id)
+
     interaction = IncidentInteraction(
         incident_id=incident_id,
-        user_id=user_id,
+        user_id=interaction_user_id,
         action=action,
     )
 
@@ -225,6 +284,8 @@ def add_interaction(
         db.session.rollback()
         return {"error": "duplicate_action"}
 
+    removed = False
+
     # Update incident counts based on action
     if action == "like":
         incident.like_count = (incident.like_count or 0) + 1
@@ -232,9 +293,71 @@ def add_interaction(
         incident.dislike_count = (incident.dislike_count or 0) + 1
     elif action == "confirm":
         incident.confirm_count = (incident.confirm_count or 0) + 1
+    elif action == "report_abusive":
+        abuse_reports = IncidentInteraction.query.filter_by(
+            incident_id=incident_id,
+            action="report_abusive",
+        ).count()
+        if abuse_reports >= ABUSE_REPORT_REMOVAL_THRESHOLD:
+            incident.status = "removed"
+            incident.moderation_status = "flagged"
+            removed = True
+
+    if action == "dislike" and _should_be_removed(incident):
+        incident.status = "removed"
+        incident.moderation_status = "flagged"
+        removed = True
 
     db.session.commit()
-    return {"success": True}
+    return {
+        "success": True,
+        "status": incident.status,
+        "moderationStatus": incident.moderation_status,
+        "removed": removed,
+    }
+
+
+def _remove_interaction_count(incident: Incident, action: str) -> dict[str, Any]:
+    """Remove one prototype counter row and decrement the cached count."""
+    source_action = action.removeprefix("remove_")
+    if source_action not in {"like", "dislike", "confirm", "report_abusive"}:
+        return {"error": "invalid_action"}
+
+    interaction = (
+        IncidentInteraction.query.filter_by(
+            incident_id=incident.id,
+            action=source_action,
+        )
+        .order_by(IncidentInteraction.created_at.desc())
+        .first()
+    )
+    if interaction is None:
+        return {
+            "success": True,
+            "status": incident.status,
+            "moderationStatus": incident.moderation_status,
+            "removed": False,
+        }
+
+    db.session.delete(interaction)
+    if source_action == "like":
+        incident.like_count = max((incident.like_count or 0) - 1, 0)
+    elif source_action == "dislike":
+        incident.dislike_count = max((incident.dislike_count or 0) - 1, 0)
+    elif source_action == "confirm":
+        incident.confirm_count = max((incident.confirm_count or 0) - 1, 0)
+
+    if incident.status == "removed" and not _should_be_removed(incident):
+        incident.status = "active"
+        incident.moderation_status = "approved"
+
+    db.session.commit()
+    return {
+        "success": True,
+        "status": incident.status,
+        "moderationStatus": incident.moderation_status,
+        "removed": incident.status == "removed",
+    }
 
 
 def resolve_incident(incident_id: str, user_id: str) -> dict[str, Any]:
@@ -250,6 +373,7 @@ def resolve_incident(incident_id: str, user_id: str) -> dict[str, Any]:
     incident = Incident.query.get(incident_id)
     if incident is None:
         return {"error": "incident_not_found"}
+    _ensure_incident_user(user_id)
 
     incident.status = "resolved"
 
@@ -284,6 +408,7 @@ def report_incident(incident_id: str, user_id: str) -> dict[str, Any]:
     incident = Incident.query.get(incident_id)
     if incident is None:
         return {"error": "incident_not_found"}
+    _ensure_incident_user(user_id)
 
     interaction = IncidentInteraction(
         incident_id=incident_id,
@@ -293,12 +418,21 @@ def report_incident(incident_id: str, user_id: str) -> dict[str, Any]:
 
     try:
         db.session.add(interaction)
-        db.session.commit()
+        db.session.flush()
     except IntegrityError:
         db.session.rollback()
         return {"error": "duplicate_action"}
 
-    return {"success": True}
+    abuse_reports = IncidentInteraction.query.filter_by(
+        incident_id=incident_id,
+        action="report_abusive",
+    ).count()
+    if abuse_reports >= ABUSE_REPORT_REMOVAL_THRESHOLD:
+        incident.status = "removed"
+        incident.moderation_status = "flagged"
+
+    db.session.commit()
+    return {"success": True, "status": incident.status}
 
 
 def _incident_to_dict(incident: Incident) -> dict[str, Any]:
@@ -327,4 +461,27 @@ def _incident_to_dict(incident: Incident) -> dict[str, Any]:
         "likeCount": incident.like_count or 0,
         "dislikeCount": incident.dislike_count or 0,
         "confirmCount": incident.confirm_count or 0,
+        "trustState": _incident_trust_state(incident),
     }
+
+
+def _incident_trust_state(incident: Incident) -> str:
+    """Return lightweight feed status derived from community signals."""
+    if incident.status == "removed":
+        return "removed"
+    if (incident.confirm_count or 0) >= 2:
+        return "verified"
+    if (incident.dislike_count or 0) >= 3 and (incident.confirm_count or 0) == 0:
+        return "disputed"
+    return "unverified"
+
+
+def _should_be_removed(incident: Incident) -> bool:
+    abuse_reports = IncidentInteraction.query.filter_by(
+        incident_id=incident.id,
+        action="report_abusive",
+    ).count()
+    return abuse_reports >= ABUSE_REPORT_REMOVAL_THRESHOLD or (
+        (incident.dislike_count or 0) >= DISLIKE_REMOVAL_THRESHOLD
+        and (incident.confirm_count or 0) == 0
+    )

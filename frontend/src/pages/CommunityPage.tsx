@@ -31,7 +31,7 @@ export function CommunityPage() {
   const [page, setPage] = useState(1);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const { data, isLoading, isError, error } = useIncidentList({
+  const { data, isLoading, isError, error, refetch } = useIncidentList({
     station: filters.station,
     line: filters.line,
     category: filters.category,
@@ -54,11 +54,16 @@ export function CommunityPage() {
       onError: (err: unknown) => {
         // Handle moderation rejection errors from backend (422)
         if (isModerationError(err)) {
-          const reasons = getModerationReasons(err);
+          const reasons = getSubmissionRejectionReasons(err);
           toast.error("Report rejected", {
             description: reasons.length > 0
               ? reasons.join(". ")
               : "Your report did not pass moderation checks.",
+          });
+        } else if (isImageError(err)) {
+          const reasons = getSubmissionRejectionReasons(err);
+          toast.error("Photo rejected", {
+            description: reasons[0] ?? "The selected image could not be used.",
           });
         } else {
           toast.error("Failed to submit report. Please try again.");
@@ -147,6 +152,7 @@ export function CommunityPage() {
                       likeCount={incident.likeCount}
                       dislikeCount={incident.dislikeCount}
                       confirmCount={incident.confirmCount}
+                      onChanged={() => void refetch()}
                     />
                   </div>
                 </div>
@@ -211,13 +217,29 @@ function isModerationError(error: unknown): boolean {
   return false;
 }
 
-/** Extract moderation rejection reasons from error */
-function getModerationReasons(error: unknown): string[] {
+function isImageError(error: unknown): boolean {
+  if (error !== null && typeof error === "object" && "response" in error) {
+    const axiosError = error as { response?: { status?: number; data?: { error?: string } } };
+    return (
+      axiosError.response?.status === 422 &&
+      axiosError.response?.data?.error === "image_rejected"
+    );
+  }
+  return false;
+}
+
+/** Extract user-facing submission rejection reasons from backend errors. */
+function getSubmissionRejectionReasons(error: unknown): string[] {
   if (error !== null && typeof error === "object" && "response" in error) {
     const axiosError = error as {
-      response?: { data?: { reasons?: string[] } };
+      response?: { data?: { reason?: string; reasons?: string[] } };
     };
-    return axiosError.response?.data?.reasons ?? [];
+    const data = axiosError.response?.data;
+    if (data?.reasons) return data.reasons;
+    if (data?.reason === "profanity_detected") {
+      return ["Please remove vulgar or abusive words from the title or description"];
+    }
+    if (data?.reason) return [data.reason];
   }
   return [];
 }

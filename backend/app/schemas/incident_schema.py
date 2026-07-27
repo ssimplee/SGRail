@@ -19,6 +19,10 @@ INTERACTION_ACTIONS = [
     "like",
     "dislike",
     "confirm",
+    "remove_like",
+    "remove_dislike",
+    "remove_confirm",
+    "remove_report_abusive",
     "resolve",
     "report_abusive",
 ]
@@ -69,6 +73,7 @@ class IncidentResponseSchema(Schema):
     createdAt = fields.DateTime(required=True)
     status = fields.String(required=True)
     moderationStatus = fields.String(required=True)
+    trustState = fields.String(required=True)
     isAnonymous = fields.Boolean(required=True)
     likeCount = fields.Integer(load_default=0)
     dislikeCount = fields.Integer(load_default=0)

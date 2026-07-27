@@ -17,12 +17,17 @@ export type IncidentCategory =
 
 export type IncidentStatus = "active" | "resolved" | "expired" | "removed";
 
-export type ModerationStatus = "pending" | "approved" | "rejected";
+export type ModerationStatus = "pending" | "approved" | "rejected" | "flagged";
+export type IncidentTrustState = "unverified" | "verified" | "disputed" | "removed";
 
 export type InteractionAction =
   | "like"
   | "dislike"
   | "confirm"
+  | "remove_like"
+  | "remove_dislike"
+  | "remove_confirm"
+  | "remove_report_abusive"
   | "resolve"
   | "report_abusive";
 
@@ -50,9 +55,11 @@ export interface Incident {
   incidentTime: string;
   createdAt: string;
   status: IncidentStatus;
+  moderationStatus: ModerationStatus;
   likeCount: number;
   dislikeCount: number;
   confirmCount: number;
+  trustState?: IncidentTrustState;
   isAnonymous: boolean;
   reporter?: IncidentReporter;
 }
@@ -84,6 +91,7 @@ export interface IncidentCreateRequest {
   locationConsent: boolean;
   latitude?: number | null;
   longitude?: number | null;
+  photo?: File | null;
 }
 
 export interface IncidentInteractionRequest {
@@ -92,6 +100,9 @@ export interface IncidentInteractionRequest {
 
 export interface IncidentInteractionResponse {
   success: boolean;
+  status?: IncidentStatus;
+  moderationStatus?: ModerationStatus;
+  removed?: boolean;
 }
 
 /** All valid incident categories for use in filters and forms */

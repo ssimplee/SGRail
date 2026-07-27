@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ThumbsUp, ThumbsDown, CheckCircle, CircleCheck, Flag } from "lucide-react";
+import { ThumbsUp, ThumbsDown, CheckCircle, CircleCheck, Flag, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { interactWithIncident } from "@/services/incidents.api";
@@ -10,6 +10,7 @@ interface IncidentActionsProps {
   likeCount: number;
   dislikeCount: number;
   confirmCount: number;
+  onChanged?: () => void;
 }
 
 /**
@@ -24,6 +25,7 @@ export function IncidentActions({
   likeCount,
   dislikeCount,
   confirmCount,
+  onChanged,
 }: IncidentActionsProps) {
   const [counts, setCounts] = useState({
     like: likeCount,
@@ -38,24 +40,38 @@ export function IncidentActions({
 
       setInFlight(action);
 
-      // Optimistic update for countable actions
-      const countKey = action === "like" ? "like" : action === "dislike" ? "dislike" : action === "confirm" ? "confirm" : null;
+      const countKey = getCountKey(action);
       if (countKey) {
-        setCounts((prev) => ({ ...prev, [countKey]: prev[countKey] + 1 }));
+        const delta = action.startsWith("remove_") ? -1 : 1;
+        setCounts((prev) => ({
+          ...prev,
+          [countKey]: Math.max(prev[countKey] + delta, 0),
+        }));
       }
 
       try {
-        await interactWithIncident(incidentId, { action });
+        const result = await interactWithIncident(incidentId, { action });
 
         if (action === "resolve") {
           toast.success("Incident marked as resolved");
         } else if (action === "report_abusive") {
-          toast.success("Report submitted");
+          toast.success(
+            result.removed
+              ? "Report removed from the public feed"
+              : "Report submitted"
+          );
+        } else if (result.removed) {
+          toast.success("Report removed from the public feed");
         }
+        onChanged?.();
       } catch (error: unknown) {
         // Revert optimistic update on error
         if (countKey) {
-          setCounts((prev) => ({ ...prev, [countKey]: prev[countKey] - 1 }));
+          const delta = action.startsWith("remove_") ? 1 : -1;
+          setCounts((prev) => ({
+            ...prev,
+            [countKey]: Math.max(prev[countKey] + delta, 0),
+          }));
         }
 
         // Handle 409 duplicate action gracefully
@@ -68,7 +84,7 @@ export function IncidentActions({
         setInFlight(null);
       }
     },
-    [incidentId, inFlight]
+    [incidentId, inFlight, onChanged]
   );
 
   return (
@@ -79,12 +95,19 @@ export function IncidentActions({
         size="sm"
         disabled={inFlight !== null}
         onClick={() => handleInteraction("like")}
-        aria-label={`Like (${counts.like})`}
+        aria-label={`Add like (${counts.like})`}
         className="gap-1 text-xs text-muted-foreground hover:text-green-600"
       >
         <ThumbsUp className="h-3.5 w-3.5" />
         <span>{counts.like}</span>
       </Button>
+      {counts.like > 0 && (
+        <UndoCountButton
+          label="Remove one like"
+          disabled={inFlight !== null}
+          onClick={() => handleInteraction("remove_like")}
+        />
+      )}
 
       {/* Dislike button */}
       <Button
@@ -92,12 +115,19 @@ export function IncidentActions({
         size="sm"
         disabled={inFlight !== null}
         onClick={() => handleInteraction("dislike")}
-        aria-label={`Dislike (${counts.dislike})`}
+        aria-label={`Add dislike (${counts.dislike})`}
         className="gap-1 text-xs text-muted-foreground hover:text-red-600"
       >
         <ThumbsDown className="h-3.5 w-3.5" />
         <span>{counts.dislike}</span>
       </Button>
+      {counts.dislike > 0 && (
+        <UndoCountButton
+          label="Remove one dislike"
+          disabled={inFlight !== null}
+          onClick={() => handleInteraction("remove_dislike")}
+        />
+      )}
 
       {/* Confirm still happening button */}
       <Button
@@ -105,12 +135,19 @@ export function IncidentActions({
         size="sm"
         disabled={inFlight !== null}
         onClick={() => handleInteraction("confirm")}
-        aria-label={`Confirm still happening (${counts.confirm})`}
+        aria-label={`Add confirmation still happening (${counts.confirm})`}
         className="gap-1 text-xs text-muted-foreground hover:text-blue-600"
       >
         <CheckCircle className="h-3.5 w-3.5" />
         <span>{counts.confirm}</span>
       </Button>
+      {counts.confirm > 0 && (
+        <UndoCountButton
+          label="Remove one confirmation"
+          disabled={inFlight !== null}
+          onClick={() => handleInteraction("remove_confirm")}
+        />
+      )}
 
       {/* Mark resolved button */}
       <Button
@@ -136,6 +173,36 @@ export function IncidentActions({
         <Flag className="h-3.5 w-3.5" />
       </Button>
     </div>
+  );
+}
+
+function getCountKey(action: InteractionAction): "like" | "dislike" | "confirm" | null {
+  if (action === "like" || action === "remove_like") return "like";
+  if (action === "dislike" || action === "remove_dislike") return "dislike";
+  if (action === "confirm" || action === "remove_confirm") return "confirm";
+  return null;
+}
+
+function UndoCountButton({
+  label,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      disabled={disabled}
+      onClick={onClick}
+      aria-label={label}
+      className="-ml-2 h-6 w-6 text-muted-foreground hover:text-foreground"
+    >
+      <X className="h-3 w-3" />
+    </Button>
   );
 }
 

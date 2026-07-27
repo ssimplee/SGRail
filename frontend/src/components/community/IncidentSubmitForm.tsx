@@ -94,6 +94,7 @@ export function IncidentSubmitForm({
 }: IncidentSubmitFormProps) {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [gpsAvailable, setGpsAvailable] = useState(false);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
@@ -162,9 +163,17 @@ export function IncidentSubmitForm({
     // Client-side preview only — real validation happens on backend
     const validTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
+      setPhotoError("Use a JPEG, PNG, or WebP image.");
+      removePhoto();
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError("Photo must be 5 MB or smaller.");
+      removePhoto();
       return;
     }
 
+    setPhotoError(null);
     setPhotoFile(file);
     const reader = new FileReader();
     reader.onload = () => {
@@ -176,6 +185,7 @@ export function IncidentSubmitForm({
   const removePhoto = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
+    setPhotoError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -194,6 +204,7 @@ export function IncidentSubmitForm({
       locationConsent: values.locationConsent,
       latitude: values.locationConsent ? userLocation?.lat ?? null : null,
       longitude: values.locationConsent ? userLocation?.lng ?? null : null,
+      photo: photoFile,
     };
 
     onSubmit(request);
@@ -393,6 +404,11 @@ export function IncidentSubmitForm({
                 className="max-h-48 rounded-md border object-cover"
               />
             </div>
+          )}
+          {photoError && (
+            <p className="text-xs text-destructive" role="alert">
+              {photoError}
+            </p>
           )}
         </div>
 
