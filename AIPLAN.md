@@ -326,6 +326,32 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
     **Status: done** (typecheck + full test suite verified; manual
     tab-switch click-through not yet re-confirmed live in-browser — worth
     a quick sanity check).
+20. **A transient provider failure got cached and kept being served after
+    the provider recovered** (bug found while investigating why a burst of
+    Groq 429s during heavy manual testing made *every* subsequent identical
+    question keep returning the canned rule-based decline, even minutes
+    after Groq's own rate-limit headers showed the request/token budget had
+    recovered). Root cause: `HybridProvider.chat()` caches whatever
+    `self.llm_provider.chat(...)` returns — but `OpenAIProvider`/
+    `GroqProvider.chat()` catch their own failures internally and return
+    `RuleBasedAssistant`'s fallback reply, indistinguishable from a real
+    answer to the caching code. One transient failure got "burned in" to
+    the cache for the full `AI_CACHE_TTL_SECONDS` (900s), so the *same
+    question* kept serving a stale decline long after the provider was
+    healthy again. Fix — `backend/app/integrations/ai_client.py`:
+    `_fallback_response()` now marks its return dict with `_isDegraded:
+    True`; `HybridProvider.chat()` pops that marker off (so it never leaks
+    into the actual API response) and only calls `_set_cached(...)` when it
+    was absent. **Status: done, verified** (`test_ai_props.py`: a
+    fails-once-then-recovers stub confirms the second identical call
+    retries the provider rather than replaying the cached failure; a
+    healthy response is still cached normally). Separately, live testing
+    also surfaced that Groq's API was still 429-ing fresh, never-before-sent
+    messages from this app even when its own `x-ratelimit-remaining-*`
+    headers (checked via direct calls) showed ample daily/per-minute budget
+    — likely a burst/concurrency-sensitive limit not reflected in those
+    headers, probably residual from today's testing volume. Not a code
+    issue and not something fixable here; expected to clear on its own.
 
 Not doing (out of scope for a hackathon app): Redis-backed distributed
 cache/rate-limit, self-hosted open-weight model, streaming responses,

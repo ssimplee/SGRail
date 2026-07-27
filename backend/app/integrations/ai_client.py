@@ -138,10 +138,18 @@ def _parse_llm_response(raw_text: str) -> dict:
 
 
 def _fallback_response(message: str, context: dict) -> dict:
-    """Generate a response using the RuleBasedAssistant as fallback."""
+    """Generate a response using the RuleBasedAssistant as fallback.
+
+    Marked with _isDegraded so HybridProvider never caches it — a transient
+    failure (network blip, provider 429, malformed response) shouldn't get
+    "burned in" to the cache and keep serving a canned decline for the rest
+    of the TTL after the underlying provider has already recovered.
+    """
     from app.services.ai_orchestrator import RuleBasedAssistant
 
-    return RuleBasedAssistant().chat(message, context)
+    response = RuleBasedAssistant().chat(message, context)
+    response["_isDegraded"] = True
+    return response
 
 
 # ---------------------------------------------------------------------------
@@ -491,7 +499,13 @@ class HybridProvider:
             return RuleBasedAssistant().chat(message, context)
 
         response = self.llm_provider.chat(message, context)
-        self._set_cached(cache_key, response)
+        # A degraded (rule-based fallback) response means the provider call
+        # itself failed — cache only real answers, so a transient failure
+        # doesn't get served back for the rest of the TTL once the provider
+        # has recovered. See AIPLAN.md phase 20.
+        is_degraded = response.pop("_isDegraded", False)
+        if not is_degraded:
+            self._set_cached(cache_key, response)
         return response
 
     @staticmethod

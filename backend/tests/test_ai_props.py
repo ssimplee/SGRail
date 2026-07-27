@@ -263,6 +263,55 @@ class _StubLLMProvider:
         }
 
 
+class _FlakyThenHealthyLLMProvider:
+    """Simulates a provider that fails once (e.g. a 429) then recovers —
+    its own internal fallback marks itself _isDegraded, same as the real
+    OpenAI/Groq providers' except-block fallback."""
+
+    def __init__(self):
+        self.call_count = 0
+
+    def chat(self, message: str, context: dict) -> dict:
+        self.call_count += 1
+        if self.call_count == 1:
+            return {
+                "reply": "degraded fallback reply",
+                "intent": "OUT_OF_SCOPE",
+                "_isDegraded": True,
+            }
+        return {"reply": "real llm reply", "intent": "OUT_OF_SCOPE"}
+
+
+def test_hybrid_provider_does_not_cache_degraded_fallback_response():
+    """A transient provider failure must not get 'burned in' to the cache —
+    the next identical request should retry the provider, not keep serving
+    the stale fallback for the rest of the TTL. See AIPLAN.md phase 20."""
+    provider = _FlakyThenHealthyLLMProvider()
+    hybrid = HybridProvider(provider)
+
+    first = hybrid.chat("a message with no mrt signal at all", {})
+    second = hybrid.chat("a message with no mrt signal at all", {})
+
+    assert provider.call_count == 2  # second call retried, wasn't a cache hit
+    assert first["reply"] == "degraded fallback reply"
+    assert second["reply"] == "real llm reply"
+    assert "_isDegraded" not in first  # marker stripped, never leaks to the API
+    assert "_isDegraded" not in second
+
+
+def test_hybrid_provider_caches_a_real_response_normally():
+    """Sanity check: the fix doesn't disable caching entirely — a normal
+    (non-degraded) response is still cached as before."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    first = hybrid.chat("How much does an MRT ticket cost today", {})
+    second = hybrid.chat("How much does an MRT ticket cost today", {})
+
+    assert stub.call_count == 1
+    assert first == second
+
+
 def test_hybrid_provider_forwards_classifiable_intent_to_llm():
     """Since the agentic redesign (AIPLAN.md, "Agentic tool-calling"), a
     message the rule-based engine could classify no longer short-circuits
