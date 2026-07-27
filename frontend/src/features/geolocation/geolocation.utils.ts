@@ -63,3 +63,14 @@ export function findNearestStations(
 
   return withDistances.slice(0, count);
 }
+
+/**
+ * Format a distance in metres for display.
+ * Under 1km shows whole metres, above shows km to one decimal.
+ */
+export function formatDistance(metres: number): string {
+  if (metres < 1000) {
+    return `${Math.round(metres)}m`;
+  }
+  return `${(metres / 1000).toFixed(1)}km`;
+}

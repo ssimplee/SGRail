@@ -1,4 +1,12 @@
-import { Plus, Minus, Maximize2, Users, LocateFixed, Type } from "lucide-react";
+import {
+  Plus,
+  Minus,
+  Maximize2,
+  Users,
+  LocateFixed,
+  Loader2,
+  Type,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MapControlsProps {
@@ -8,6 +16,8 @@ interface MapControlsProps {
   crowdLayerActive?: boolean;
   onToggleCrowd?: () => void;
   onLocateMe?: () => void;
+  /** True while a GPS fix is being requested — shows a spinner */
+  isLocating?: boolean;
   stationLabelsActive?: boolean;
   onToggleStationLabels?: () => void;
   className?: string;
@@ -20,6 +30,7 @@ export function MapControls({
   crowdLayerActive,
   onToggleCrowd,
   onLocateMe,
+  isLocating,
   stationLabelsActive,
   onToggleStationLabels,
   className,
@@ -60,11 +71,22 @@ export function MapControls({
       {onLocateMe && (
         <button
           onClick={onLocateMe}
-          className="flex h-10 w-10 items-center justify-center rounded-lg bg-card text-foreground shadow-md border border-border transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          aria-label="Locate me — centre on nearest station"
+          disabled={isLocating}
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-card text-foreground shadow-md border border-border transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-wait disabled:opacity-70"
+          aria-label={
+            isLocating
+              ? "Finding your location…"
+              : "Locate me — centre on nearest station"
+          }
+          aria-busy={isLocating}
           type="button"
         >
-          <LocateFixed className="size-4" />
+          {/* A fix can take up to 10s, so the button has to show it is working */}
+          {isLocating ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <LocateFixed className="size-4" />
+          )}
         </button>
       )}
       {onToggleStationLabels && (
