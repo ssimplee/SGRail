@@ -255,7 +255,7 @@ interface MockStationData {
 const LINE_TERMINI: Record<string, [string, string]> = {
   NS: ["Jurong East", "Marina South Pier"],
   EW: ["Tuas Link", "Pasir Ris"],
-  NE: ["HarbourFront", "Punggol"],
+  NE: ["HarbourFront", "Punggol Coast"],
   CC: ["Clockwise Loop", "Anticlockwise Loop"],
   DT: ["Bukit Panjang", "Expo"],
   TE: ["Woodlands North", "Bayshore"],
