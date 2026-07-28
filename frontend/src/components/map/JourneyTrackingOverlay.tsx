@@ -21,8 +21,12 @@ export interface JourneyTrackingOverlayProps {
   onStopTracking: () => void;
   onOpenRoute?: () => void;
   nextTrainEta?: string | null;
+  nextTrainOperating?: boolean;
   nextTrainStationId?: string | null;
   nextTrainStationName?: string | null;
+  firstTrainLabel?: string | null;
+  serviceNotice?: string | null;
+  serviceStartArrivalLabel?: string | null;
 }
 
 /**
@@ -147,8 +151,12 @@ export function JourneyTrackingOverlay({
   onStopTracking,
   onOpenRoute,
   nextTrainEta,
+  nextTrainOperating = true,
   nextTrainStationId,
   nextTrainStationName,
+  firstTrainLabel,
+  serviceNotice,
+  serviceStartArrivalLabel,
 }: JourneyTrackingOverlayProps) {
   const { currentPhase, routeProgress, confidence, nextAction, nearestStation } =
     journeyState;
@@ -157,8 +165,13 @@ export function JourneyTrackingOverlay({
   const confidenceInfo = getConfidenceLabel(confidence);
   const showBoardingTrainEta =
     Boolean(nextTrainEta) &&
+    nextTrainOperating &&
     currentPhase !== "journey-complete" &&
     (!nextTrainStationId || nearestStation?.id === nextTrainStationId);
+  const showServiceClosedNotice =
+    nextTrainOperating === false &&
+    currentPhase !== "journey-complete" &&
+    routeProgress === 0;
 
   return (
     <div
@@ -267,6 +280,26 @@ export function JourneyTrackingOverlay({
           </p>
           <p className="mt-0.5 text-xs font-semibold text-blue-950">
             Next from {nextTrainStationName ?? "start station"}: {nextTrainEta}
+          </p>
+        </div>
+      )}
+
+      {showServiceClosedNotice && (
+        <div className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-2">
+          <p className="text-[11px] font-semibold uppercase text-amber-700">
+            Train service not operating
+          </p>
+          <p className="mt-0.5 text-xs font-semibold text-amber-950">
+            First from {nextTrainStationName ?? "start station"}:{" "}
+            {firstTrainLabel ?? nextTrainEta ?? "check timings"}
+          </p>
+          {serviceStartArrivalLabel && (
+            <p className="mt-0.5 text-xs text-amber-800">
+              Estimated arrival: {serviceStartArrivalLabel}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-amber-800">
+            {serviceNotice ?? "Consider walking, cab, or cycling for now."}
           </p>
         </div>
       )}

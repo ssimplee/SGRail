@@ -31,6 +31,16 @@ class StationArrivalSchema(Schema):
     direction = fields.String(required=True)
     nextTrain = fields.String(required=True)
     subsequentTrain = fields.String(allow_none=True, load_default=None)
+    nextTrainMinutes = fields.Integer(allow_none=True, load_default=None)
+    subsequentTrainMinutes = fields.Integer(allow_none=True, load_default=None)
+    nextTrainAt = fields.DateTime(allow_none=True, load_default=None)
+    subsequentTrainAt = fields.DateTime(allow_none=True, load_default=None)
+    firstTrain = fields.String(allow_none=True, load_default=None)
+    firstTrainAt = fields.DateTime(allow_none=True, load_default=None)
+    firstTrainLabel = fields.String(allow_none=True, load_default=None)
+    serviceNotice = fields.String(allow_none=True, load_default=None)
+    headwayBand = fields.String(allow_none=True, load_default=None)
+    operating = fields.Boolean(load_default=True)
 
 
 class StationArrivalsResponseSchema(Schema):

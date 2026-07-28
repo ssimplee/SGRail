@@ -57,26 +57,43 @@ def _parse_hhmm(value: str | None) -> time | None:
         return None
 
 
-def _combine_service_time(now_sgt: datetime, value: time | None, *, is_last: bool) -> datetime | None:
-    """Attach a service time to the correct Singapore service date."""
-    if value is None:
-        return None
+def _service_window(
+    now_sgt: datetime,
+    first_train: time | None,
+    last_train: time | None,
+) -> tuple[bool, datetime | None, datetime | None, datetime | None]:
+    """Return operating status, current first/last window, and next first train."""
+    if first_train is None or last_train is None:
+        return True, None, None, None
 
-    service_date = now_sgt.date()
-    combined = datetime.combine(service_date, value, tzinfo=SGT)
-    if is_last:
-        if now_sgt.time() < time(3, 0) and value >= time(3, 0):
-            combined -= timedelta(days=1)
-        elif now_sgt.time() >= time(3, 0) and value < time(3, 0):
-            combined += timedelta(days=1)
-    elif now_sgt.time() < time(3, 0):
-        combined -= timedelta(days=1)
-    return combined
+    current_minutes = now_sgt.hour * 60 + now_sgt.minute
+    first_minutes = first_train.hour * 60 + first_train.minute
+    last_minutes = last_train.hour * 60 + last_train.minute
+    crosses_midnight = last_minutes < first_minutes
+
+    first_at = datetime.combine(now_sgt.date(), first_train, tzinfo=SGT)
+    last_at = datetime.combine(now_sgt.date(), last_train, tzinfo=SGT)
+
+    if crosses_midnight:
+        operating = current_minutes >= first_minutes or current_minutes <= last_minutes
+        if current_minutes >= first_minutes:
+            last_at += timedelta(days=1)
+        else:
+            first_at -= timedelta(days=1)
+    else:
+        operating = first_minutes <= current_minutes <= last_minutes
+
+    next_first_at = first_at if operating or now_sgt < first_at else first_at + timedelta(days=1)
+    return operating, first_at, last_at, next_first_at
 
 
 def _format_eta(minutes: int, when_sgt: datetime) -> str:
     clock = when_sgt.strftime("%I:%M %p").lstrip("0")
     return f"{minutes} min ({clock})"
+
+
+def _format_clock(when_sgt: datetime) -> str:
+    return when_sgt.strftime("%I:%M %p").lstrip("0")
 
 
 def get_all_stations() -> list[dict]:
@@ -182,48 +199,79 @@ def get_station_arrivals(station_id: str) -> dict | None:
             next_wait, subsequent_wait, headway_band = _headway_for_clock(
                 now_sgt, sl.line_code, direction_name
             )
-            first_train_at = _combine_service_time(
-                now_sgt,
-                _parse_hhmm(timing.first_train.strftime("%H:%M") if timing and timing.first_train else None),
-                is_last=False,
+            first_train = _parse_hhmm(
+                timing.first_train.strftime("%H:%M")
+                if timing and timing.first_train
+                else None
             )
-            last_train_at = _combine_service_time(
+            last_train = _parse_hhmm(
+                timing.last_train.strftime("%H:%M")
+                if timing and timing.last_train
+                else None
+            )
+            operating, first_train_at, last_train_at, next_first_train_at = _service_window(
                 now_sgt,
-                _parse_hhmm(timing.last_train.strftime("%H:%M") if timing and timing.last_train else None),
-                is_last=True,
+                first_train,
+                last_train,
             )
 
             next_train_at = now_sgt + timedelta(minutes=next_wait)
             subsequent_train_at = now_sgt + timedelta(minutes=subsequent_wait)
-            operating = True
 
-            if first_train_at and now_sgt < first_train_at:
-                next_train_at = first_train_at
-                subsequent_train_at = first_train_at + timedelta(minutes=subsequent_wait)
-                next_wait = max(0, round((next_train_at - now_sgt).total_seconds() / 60))
-                subsequent_wait = max(
-                    next_wait + 1,
-                    round((subsequent_train_at - now_sgt).total_seconds() / 60),
+            if last_train_at and next_train_at > last_train_at:
+                operating = False
+
+            if not operating and next_first_train_at:
+                next_train_at = next_first_train_at
+                subsequent_train_at = None
+                next_wait = max(
+                    0,
+                    round((next_first_train_at - now_sgt).total_seconds() / 60),
                 )
-            elif last_train_at and now_sgt > last_train_at:
-                operating = False
-            elif last_train_at and next_train_at > last_train_at:
-                operating = False
+                subsequent_wait = None
 
             arrivals.append(
                 {
                     "line": sl.line_code,
                     "direction": direction_name,
-                    "nextTrain": _format_eta(next_wait, next_train_at) if operating else "No service",
+                    "nextTrain": (
+                        _format_eta(next_wait, next_train_at)
+                        if operating
+                        else f"First train {_format_clock(next_train_at)}"
+                    ),
                     "subsequentTrain": (
                         _format_eta(subsequent_wait, subsequent_train_at)
-                        if operating
+                        if operating and subsequent_wait is not None and subsequent_train_at
                         else ""
                     ),
-                    "nextTrainMinutes": next_wait if operating else None,
+                    "nextTrainMinutes": next_wait,
                     "subsequentTrainMinutes": subsequent_wait if operating else None,
-                    "nextTrainAt": next_train_at.isoformat() if operating else None,
-                    "subsequentTrainAt": subsequent_train_at.isoformat() if operating else None,
+                    "nextTrainAt": next_train_at.isoformat(),
+                    "subsequentTrainAt": (
+                        subsequent_train_at.isoformat()
+                        if operating and subsequent_train_at
+                        else None
+                    ),
+                    "firstTrain": first_train.strftime("%H:%M") if first_train else None,
+                    "firstTrainAt": (
+                        next_first_train_at.isoformat()
+                        if not operating and next_first_train_at
+                        else first_train_at.isoformat()
+                        if first_train_at
+                        else None
+                    ),
+                    "firstTrainLabel": (
+                        _format_clock(next_first_train_at)
+                        if not operating and next_first_train_at
+                        else _format_clock(first_train_at)
+                        if first_train_at
+                        else None
+                    ),
+                    "serviceNotice": (
+                        f"No train service now. First train at {_format_clock(next_train_at)}."
+                        if not operating
+                        else None
+                    ),
                     "headwayBand": headway_band,
                     "operating": operating,
                 }

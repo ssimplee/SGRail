@@ -23,6 +23,7 @@ import { useMapStore } from "@/store/mapStore";
 import { useJourneyStore } from "@/store/journeyStore";
 import { createSavedRoute } from "@/services/user.api";
 import { STATIONS } from "@/data/stations";
+import { formatClock } from "@/utils/timeFormat";
 import type { RoutePreference, RouteResult } from "@/types/route.types";
 import type { RouteStop } from "@/features/journey-tracking/journeyTracker.types";
 
@@ -352,7 +353,7 @@ export function RoutePage() {
           {data && (
             <p className="text-[10px] text-muted-foreground">
               Source: {data.source} · Computed at{" "}
-              {new Date(data.computedAt).toLocaleTimeString()}
+              {formatClock(data.computedAt)}
             </p>
           )}
 
@@ -394,7 +395,7 @@ export function RoutePage() {
                   {item.transfers === 1 ? "" : "s"}
                 </div>
                 <time dateTime={item.startedAt}>
-                  Started {new Date(item.startedAt).toLocaleTimeString()}
+                  Started {formatClock(item.startedAt)}
                 </time>
               </li>
             ))}
