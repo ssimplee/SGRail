@@ -1,10 +1,20 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Navigation, Bookmark, Loader2, AlertCircle } from "lucide-react";
+import { Navigation, Bookmark, Loader2, AlertCircle, Clock, History, Square } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { RouteInputForm } from "@/components/route/RouteInputForm";
 import { PreferenceSelector } from "@/components/route/PreferenceSelector";
 import { RouteResultList } from "@/components/route/RouteResultCard";
@@ -14,6 +24,7 @@ import { useJourneyStore } from "@/store/journeyStore";
 import { useRouteStore } from "@/store/routeStore";
 import { createSavedRoute } from "@/services/user.api";
 import { STATIONS } from "@/data/stations";
+import { formatClock } from "@/utils/timeFormat";
 import type { RoutePreference, RouteResult } from "@/types/route.types";
 import type { RouteStop } from "@/features/journey-tracking/journeyTracker.types";
 import type { RoutePrefillState } from "@/types/assistant.types";
@@ -141,6 +152,7 @@ export function RoutePage() {
   const storedOriginId = useRouteStore((s) => s.originStationId);
   const storedDestinationId = useRouteStore((s) => s.destinationStationId);
   const storedMode = useRouteStore((s) => s.mode);
+  const storedDepartureTime = useRouteStore((s) => s.departureTime);
   const preference = useRouteStore((s) => s.preference);
   const setPreference = useRouteStore((s) => s.setPreference);
   const setRouteRequest = useRouteStore((s) => s.setRequest);
@@ -148,11 +160,16 @@ export function RoutePage() {
   const setStoredResult = useRouteStore((s) => s.setResult);
   const selectedRouteIndex = useRouteStore((s) => s.selectedRouteIndex);
   const setSelectedRouteIndex = useRouteStore((s) => s.setSelectedRouteIndex);
+  const [pendingRouteIndex, setPendingRouteIndex] = useState<number | null>(null);
 
   const { planRoute, data, isLoading, error, reset } = useRoutePlanner();
   const setHighlightedRoute = useMapStore((s) => s.setHighlightedRoute);
   const clearHighlights = useMapStore((s) => s.clearHighlights);
+  const activeRoute = useJourneyStore((s) => s.activeRoute);
+  const activeRouteMeta = useJourneyStore((s) => s.activeRouteMeta);
+  const routeHistory = useJourneyStore((s) => s.routeHistory);
   const setActiveRoute = useJourneyStore((s) => s.setActiveRoute);
+  const clearRoute = useJourneyStore((s) => s.clearRoute);
 
   // A wizard hand-off with a known departure time (LEAVE_NOW) can go
   // straight to results; LEAVE_AT/ARRIVE_BY still need an exact time, so
@@ -165,6 +182,7 @@ export function RoutePage() {
       originStationId: prefill.originStationId,
       destinationStationId: prefill.destinationStationId,
       mode: prefill.mode,
+      departureTime: undefined,
       preference: prefill.preference,
     });
     planRoute(
@@ -185,6 +203,15 @@ export function RoutePage() {
   // The route results to render: this mount's own fresh mutation result if
   // one exists yet, else whatever was last stored (restored on remount).
   const displayData = data ?? storedResult;
+  const lastRequest =
+    storedOriginId && storedDestinationId
+      ? {
+          originStationId: storedOriginId,
+          destinationStationId: storedDestinationId,
+          mode: storedMode,
+          departureTime: storedDepartureTime,
+        }
+      : null;
 
   // Save route mutation
   const saveRouteMutation = useMutation({
@@ -226,6 +253,7 @@ export function RoutePage() {
         originStationId: params.originStationId,
         destinationStationId: params.destinationStationId,
         mode: params.mode,
+        departureTime: params.departureTime,
         preference,
       });
       planRoute(
@@ -239,30 +267,58 @@ export function RoutePage() {
     [preference, planRoute, setRouteRequest, setStoredResult, setSelectedRouteIndex]
   );
 
-  const handleStartTracking = useCallback(
+  const startRouteTracking = useCallback(
     (routeIndex: number) => {
       const route = routes[routeIndex];
       if (!route) return;
       const routeStops = deriveRouteStops(route);
+      const origin = STATIONS.find((s) => s.id === lastRequest?.originStationId);
+      const destination = STATIONS.find((s) => s.id === lastRequest?.destinationStationId);
       setActiveRoute(
+        route,
+        routeStops,
         {
+          title: `${origin?.name ?? "Origin"} to ${destination?.name ?? "Destination"}`,
+          originStationId: lastRequest?.originStationId ?? "",
+          destinationStationId: lastRequest?.destinationStationId ?? "",
+          originStationName: origin?.name ?? "Origin",
+          destinationStationName: destination?.name ?? "Destination",
           totalMinutes: route.totalMinutes,
-          walkingMinutes: route.walkingMinutes,
           stops: route.stops,
           transfers: route.transfers,
-          estimatedFare: route.estimatedFare ?? "",
-          crowdEstimate: route.crowdEstimate ?? "",
-          steps: route.steps,
-        },
-        routeStops
+        }
       );
       toast.success("Journey tracking started", {
         description: "You'll receive transfer and alighting reminders.",
       });
       navigate("/");
     },
-    [routes, setActiveRoute, navigate]
+    [lastRequest, routes, setActiveRoute, navigate]
   );
+
+  const handleStartTracking = useCallback(
+    (routeIndex: number) => {
+      if (activeRoute) {
+        setPendingRouteIndex(routeIndex);
+        return;
+      }
+      startRouteTracking(routeIndex);
+    },
+    [activeRoute, startRouteTracking]
+  );
+
+  const handleConfirmOverwriteRoute = useCallback(() => {
+    if (pendingRouteIndex === null) return;
+    startRouteTracking(pendingRouteIndex);
+    setPendingRouteIndex(null);
+  }, [pendingRouteIndex, startRouteTracking]);
+
+  const pendingRoute = pendingRouteIndex !== null ? routes[pendingRouteIndex] : null;
+  const pendingRouteTitle = lastRequest
+    ? `${STATIONS.find((s) => s.id === lastRequest.originStationId)?.name ?? "Origin"} to ${
+        STATIONS.find((s) => s.id === lastRequest.destinationStationId)?.name ?? "Destination"
+      }`
+    : "new route";
 
   const handleSaveRoute = useCallback(() => {
     if (!storedOriginId || !storedDestinationId) return;
@@ -272,6 +328,13 @@ export function RoutePage() {
       preference,
     });
   }, [storedOriginId, storedDestinationId, preference, saveRouteMutation]);
+
+  const handleStopCurrentRoute = useCallback(() => {
+    clearRoute();
+    toast.success("Journey tracking stopped", {
+      description: "The route was moved to your chosen route history.",
+    });
+  }, [clearRoute]);
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -293,6 +356,35 @@ export function RoutePage() {
         }
         initialMode={prefill?.mode ?? storedMode}
       />
+
+      {/* Current tracked route */}
+      {activeRoute && activeRouteMeta && (
+        <div className="border-t bg-blue-50/60 px-4 py-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-semibold text-blue-900">Current route</p>
+              <p className="text-xs text-blue-700">{activeRouteMeta.title}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                <Clock className="size-3" />
+                Tracking
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleStopCurrentRoute}
+                className="h-8 border-blue-200 bg-white text-blue-800 hover:bg-blue-50"
+              >
+                <Square className="size-3" />
+                Stop
+              </Button>
+            </div>
+          </div>
+          <RouteResultList routes={[activeRoute as RouteResult]} />
+        </div>
+      )}
 
       {/* Preference Selector */}
       <div className="border-t px-4 py-3">
@@ -337,13 +429,21 @@ export function RoutePage() {
           {displayData && (
             <p className="text-[10px] text-muted-foreground">
               Source: {displayData.source} · Computed at{" "}
-              {new Date(displayData.computedAt).toLocaleTimeString()}
+              {formatClock(displayData.computedAt)}
             </p>
           )}
 
           {/* Route list */}
           <RouteResultList
             routes={routes}
+            planContext={
+              lastRequest
+                ? {
+                    mode: lastRequest.mode,
+                    departureTime: lastRequest.departureTime,
+                  }
+                : undefined
+            }
             onStartTracking={handleStartTracking}
           />
         </div>
@@ -359,6 +459,91 @@ export function RoutePage() {
           </p>
         </div>
       )}
+
+      {/* Chosen route history */}
+      {routeHistory.length > 0 && (
+        <div className="border-t px-4 py-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+            <History className="size-4" />
+            Chosen route history
+          </div>
+          <ul className="space-y-2">
+            {routeHistory.map((item) => (
+              <li
+                key={item.id}
+                className="rounded-md border bg-card px-3 py-2 text-xs text-muted-foreground"
+              >
+                <div className="font-medium text-foreground">{item.title}</div>
+                <div>
+                  {item.totalMinutes} min · {item.stops} stops · {item.transfers} transfer
+                  {item.transfers === 1 ? "" : "s"}
+                </div>
+                <time dateTime={item.startedAt}>
+                  Started {formatClock(item.startedAt)}
+                </time>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <AlertDialog
+        open={pendingRouteIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRouteIndex(null);
+        }}
+      >
+        <AlertDialogContent className="max-w-md p-0">
+          <div className="border-b bg-blue-50 px-5 py-4">
+            <AlertDialogHeader className="gap-1 text-left">
+              <AlertDialogTitle className="flex items-center gap-2 text-blue-950">
+                <Navigation className="size-5 text-blue-600" />
+                Start a new route?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-blue-800">
+                Your current route will stop tracking and move into history.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </div>
+
+          <div className="space-y-3 px-5 py-4">
+            {activeRouteMeta && (
+              <div className="rounded-md border border-blue-100 bg-blue-50/70 p-3">
+                <p className="text-xs font-medium uppercase text-blue-700">Current route</p>
+                <p className="mt-1 text-sm font-semibold text-blue-950">
+                  {activeRouteMeta.title}
+                </p>
+                <p className="text-xs text-blue-700">
+                  {activeRouteMeta.totalMinutes} min · {activeRouteMeta.stops} stops
+                </p>
+              </div>
+            )}
+
+            {pendingRoute && (
+              <div className="rounded-md border border-amber-100 bg-amber-50 p-3">
+                <p className="text-xs font-medium uppercase text-amber-700">New route</p>
+                <p className="mt-1 text-sm font-semibold text-amber-950">
+                  {pendingRouteTitle}
+                </p>
+                <p className="text-xs text-amber-700">
+                  {pendingRoute.totalMinutes} min · {pendingRoute.stops} stops ·{" "}
+                  {pendingRoute.transfers} transfer{pendingRoute.transfers === 1 ? "" : "s"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <AlertDialogFooter className="border-t px-5 py-4">
+            <AlertDialogCancel className="mt-0">Keep current route</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmOverwriteRoute}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Start new route
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

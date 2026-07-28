@@ -74,6 +74,7 @@ class TestingConfig(BaseConfig):
 
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    DATA_PROVIDER = "mock"
     RATE_LIMIT_INCIDENTS = "1000/hour"
     RATE_LIMIT_AI = "1000/hour"
 

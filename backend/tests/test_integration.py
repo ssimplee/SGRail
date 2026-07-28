@@ -324,6 +324,37 @@ class TestRoutePlanning:
         assert "steps" in route
         assert "transfers" in route
 
+    def test_plan_route_includes_matching_service_alerts(self, client, db, monkeypatch):
+        """Routes using a line with an active LTA notice surface that notice."""
+        monkeypatch.setattr(
+            "app.routes.routes._get_active_service_alerts",
+            lambda: [
+                {
+                    "status": 1,
+                    "severity": "minor",
+                    "lineCode": "DT",
+                    "ltaLine": "DTL",
+                    "message": "23:30-DTL-Planned Service Adjustments.",
+                    "createdAt": "2026-07-09 20:00:20",
+                    "source": "lta_datamall",
+                }
+            ],
+        )
+
+        payload = {
+            "originStationId": "bukit-panjang",
+            "destinationStationId": "bugis",
+            "mode": "LEAVE_NOW",
+            "preference": "FASTEST",
+        }
+        resp = client.post("/api/v1/routes/plan", json=payload)
+
+        assert resp.status_code == 200
+        route = resp.get_json()["routes"][0]
+        assert route["serviceAlerts"]
+        assert route["serviceAlerts"][0]["source"] == "lta_datamall"
+        assert route["serviceAlerts"][0]["lineCode"] == "DT"
+
     def test_plan_route_same_origin_dest_returns_422(self, client, db):
         """POST with same origin and destination → 422."""
         payload = {

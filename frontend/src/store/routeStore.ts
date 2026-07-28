@@ -21,6 +21,7 @@ export interface RouteStoreState {
   originStationId: string | null;
   destinationStationId: string | null;
   mode: TimeMode;
+  departureTime?: string;
   preference: RoutePreference;
   lastResult: RoutePlanResponse | null;
   selectedRouteIndex: number;
@@ -29,6 +30,7 @@ export interface RouteStoreState {
     originStationId: string;
     destinationStationId: string;
     mode: TimeMode;
+    departureTime?: string;
     preference: RoutePreference;
   }) => void;
   setPreference: (preference: RoutePreference) => void;
@@ -41,6 +43,7 @@ export const useRouteStore = create<RouteStoreState>((set) => ({
   originStationId: null,
   destinationStationId: null,
   mode: "LEAVE_NOW",
+  departureTime: undefined,
   preference: "FASTEST",
   lastResult: null,
   selectedRouteIndex: 0,
@@ -50,6 +53,7 @@ export const useRouteStore = create<RouteStoreState>((set) => ({
       originStationId: params.originStationId,
       destinationStationId: params.destinationStationId,
       mode: params.mode,
+      departureTime: params.departureTime,
       preference: params.preference,
     }),
   setPreference: (preference) => set({ preference }),
@@ -59,6 +63,7 @@ export const useRouteStore = create<RouteStoreState>((set) => ({
     set({
       originStationId: null,
       destinationStationId: null,
+      departureTime: undefined,
       lastResult: null,
       selectedRouteIndex: 0,
     }),

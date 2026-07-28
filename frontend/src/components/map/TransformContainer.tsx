@@ -36,7 +36,7 @@ export interface MapViewHandle {
 
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 5;
-const ZOOM_STEP = 0.5;
+const ZOOM_STEP = 0.25;
 
 /** Zoom level used when centring on a station, close enough to read labels */
 const FOCUS_SCALE = 2;
@@ -145,7 +145,7 @@ export const TransformContainer = forwardRef<
         centerOnInit
         limitToBounds={false}
         panning={{ velocityDisabled: false }}
-        wheel={{ smoothStep: 0.002 }}
+        wheel={{ step: 0.06, smoothStep: 0.0005 }}
         pinch={{ step: 5 }}
         doubleClick={{ disabled: false, step: 0.7 }}
         onInit={handleMapInit}

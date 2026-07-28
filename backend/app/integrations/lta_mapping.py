@@ -17,8 +17,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# LTA line code -> internal line code.  STL (Sengkang LRT) and PTL
-# (Punggol LRT) have no internal equivalent and are intentionally absent.
+# LTA line code -> internal MRT line code. LRT lines are intentionally absent
+# because SGRail focuses on MRT service information.
 LTA_LINE_TO_INTERNAL: dict[str, str] = {
     "EWL": "EW",
     "NSL": "NS",
@@ -26,7 +26,6 @@ LTA_LINE_TO_INTERNAL: dict[str, str] = {
     "CCL": "CC",
     "DTL": "DT",
     "TEL": "TE",
-    "BPL": "BP",
 }
 
 

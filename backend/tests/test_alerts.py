@@ -87,6 +87,26 @@ DISRUPTED_PAYLOAD = {
 
 NORMAL_PAYLOAD = {"value": {"Status": 1, "AffectedSegments": [], "Message": []}}
 
+PLANNED_MESSAGE_ONLY_PAYLOAD = {
+    "value": {
+        "Status": 1,
+        "AffectedSegments": [],
+        "Message": [
+            {
+                "Content": (
+                    "23:30-DTL-Planned Service Adjustments. From 10 Jul to 5 Sep "
+                    "2026, Downtown Line services will end at 11.30pm on Friday nights."
+                ),
+                "CreatedDate": "2026-07-09 20:00:20",
+            },
+            {
+                "Content": "05:00-SK-Planned Service Adjustment. Sengkang LRT notice.",
+                "CreatedDate": "2026-04-18 11:50:27",
+            },
+        ],
+    }
+}
+
 
 # ---------------------------------------------------------------------------
 # Response contract
@@ -123,6 +143,16 @@ class TestAlertPayloadNormalisation:
 
     def test_normal_service_yields_no_alerts(self):
         assert LTADataMallClient._normalise_alert_payload(NORMAL_PAYLOAD) == []
+
+    def test_message_only_mrt_advisories_are_preserved(self):
+        alerts = LTADataMallClient._normalise_alert_payload(PLANNED_MESSAGE_ONLY_PAYLOAD)
+
+        assert len(alerts) == 1
+        assert alerts[0]["status"] == 1
+        assert alerts[0]["ltaLine"] == "DTL"
+        assert alerts[0]["stationCodes"] == []
+        assert alerts[0]["message"].startswith("23:30-DTL")
+        assert alerts[0]["source"] == "lta_datamall"
 
     def test_payload_without_value_wrapper_is_accepted(self):
         """The envelope is unverified against a live call, so both shapes parse."""
@@ -175,7 +205,7 @@ class TestLineMapping:
     def test_documented_lines_map(self, lta, internal):
         assert map_line_code(lta) == internal
 
-    @pytest.mark.parametrize("lta", ["STL", "PTL", "XYZ", ""])
+    @pytest.mark.parametrize("lta", ["BPL", "SK", "STL", "PTL", "XYZ", ""])
     def test_unmodelled_lines_return_none(self, lta):
         assert map_line_code(lta) is None
 
@@ -300,6 +330,30 @@ class TestAlertService:
         )
 
         assert alert_service.get_active_alerts(force_refresh=True) == []
+
+    def test_message_only_advisories_resolve_to_line_level_alerts(self, db, monkeypatch):
+        monkeypatch.setattr(
+            "app.integrations.get_rail_data_provider",
+            lambda: type(
+                "P",
+                (),
+                {
+                    "get_service_alerts": staticmethod(
+                        lambda: LTADataMallClient._normalise_alert_payload(
+                            PLANNED_MESSAGE_ONLY_PAYLOAD
+                        )
+                    )
+                },
+            )(),
+        )
+
+        alerts = alert_service.get_active_alerts(force_refresh=True)
+
+        assert len(alerts) == 1
+        assert alerts[0]["lineCode"] == "DT"
+        assert alerts[0]["severity"] == "minor"
+        assert alerts[0]["stationIds"] == []
+        assert alerts[0]["source"] == "lta_datamall"
 
 
 # ---------------------------------------------------------------------------

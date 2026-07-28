@@ -49,6 +49,15 @@ export interface RouteResult {
     station: string;
     message: string;
   }>;
+  serviceAlerts?: Array<{
+    status: number;
+    severity: "major" | "minor";
+    lineCode: string;
+    ltaLine: string;
+    message: string;
+    createdAt: string;
+    source: string;
+  }>;
   steps: RouteStep[];
 }
 

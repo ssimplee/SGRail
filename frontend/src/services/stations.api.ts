@@ -37,6 +37,7 @@ export interface StationDetailResponse extends StationListItem {
 export interface ArrivalsResponse {
   arrivals: ArrivalEntry[];
   source: string;
+  timezone?: string;
   updatedAt: string;
 }
 

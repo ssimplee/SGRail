@@ -89,6 +89,7 @@ def plan_route():
 
     # Format each route into steps and compute summaries
     now = datetime.now(timezone.utc)
+    active_alerts = _get_active_service_alerts()
     formatted_routes = []
 
     for path, _cost in raw_routes:
@@ -100,6 +101,8 @@ def plan_route():
 
         # Validate against last-train timings
         last_train_warnings = validate_last_train(path, departure_time)
+
+        service_alerts = _service_alerts_for_path(path, active_alerts)
 
         # Check accessibility warnings (wheelchair preference)
         accessibility_warnings = []
@@ -116,6 +119,7 @@ def plan_route():
             "dataFreshness": now.isoformat(),
             "lastTrainWarnings": last_train_warnings,
             "accessibilityWarnings": accessibility_warnings,
+            "serviceAlerts": service_alerts,
             "steps": steps,
         }
         formatted_routes.append(route_result)
@@ -142,6 +146,39 @@ def recalculate_route():
     """
     # Recalculate uses the same logic as plan, reusing the handler
     return plan_route()
+
+
+def _get_active_service_alerts() -> list[dict]:
+    """Return active LTA/service notices without breaking route planning."""
+    try:
+        from app.services import alert_service
+
+        return alert_service.get_active_alerts()
+    except Exception:  # noqa: BLE001 - routing must still work if alerts are down
+        return []
+
+
+def _service_alerts_for_path(path: list, active_alerts: list[dict]) -> list[dict]:
+    """Return service alerts affecting any line used by a planned route."""
+    route_lines = {node[1] for node in path if len(node) > 1 and node[1]}
+    matched: list[dict] = []
+
+    for alert in active_alerts:
+        if alert.get("lineCode") not in route_lines:
+            continue
+        matched.append(
+            {
+                "status": alert.get("status", 2),
+                "severity": alert.get("severity", "major"),
+                "lineCode": alert.get("lineCode", ""),
+                "ltaLine": alert.get("ltaLine", ""),
+                "message": alert.get("message", ""),
+                "createdAt": alert.get("createdAt", ""),
+                "source": alert.get("source", "simulated"),
+            }
+        )
+
+    return matched
 
 
 def _check_accessibility(path: list) -> list[dict]:

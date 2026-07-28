@@ -20,6 +20,8 @@ import {
   getStationCrowd,
   type StationExit,
 } from "@/services/stations.api";
+import { estimateTrainHeadway } from "@/utils/trainHeadway";
+import { formatDateTime } from "@/utils/timeFormat";
 
 export interface StationPanelProps {
   station: MapStation | null;
@@ -175,7 +177,7 @@ export function StationPanel({ station, open, onClose }: StationPanelProps) {
         {/* Last Updated */}
         <Separator />
         <p className="text-[10px] text-muted-foreground text-center">
-          Last updated: {new Date(arrivalsUpdatedAt).toLocaleString()}
+          Last updated: {formatDateTime(arrivalsUpdatedAt)}
         </p>
       </div>
     </ResponsivePanel>
@@ -269,12 +271,25 @@ function generateMockData(station: MapStation): MockStationData {
   // Arrivals - generate for each line at the station
   const arrivals: ArrivalEntry[] = station.lines.flatMap((line) => {
     const termini = LINE_TERMINI[line] ?? ["Terminus A", "Terminus B"];
-    return termini.map((direction) => ({
-      line,
-      direction,
-      nextTrain: `${Math.floor(Math.random() * 5) + 1} min`,
-      subsequentTrain: `${Math.floor(Math.random() * 5) + 5} min`,
-    }));
+    return termini.map((direction) => {
+      const estimate = estimateTrainHeadway(new Date(), `${line}:${direction}`);
+      return {
+        line,
+        direction,
+        nextTrain: estimate.nextLabel,
+        subsequentTrain: estimate.subsequentLabel,
+        nextTrainMinutes: estimate.nextMinutes,
+        subsequentTrainMinutes: estimate.subsequentMinutes,
+        nextTrainAt: estimate.nextAt?.toISOString(),
+        subsequentTrainAt: estimate.subsequentAt?.toISOString(),
+        firstTrain: estimate.firstTrain,
+        firstTrainAt: estimate.firstTrainAt?.toISOString(),
+        firstTrainLabel: estimate.firstTrainLabel,
+        serviceNotice: estimate.serviceNotice,
+        headwayBand: estimate.band,
+        operating: estimate.operating,
+      };
+    });
   });
 
   // Timings - weekday only for simplicity
@@ -318,7 +333,7 @@ function generateMockData(station: MapStation): MockStationData {
 
   return {
     arrivals,
-    arrivalsSource: "Demo data (offline)",
+    arrivalsSource: "estimated",
     arrivalsUpdatedAt: now,
     timings,
     crowd,

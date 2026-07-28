@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { RouteStop } from "@/features/journey-tracking/journeyTracker.types";
 
 /**
@@ -10,9 +11,34 @@ export interface RouteResult {
   walkingMinutes: number;
   stops: number;
   transfers: number;
-  estimatedFare: string;
-  crowdEstimate: string;
+  estimatedFare: string | null;
+  crowdEstimate: string | null;
+  dataFreshness?: string | null;
+  lastTrainWarnings?: Array<Record<string, string>>;
+  accessibilityWarnings?: Array<Record<string, string>>;
+  serviceAlerts?: Array<{
+    status: number;
+    severity: "major" | "minor";
+    lineCode: string;
+    ltaLine: string;
+    message: string;
+    createdAt: string;
+    source: string;
+  }>;
   steps: RouteStep[];
+}
+
+export interface RouteHistoryItem {
+  id: string;
+  title: string;
+  originStationId: string;
+  destinationStationId: string;
+  originStationName: string;
+  destinationStationName: string;
+  startedAt: string;
+  totalMinutes: number;
+  stops: number;
+  transfers: number;
 }
 
 export interface RouteStep {
@@ -41,15 +67,71 @@ export interface JourneyStore {
   activeRoute: RouteResult | null;
   /** The route stops derived from the active route for tracking */
   routeStops: RouteStop[];
+  /** Summary for the active route, shown when returning to Route page */
+  activeRouteMeta: RouteHistoryItem | null;
+  /** Recent routes the user started tracking */
+  routeHistory: RouteHistoryItem[];
   /** Set the active route and its derived stops */
-  setActiveRoute: (route: RouteResult | null, stops: RouteStop[]) => void;
+  setActiveRoute: (
+    route: RouteResult | null,
+    stops: RouteStop[],
+    meta?: Omit<RouteHistoryItem, "id" | "startedAt">,
+  ) => void;
   /** Clear active route and stops */
   clearRoute: () => void;
 }
 
-export const useJourneyStore = create<JourneyStore>((set) => ({
-  activeRoute: null,
-  routeStops: [],
-  setActiveRoute: (route, stops) => set({ activeRoute: route, routeStops: stops }),
-  clearRoute: () => set({ activeRoute: null, routeStops: [] }),
-}));
+export const useJourneyStore = create<JourneyStore>()(
+  persist(
+    (set) => ({
+      activeRoute: null,
+      routeStops: [],
+      activeRouteMeta: null,
+      routeHistory: [],
+      setActiveRoute: (route, stops, meta) =>
+        set((state) => {
+          const history = state.activeRouteMeta
+            ? [
+                state.activeRouteMeta,
+                ...state.routeHistory.filter((item) => item.id !== state.activeRouteMeta?.id),
+              ].slice(0, 10)
+            : state.routeHistory;
+
+          if (!route || !meta) {
+            return {
+              activeRoute: route,
+              routeStops: stops,
+              activeRouteMeta: null,
+              routeHistory: history,
+            };
+          }
+
+          return {
+            activeRoute: route,
+            routeStops: stops,
+            activeRouteMeta: {
+              ...meta,
+              id: `${Date.now()}-${meta.originStationId}-${meta.destinationStationId}`,
+              startedAt: new Date().toISOString(),
+            },
+            routeHistory: history,
+          };
+        }),
+      clearRoute: () =>
+        set((state) => ({
+          activeRoute: null,
+          routeStops: [],
+          activeRouteMeta: null,
+          routeHistory: state.activeRouteMeta
+            ? [
+                state.activeRouteMeta,
+                ...state.routeHistory.filter((item) => item.id !== state.activeRouteMeta?.id),
+              ].slice(0, 10)
+            : state.routeHistory,
+        })),
+    }),
+    {
+      name: "sgrail-journey",
+    },
+  ),
+);
