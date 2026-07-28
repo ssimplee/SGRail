@@ -428,6 +428,30 @@ Executed one phase at a time, in order. Each is scoped to one file/concern.
       `context.language: "en"`; also manually verified against the exact
       messages from the reported screenshot.
 
+22. **`HybridProvider`'s cache key ignored `language` and
+    `selectedRoutePreference`, so two requests with the same message text
+    and station but different context silently collided on the same cache
+    entry** (flagged by team review, and directly confirmed as the cause
+    of a live bug report: asking "比戏站现在人多吗" in Chinese got an English
+    reply from the real LLM/tool-calling path; switching the UI language
+    to Chinese and re-asking the identical text got back the *same* English
+    reply — because `_cache_key()` only combined `currentStationId` and the
+    message, so the second request was a cache hit on the first, and the
+    LLM was never called again to produce a Chinese answer). Root cause:
+    `_build_user_message()` (`backend/app/integrations/ai_client.py`)
+    sends three context fields into the prompt — `currentStationId`,
+    `selectedRoutePreference`, `language` — but `_cache_key()` only keyed
+    on the first. Fix: `_cache_key()` now folds in all three:
+    `f"{station}:{preference}:{language}:{normalized}"`. Also untracked
+    `frontend/tsconfig.tsbuildinfo` (a regenerated TypeScript incremental-
+    build cache file that had been accidentally committed, with no
+    `.gitignore` coverage) via `git rm --cached` and a new
+    `frontend/*.tsbuildinfo` entry in the root `.gitignore`. **Status:
+    done, verified** — 2 new tests confirm a language change and a route-
+    preference change each force a fresh LLM call instead of a cache hit
+    (239/240 passing overall — same pre-existing unrelated moderation
+    flake as phase 21).
+
 Not doing (out of scope for a hackathon app): Redis-backed distributed
 cache/rate-limit, self-hosted open-weight model, streaming responses,
 per-user auth-based quotas, Gemini/Anthropic tool-calling (phase 12 covers

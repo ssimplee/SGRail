@@ -571,8 +571,11 @@ class HybridProvider:
     @staticmethod
     def _cache_key(message: str, context: dict) -> str:
         normalized = re.sub(r"\s+", " ", message.strip().lower())
-        station = (context or {}).get("currentStationId") or ""
-        return f"{station}:{normalized}"
+        ctx = context or {}
+        station = ctx.get("currentStationId") or ""
+        preference = ctx.get("selectedRoutePreference") or ""
+        language = ctx.get("language") or ""
+        return f"{station}:{preference}:{language}:{normalized}"
 
     def _get_cached(self, key: str) -> dict | None:
         with self._lock:

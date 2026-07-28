@@ -350,6 +350,37 @@ def test_hybrid_provider_cache_hit_avoids_second_llm_call():
     assert first == second
 
 
+def test_hybrid_provider_cache_key_varies_by_language():
+    """Identical message + station but a different context.language must
+    not collide on the same cache entry — otherwise switching the UI
+    language and re-asking the same question silently replays the first
+    (wrong-language) answer instead of getting a fresh one."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    hybrid.chat("crowd level at Bishan", {"currentStationId": "bishan", "language": "en"})
+    hybrid.chat("crowd level at Bishan", {"currentStationId": "bishan", "language": "zh"})
+
+    assert stub.call_count == 2
+
+
+def test_hybrid_provider_cache_key_varies_by_route_preference():
+    """Identical message + station but a different selectedRoutePreference
+    must not collide on the same cache entry, for the same reason."""
+    stub = _StubLLMProvider()
+    hybrid = HybridProvider(stub)
+
+    hybrid.chat(
+        "plan a route", {"currentStationId": "bishan", "selectedRoutePreference": "FASTEST"}
+    )
+    hybrid.chat(
+        "plan a route",
+        {"currentStationId": "bishan", "selectedRoutePreference": "LEAST_CROWDED"},
+    )
+
+    assert stub.call_count == 2
+
+
 def test_hybrid_provider_daily_cap_forces_rule_based_fallback():
     """Once the daily call budget is exhausted, further OUT_OF_SCOPE
     messages fall back to the free rule-based assistant instead of the LLM."""
