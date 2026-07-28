@@ -4,7 +4,7 @@ import * as fc from "fast-check";
  * Property 7: Data Source Honesty
  *
  * Any data with non-"official" source is labelled Demo/Estimated/Community-reported/Historical — never "Live".
- * Only source="official" or source="live" produces the "Live" label.
+ * Only official live sources produce the "Live" label.
  *
  * **Validates: Requirements 1.2**
  */
@@ -36,6 +36,10 @@ const SOURCE_CONFIG: Record<string, { label: string; className: string }> = {
     className: "bg-green-100 text-green-800",
   },
   live: {
+    label: "Live",
+    className: "bg-green-100 text-green-800",
+  },
+  lta_datamall: {
     label: "Live",
     className: "bg-green-100 text-green-800",
   },
@@ -127,13 +131,23 @@ describe("Property 7: Data Source Honesty", () => {
     );
   });
 
-  it('for any random source string that is NOT "official" or "live", the resolved label is NOT "Live"', () => {
-    // Generate arbitrary strings that are not "official" or "live" (case-insensitive)
+  it('source "lta_datamall" -> label "Live"', () => {
+    fc.assert(
+      fc.property(fc.constant("lta_datamall"), (source) => {
+        const label = resolveLabel(source);
+        expect(label).toBe("Live");
+      }),
+      { numRuns: 50 }
+    );
+  });
+
+  it('for any random source string that is not official/live, the resolved label is NOT "Live"', () => {
+    // Generate arbitrary strings that are not known live sources (case-insensitive)
     const nonLiveSourceArb = fc
       .string({ minLength: 1, maxLength: 50 })
       .filter((s) => {
         const lower = s.toLowerCase();
-        return lower !== "official" && lower !== "live";
+        return lower !== "official" && lower !== "live" && lower !== "lta_datamall";
       });
 
     fc.assert(

@@ -9,6 +9,8 @@ from __future__ import annotations
 import threading
 from typing import Protocol
 
+from flask import current_app, has_app_context
+
 
 class CrowdProvider(Protocol):
     """Interface for crowd-level data providers."""
@@ -71,11 +73,19 @@ class AIProvider(Protocol):
 # ---------------------------------------------------------------------------
 
 
-def get_crowd_provider() -> CrowdProvider:
-    """Return the configured CrowdProvider implementation."""
+def _config_value(name: str, default=None):
+    """Read config from the active Flask app, falling back to BaseConfig."""
+    if has_app_context():
+        return current_app.config.get(name, default)
+
     from app.config import BaseConfig
 
-    if BaseConfig.DATA_PROVIDER == "live":
+    return getattr(BaseConfig, name, default)
+
+
+def get_crowd_provider() -> CrowdProvider:
+    """Return the configured CrowdProvider implementation."""
+    if _config_value("DATA_PROVIDER") == "live":
         # Future: return LTACrowdClient()
         pass
 
@@ -91,10 +101,8 @@ def get_location_provider() -> LocationProvider:
     credentials (ONEMAP_EMAIL, ONEMAP_PASSWORD) are configured.
     Falls back to MockLocationProvider otherwise.
     """
-    from app.config import BaseConfig
-
-    if BaseConfig.DATA_PROVIDER == "live":
-        if BaseConfig.ONEMAP_EMAIL and BaseConfig.ONEMAP_PASSWORD:
+    if _config_value("DATA_PROVIDER") == "live":
+        if _config_value("ONEMAP_EMAIL") and _config_value("ONEMAP_PASSWORD"):
             from app.integrations.onemap_client import OneMapClient
 
             return OneMapClient()
@@ -111,9 +119,7 @@ def get_rail_data_provider() -> RailDataProvider:
     LTA_ACCOUNT_KEY is configured.  Falls back to MockRailDataProvider
     otherwise.
     """
-    from app.config import BaseConfig
-
-    if BaseConfig.DATA_PROVIDER == "live" and BaseConfig.LTA_ACCOUNT_KEY:
+    if _config_value("DATA_PROVIDER") == "live" and _config_value("LTA_ACCOUNT_KEY"):
         from app.integrations.lta_client import LTADataMallClient
 
         return LTADataMallClient()
@@ -125,27 +131,28 @@ def get_rail_data_provider() -> RailDataProvider:
 
 def _build_llm_provider() -> AIProvider | None:
     """Construct the configured paid LLM provider, or None if unset."""
-    from app.config import BaseConfig
+    ai_provider = _config_value("AI_PROVIDER")
+    ai_api_key = _config_value("AI_API_KEY")
 
-    if BaseConfig.AI_PROVIDER == "openai":
+    if ai_provider == "openai":
         from app.integrations.ai_client import OpenAIProvider
 
-        return OpenAIProvider(api_key=BaseConfig.AI_API_KEY)
+        return OpenAIProvider(api_key=ai_api_key)
 
-    if BaseConfig.AI_PROVIDER == "gemini":
+    if ai_provider == "gemini":
         from app.integrations.ai_client import GeminiProvider
 
-        return GeminiProvider(api_key=BaseConfig.AI_API_KEY)
+        return GeminiProvider(api_key=ai_api_key)
 
-    if BaseConfig.AI_PROVIDER == "groq":
+    if ai_provider == "groq":
         from app.integrations.ai_client import GroqProvider
 
-        return GroqProvider(api_key=BaseConfig.AI_API_KEY)
+        return GroqProvider(api_key=ai_api_key)
 
-    if BaseConfig.AI_PROVIDER == "anthropic":
+    if ai_provider == "anthropic":
         from app.integrations.ai_client import AnthropicProvider
 
-        return AnthropicProvider(api_key=BaseConfig.AI_API_KEY)
+        return AnthropicProvider(api_key=ai_api_key)
 
     return None
 
@@ -163,9 +170,7 @@ def get_ai_provider() -> AIProvider:
     AI_API_KEY are set (classify-first routing + cache + daily cap on top
     of the paid provider). Falls back to the rule-based assistant otherwise.
     """
-    from app.config import BaseConfig
-
-    if BaseConfig.AI_API_KEY:
+    if _config_value("AI_API_KEY"):
         global _hybrid_provider
         if _hybrid_provider is None:
             with _hybrid_provider_lock:

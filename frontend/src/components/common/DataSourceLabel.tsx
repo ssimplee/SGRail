@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface DataSourceLabelProps {
-  /** The data source type: "demo", "estimated", "community", "live", "simulated", "historical", "official" */
+  /** The data source type: "demo", "estimated", "community", "live", "simulated", "historical", "official", "lta_datamall" */
   source: string;
   /** ISO 8601 timestamp of when the data was last updated */
   updatedAt?: string;
@@ -33,6 +33,10 @@ const SOURCE_CONFIG: Record<string, { label: string; className: string }> = {
     className: "bg-green-100 text-green-800",
   },
   live: {
+    label: "Live",
+    className: "bg-green-100 text-green-800",
+  },
+  lta_datamall: {
     label: "Live",
     className: "bg-green-100 text-green-800",
   },

@@ -56,6 +56,7 @@ export function useJourneyTracker(
   );
   const journeyStartTimeRef = useRef<number>(0);
   const currentSequenceIndexRef = useRef<number>(0);
+  const hasReachedStartRef = useRef<boolean>(false);
 
   /**
    * Start journey tracking.
@@ -65,6 +66,7 @@ export function useJourneyTracker(
     startWatch();
     journeyStartTimeRef.current = Date.now();
     currentSequenceIndexRef.current = 0;
+    hasReachedStartRef.current = false;
     setUserConfirmedIndex(null);
     setJourneyState({
       isTracking: true,
@@ -101,6 +103,7 @@ export function useJourneyTracker(
       if (stationIndex >= 0 && stationIndex < routeStops.length) {
         setUserConfirmedIndex(stationIndex);
         currentSequenceIndexRef.current = stationIndex;
+        hasReachedStartRef.current = true;
       }
     },
     [routeStops.length]
@@ -245,12 +248,57 @@ export function useJourneyTracker(
         nearestStation = nearest.station;
         distance = nearest.distance;
 
-        // Only advance forward in the route (prevent jumping back)
-        if (nearest.index >= currentSequenceIndexRef.current) {
+        // Only advance forward after the user has reached the boarding station.
+        if (hasReachedStartRef.current && nearest.index >= currentSequenceIndexRef.current) {
           nearestIndex = nearest.index;
           currentSequenceIndexRef.current = nearestIndex;
         }
       }
+    }
+
+    const startStop = routeStops[0];
+    const distanceToStart = location
+      ? haversineDistance(
+          location.latitude,
+          location.longitude,
+          startStop.station.latitude,
+          startStop.station.longitude
+        )
+      : null;
+
+    if (
+      !hasReachedStartRef.current &&
+      distanceToStart !== null &&
+      distanceToStart < trackerConfig.atStationThreshold
+    ) {
+      hasReachedStartRef.current = true;
+    }
+
+    if (!hasReachedStartRef.current) {
+      const confidence = calculateConfidence({
+        lastGpsDistanceToExpectedStation: distanceToStart,
+        timeSinceLastGps: location ? now - location.timestamp : now - journeyStartTimeRef.current,
+        expectedTravelTime: 0,
+        elapsedTime,
+        userConfirmedStation: false,
+        routeSequenceIndex: 0,
+        totalStops: routeStops.length,
+      });
+
+      const isNearStart =
+        distanceToStart !== null && distanceToStart < trackerConfig.approachThreshold;
+
+      setJourneyState({
+        isTracking: true,
+        currentPhase: confidence < 0.2 ? "location-uncertain" : "approaching-start",
+        nearestStation: nearestStation ?? startStop.station,
+        routeProgress: 0,
+        confidence,
+        nextAction: isNearStart
+          ? `Board train at ${startStop.station.name}`
+          : `Go to ${startStop.station.name} to board`,
+      });
+      return;
     }
 
     // Use user-confirmed index if available and more recent

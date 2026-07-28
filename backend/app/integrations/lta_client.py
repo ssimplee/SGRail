@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -144,6 +145,8 @@ class LTADataMallClient:
         status = cls._coerce_status(body.get("Status"))
         message, created_at = cls._extract_message(body.get("Message"))
         segments = body.get("AffectedSegments") or []
+        if not segments:
+            return cls._normalise_message_only_alerts(status, body.get("Message"))
 
         return [
             cls._normalise_segment(segment, status, message, created_at)
@@ -176,18 +179,68 @@ class LTADataMallClient:
         Returns:
             A ``(content, created_date)`` pair, blank when absent.
         """
-        if isinstance(raw, dict):
-            entries = [raw]
-        elif isinstance(raw, list):
-            entries = [m for m in raw if isinstance(m, dict)]
-        else:
-            return "", ""
-
+        entries = LTADataMallClient._message_entries(raw)
         if not entries:
             return "", ""
 
         latest = max(entries, key=lambda m: str(m.get("CreatedDate", "")))
         return str(latest.get("Content", "")), str(latest.get("CreatedDate", ""))
+
+    @staticmethod
+    def _message_entries(raw) -> list[dict]:
+        """Normalise the Message field to a list of message objects."""
+        if isinstance(raw, dict):
+            return [raw]
+        if isinstance(raw, list):
+            return [m for m in raw if isinstance(m, dict)]
+        return []
+
+    @classmethod
+    def _normalise_message_only_alerts(cls, status: int, raw_messages) -> list[dict]:
+        """Preserve official advisories that have no affected station segment.
+
+        LTA can publish planned service adjustments in the Message field while
+        leaving AffectedSegments empty.  Those are still useful network notices,
+        so emit a minor line-level alert when a line code can be inferred from
+        the advisory text.
+        """
+        alerts: list[dict] = []
+        for entry in cls._message_entries(raw_messages):
+            content = str(entry.get("Content", "")).strip()
+            lta_line = cls._extract_line_from_message(content)
+            if not content or not lta_line:
+                continue
+            alerts.append(
+                {
+                    "status": status,
+                    "ltaLine": lta_line,
+                    "direction": "",
+                    "stationCodes": [],
+                    "freePublicBusCodes": [],
+                    "freeMrtShuttleCodes": [],
+                    "mrtShuttleDirection": "",
+                    "message": content,
+                    "createdAt": str(entry.get("CreatedDate", "")),
+                    "source": "lta_datamall",
+                }
+            )
+        return alerts
+
+    @staticmethod
+    def _extract_line_from_message(content: str) -> str:
+        """Infer an LTA line code from advisory text."""
+        if not content:
+            return ""
+
+        known_lines = ("EWL", "NSL", "NEL", "CCL", "DTL", "TEL")
+        match = re.match(r"^\s*\d{1,2}:?\d{2}(?:hrs)?\s*[-:]\s*([A-Z]{2,5})\b", content)
+        if match and match.group(1).upper() in known_lines:
+            return match.group(1).upper()
+
+        for line in known_lines:
+            if re.search(rf"\b{line}\b", content, flags=re.IGNORECASE):
+                return line
+        return ""
 
     @staticmethod
     def _normalise_segment(
