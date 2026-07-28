@@ -29,6 +29,7 @@ Thumbs.db
 
 # Build output
 frontend/dist/
+frontend/*.tsbuildinfo
 backend/*.db
 
 # Uploads
