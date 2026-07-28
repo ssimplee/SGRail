@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ChevronDown,
   ChevronUp,
@@ -19,40 +20,67 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import type { RouteResult } from "@/types/route.types";
+import { getStationTimings } from "@/services/stations.api";
+import { estimateTrainHeadway } from "@/utils/trainHeadway";
+import { formatClock } from "@/utils/timeFormat";
+import type { RouteResult, TimeMode } from "@/types/route.types";
+import type { TimingEntry } from "@/components/station/TimingsSection";
 
 import { LastTrainWarning } from "./LastTrainWarning";
 import { RouteStepList } from "./RouteStepList";
 
-/**
- * Props for the RouteResultCard component.
- */
+export interface RoutePlanContext {
+  mode: TimeMode;
+  departureTime?: string;
+}
+
+function currentServiceDayType(date: Date): TimingEntry["dayType"] {
+  const weekday = new Intl.DateTimeFormat("en-SG", {
+    timeZone: "Asia/Singapore",
+    weekday: "short",
+  }).format(date);
+
+  if (weekday === "Sat") return "saturday";
+  if (weekday === "Sun") return "sunday_ph";
+  return "weekday";
+}
+
+function normalise(value?: string | null): string {
+  return (value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function getPlannedBoardingTime(
+  planContext: RoutePlanContext | undefined,
+  route: RouteResult,
+): Date | null {
+  if (!planContext) return null;
+  if (planContext.mode === "LEAVE_NOW") return new Date();
+  if (!planContext.departureTime) return null;
+
+  const selectedTime = new Date(planContext.departureTime);
+  if (Number.isNaN(selectedTime.getTime())) return null;
+
+  if (planContext.mode === "ARRIVE_BY") {
+    return new Date(selectedTime.getTime() - route.totalMinutes * 60_000);
+  }
+
+  return selectedTime;
+}
+
 export interface RouteResultCardProps {
   route: RouteResult;
   index: number;
   isSelected?: boolean;
+  planContext?: RoutePlanContext;
   onSelect?: () => void;
   onStartTracking?: () => void;
 }
 
-/**
- * A single route result card showing summary metrics and expandable step details.
- *
- * Features:
- * - Summary row: total time, stops, transfers, walking
- * - Crowd estimate badge
- * - Expandable step-by-step instructions
- * - Last train warnings (if any)
- * - "Start tracking" button to initiate journey tracking
- *
- * On mobile, cards are collapsible to save vertical space.
- *
- * Validates: Requirements 13.1–13.6, 14.2, 14.3, 14.4, 28.5
- */
 export function RouteResultCard({
   route,
   index,
   isSelected = false,
+  planContext,
   onSelect,
   onStartTracking,
 }: RouteResultCardProps) {
@@ -61,6 +89,56 @@ export function RouteResultCard({
   const hasWarnings = route.lastTrainWarnings && route.lastTrainWarnings.length > 0;
   const serviceAlerts = route.serviceAlerts ?? [];
   const hasServiceAlerts = serviceAlerts.length > 0;
+  const boardStep = useMemo(
+    () => route.steps.find((step) => step.type === "board") ?? null,
+    [route.steps],
+  );
+  const timingsQuery = useQuery({
+    queryKey: ["station-timings", boardStep?.stationId],
+    queryFn: () => getStationTimings(boardStep?.stationId ?? ""),
+    enabled: Boolean(boardStep?.stationId && planContext),
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 1,
+  });
+  const plannedServiceNotice = useMemo(() => {
+    if (!planContext || !boardStep) return null;
+
+    const plannedBoardingTime = getPlannedBoardingTime(planContext, route);
+    if (!plannedBoardingTime) return null;
+
+    const serviceDay = currentServiceDayType(plannedBoardingTime);
+    const timing = timingsQuery.data?.timings.find(
+      (entry) =>
+        entry.dayType === serviceDay &&
+        entry.line === boardStep.line &&
+        (normalise(entry.destination) === normalise(boardStep.direction) ||
+          normalise(entry.direction) === normalise(boardStep.direction)),
+    );
+
+    const estimate = estimateTrainHeadway(
+      plannedBoardingTime,
+      `${boardStep.line}:${boardStep.direction}`,
+      {
+        firstTrain: timing?.firstTrain,
+        lastTrain: timing?.lastTrain,
+      },
+    );
+
+    if (estimate.operating || !estimate.firstTrainAt) return null;
+
+    const adjustedArrival = new Date(
+      estimate.firstTrainAt.getTime() + route.totalMinutes * 60_000,
+    );
+
+    return {
+      boardingStation: boardStep.station ?? "boarding station",
+      plannedBoardingLabel: formatClock(plannedBoardingTime),
+      firstTrainLabel: estimate.firstTrainLabel ?? formatClock(estimate.firstTrainAt),
+      estimatedArrivalLabel: formatClock(adjustedArrival),
+      mode: planContext.mode,
+    };
+  }, [boardStep, planContext, route, timingsQuery.data]);
+  const hasPlannedServiceNotice = Boolean(plannedServiceNotice);
 
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
@@ -68,21 +146,19 @@ export function RouteResultCard({
         className={cn(
           "overflow-hidden transition-shadow",
           isSelected && "ring-2 ring-primary",
-          (hasWarnings || hasServiceAlerts) && "border-amber-200",
+          (hasWarnings || hasServiceAlerts || hasPlannedServiceNotice) && "border-amber-200",
         )}
         role="article"
         aria-label={`Route option ${index + 1}: ${route.totalMinutes} minutes, ${route.transfers} transfer${route.transfers !== 1 ? "s" : ""}`}
       >
-        {/* Summary header — always visible */}
         <CollapsibleTrigger asChild>
           <button
-            className="flex w-full items-center justify-between gap-3 p-4 text-left hover:bg-accent/50 transition-colors"
+            className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/50"
             onClick={onSelect}
             aria-expanded={isExpanded}
           >
             <div className="flex flex-1 flex-col gap-2">
-              {/* Route label */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   Route {index + 1}
                 </span>
@@ -94,12 +170,16 @@ export function RouteResultCard({
                 )}
                 {hasWarnings && (
                   <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                    ⚠ Timing warning
+                    Timing warning
+                  </span>
+                )}
+                {hasPlannedServiceNotice && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                    Service starts later
                   </span>
                 )}
               </div>
 
-              {/* Summary metrics */}
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <span className="flex items-center gap-1 font-semibold">
                   <Clock className="size-3.5" />
@@ -111,7 +191,7 @@ export function RouteResultCard({
                 </span>
                 {route.transfers > 0 && (
                   <span className="flex items-center gap-1 text-muted-foreground">
-                    ↔ {route.transfers} transfer{route.transfers !== 1 ? "s" : ""}
+                    {route.transfers} transfer{route.transfers !== 1 ? "s" : ""}
                   </span>
                 )}
                 {route.walkingMinutes > 0 && (
@@ -122,7 +202,6 @@ export function RouteResultCard({
                 )}
               </div>
 
-              {/* Crowd and fare info */}
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 {route.crowdEstimate && (
                   <span className="flex items-center gap-1">
@@ -130,13 +209,10 @@ export function RouteResultCard({
                     {route.crowdEstimate}
                   </span>
                 )}
-                {route.estimatedFare && (
-                  <span>~{route.estimatedFare}</span>
-                )}
+                {route.estimatedFare && <span>~{route.estimatedFare}</span>}
               </div>
             </div>
 
-            {/* Expand/collapse indicator */}
             <div className="shrink-0 text-muted-foreground">
               {isExpanded ? (
                 <ChevronUp className="size-5" />
@@ -147,17 +223,36 @@ export function RouteResultCard({
           </button>
         </CollapsibleTrigger>
 
-        {/* Expandable detail content */}
         <CollapsibleContent>
           <div className="border-t px-4 pb-4 pt-3">
-            {/* Last train warnings */}
             {hasWarnings && (
               <div className="mb-3">
                 <LastTrainWarning warnings={route.lastTrainWarnings} />
               </div>
             )}
 
-            {/* Accessibility warnings */}
+            {plannedServiceNotice && (
+              <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                <div className="flex items-center gap-2 font-semibold">
+                  <AlertTriangle className="size-4 text-amber-600" />
+                  Train service not operating at the selected time
+                </div>
+                <p className="mt-1 leading-relaxed">
+                  {plannedServiceNotice.mode === "ARRIVE_BY"
+                    ? `To arrive by your selected time, you would need to board around ${plannedServiceNotice.plannedBoardingLabel}, before service starts.`
+                    : `Your selected departure time is ${plannedServiceNotice.plannedBoardingLabel}, before service starts.`}
+                </p>
+                <p className="mt-1 font-medium">
+                  First from {plannedServiceNotice.boardingStation}:{" "}
+                  {plannedServiceNotice.firstTrainLabel}
+                </p>
+                <p className="mt-0.5">
+                  Estimated arrival if you take the first train:{" "}
+                  {plannedServiceNotice.estimatedArrivalLabel}
+                </p>
+              </div>
+            )}
+
             {route.accessibilityWarnings && route.accessibilityWarnings.length > 0 && (
               <div className="mb-3 flex flex-col gap-1">
                 {route.accessibilityWarnings.map((warning, i) => (
@@ -165,14 +260,12 @@ export function RouteResultCard({
                     key={i}
                     className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800"
                   >
-                    <span>♿</span>
                     <span>{warning.message} ({warning.station})</span>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Live service notices affecting this route */}
             {hasServiceAlerts && (
               <div className="mb-3 flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
                 <div className="flex flex-wrap items-center gap-2">
@@ -192,17 +285,14 @@ export function RouteResultCard({
               </div>
             )}
 
-            {/* Step-by-step route instructions */}
             <RouteStepList steps={route.steps} />
 
-            {/* Data freshness */}
             {route.dataFreshness && (
               <p className="mt-2 text-[10px] text-muted-foreground">
-                Data as of {new Date(route.dataFreshness).toLocaleTimeString()}
+                Data as of {formatClock(route.dataFreshness)}
               </p>
             )}
 
-            {/* Start tracking button */}
             {onStartTracking && (
               <Button
                 onClick={onStartTracking}
@@ -221,21 +311,17 @@ export function RouteResultCard({
   );
 }
 
-/**
- * Props for the RouteResultList component.
- */
 export interface RouteResultListProps {
   routes: RouteResult[];
+  planContext?: RoutePlanContext;
   onStartTracking?: (routeIndex: number) => void;
 }
 
-/**
- * Renders a list of route results, showing the primary route expanded
- * and alternative routes collapsed.
- *
- * Validates: Requirements 13.6 (alternative routes)
- */
-export function RouteResultList({ routes, onStartTracking }: RouteResultListProps) {
+export function RouteResultList({
+  routes,
+  planContext,
+  onStartTracking,
+}: RouteResultListProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   if (!routes || routes.length === 0) {
@@ -260,6 +346,7 @@ export function RouteResultList({ routes, onStartTracking }: RouteResultListProp
           route={route}
           index={index}
           isSelected={index === selectedIndex}
+          planContext={planContext}
           onSelect={() => setSelectedIndex(index)}
           onStartTracking={
             onStartTracking ? () => onStartTracking(index) : undefined

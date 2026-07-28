@@ -138,6 +138,8 @@ export function RoutePage() {
   const [lastRequest, setLastRequest] = useState<{
     originStationId: string;
     destinationStationId: string;
+    mode: "LEAVE_NOW" | "LEAVE_AT" | "ARRIVE_BY";
+    departureTime?: string;
   } | null>(null);
   const [pendingRouteIndex, setPendingRouteIndex] = useState<number | null>(null);
 
@@ -190,6 +192,8 @@ export function RoutePage() {
       setLastRequest({
         originStationId: params.originStationId,
         destinationStationId: params.destinationStationId,
+        mode: params.mode,
+        departureTime: params.departureTime,
       });
       planRoute({
         ...params,
@@ -360,6 +364,14 @@ export function RoutePage() {
           {/* Route list */}
           <RouteResultList
             routes={routes}
+            planContext={
+              lastRequest
+                ? {
+                    mode: lastRequest.mode,
+                    departureTime: lastRequest.departureTime,
+                  }
+                : undefined
+            }
             onStartTracking={handleStartTracking}
           />
         </div>
